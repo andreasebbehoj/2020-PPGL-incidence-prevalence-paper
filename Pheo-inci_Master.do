@@ -1,5 +1,5 @@
 ***** pheo-inci_Master.do *****
-/*
+/*** Introduction
 Some text
 
 */
@@ -14,17 +14,83 @@ net install mat2txt.pkg
 tab2xl2, from(https://github.com/leonardoshibata/tab2xl2/blob/master/) replace
 */
 
-
+*** Initialize do file
 version 16
 set more off
 clear
 file close _all
 
 
-*** Import data on cohort
-	// Import ppgl cohort from REDCap database
-	// Stored in ppgl_incident.dta and ppgl_prevalent.dta
-do Pheo-inci_ImportRedcap.do
+*** Prepare data on cohort
+** Import from ReDCap
+	// Stored in redcap.dta (with patient identifiable data)
+do Pheo-inci_ImportRedcap.do 
+
+** Define cohort and study variables
+	// Restrict data to incident/prevalent PPGL
+	// Stored in ppgl_cohort.dta (without PID)
+
+* End of study period
+global lastyear = 2015
+
+* Study period (10-year intervals)
+global period10ycat = 	`"(1977/1986=1 "1977-1986")"' ///
+						+ `" (1987/1996=2 "1987-1996")"' ///
+						+ `" (1997/2006=3 "1997-2006")"' ///
+						+ `" (2007/${lastyear}=4 "2007-${lastyear}")"' //
+
+* Study period (first 3 periods vs last period)
+global period2cat =		`"(1977/2006=1 "1977-2006")"' ///
+						+ `" (2007/${lastyear}=2 "2007-${lastyear}")"' //
+
+* Age categories
+global agecat = `"(0/24.999=1 "<25")"' ///
+				+ `" (25/49.999=2 "25-49")"' ///
+				+ `" (50/74.999=3 "50-74")"' ///
+				+ `" (75/100=4 ">75")"'
+
+* Mode of discovery grouping
+numlabel mod_, add
+tab mod
+global modcat = `"(1 3 4=1 "Symptoms")"' ///
+				+ `" (2=2 "Hypertension")"' ///
+				+ `" (20=3 "Adrenal incidentaloma")"' ///
+				+ `" (30 31=4 "Cancer imaging")"' ///
+				+ `" (40 41=5 "Genetic")"' ///
+				+ `" (50=6 "Autopsy")"' ///
+				+ `" (60 61 62 63 64 66=7 "Other")"' ///
+				+ `" (98 99=8 "Unknown")"' //
+				
+* Tumor size (largest diameter)
+global sizecat = `"(0/1.999=1 "<2 cm")"' ///
+					+ `" (2/3.999=2 "2-3.9 cm")"' ///
+					+ `" (4/5.999=3 "4-5.9 cm")"' ///
+					+ `" (6/7.999=4 "6-7.9 cm")"' ///
+					+ `" (8/9.999=5 "8-9.9 cm")"' ///
+					+ `" (10/50=6 ">10 cm")"' ///
+					+`" (.=.a "Missing")"'
+
+* Tumor location
+	// tumorcat = 1: Single pheo, 2: single para, 3: bilat pheo, 4: multiple para, .a: missing
+	// Defined in Pheo-inci_CohortAndVars.do
+
+* Symptoms
+	// sympcat = 1: Classic triad, 2: 1-2 of classic symptoms, 3: other paroxystic symptoms, 4: no paroxystic symptoms, .a: missing
+	// Defined in Pheo-inci_CohortAndVars.do
+
+
+
+
+do Pheo-inci_CohortAndVars.do
+
+
+
+
+*** Prepare population data
+** Danish population
+
+
+** EU standard population
 
 
 *** Prepare data
