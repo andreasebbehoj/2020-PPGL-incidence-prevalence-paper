@@ -26,6 +26,7 @@ file close _all
 	// Stored in redcap.dta (with patient identifiable data)
 do Pheo-inci_ImportRedcap.do 
 
+
 ** Define cohort and study variables
 	// Restrict data to incident/prevalent PPGL
 	// Stored in ppgl_cohort.dta (without PID)
@@ -70,17 +71,37 @@ global sizecat = `"(0/1.999=1 "<2 cm")"' ///
 					+ `" (10/50=6 ">10 cm")"' ///
 					+`" (.=.a "Missing")"'
 
-* Tumor location
-	// tumorcat = 1: Single pheo, 2: single para, 3: bilat pheo, 4: multiple para, .a: missing
-	// Defined in Pheo-inci_CohortAndVars.do
+* Biochemical profile
+global biocat = `"(1=1 "NE only")"' ///
+					+ `" (2=2 "E only")"' ///
+					+ `" (3=3 "Both NE and E")"' ///
+					+ `" (98=.a "Not found")"' ///
+					+ `" (4=.b "Unspecified (NE+E measured together)")"' ///
+					+ `" (7=.c "Never tested")"' //
 
-* Symptoms
-	// sympcat = 1: Classic triad, 2: 1-2 of classic symptoms, 3: other paroxystic symptoms, 4: no paroxystic symptoms, .a: missing
-	// Defined in Pheo-inci_CohortAndVars.do
+/* Tumor location
+tumorcat: 
+	1: single pheo
+	2: single para
+	3: bilat pheo
+	4: multiple para
+	.a: missing
+Defined in Pheo-inci_CohortAndVars.do */
+
+
+/* Symptoms
+sympcat:
+	1: all three of classic symptoms 
+	2: 1-2 of classic symptoms
+	3: 1 or more other paroxysmal symptom
+	4: no paroxysmal symptoms described 
+	.a: Missing
+Defined in Pheo-inci_CohortAndVars.do */
 
 
 
 
+** Run do file
 do Pheo-inci_CohortAndVars.do
 
 

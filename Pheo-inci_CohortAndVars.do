@@ -36,9 +36,6 @@ count if ppgl_incident==1 // 588, as reported in validation article (Ebbehoj A 2
 drop if year_index>${lastyear} // 21 diagnosed after 2015 removed
 
 
-order ppgl* year_index cohort cohort_simple, after(d_foddato)
-
-
 *** Define variables
 * Study period (10-year intervals)
 recode year_index $period10ycat, gen(period10y) label(period10y_)
@@ -61,9 +58,9 @@ recode mod $modcat, gen(modcat) label(modcat_)
 label var modcat "Mode of discovery"
 
 * Tumor size
-egen tumo_sizemax = rowmax(tumo_size*)
-recode tumo_sizemax $sizecat, gen(sizecat) label(sizecat_)
-label var tumo_sizemax "Tumor size"
+egen sizemax = rowmax(tumo_size*)
+recode sizemax $sizecat, gen(sizecat) label(sizecat_)
+label var sizemax "Tumor size"
 label var sizecat "Tumor size"
 
 * Tumor location
@@ -81,29 +78,65 @@ label define tumorcat_ ///
 	, replace
 label value tumorcat tumorcat_
 
-* Paroxystic symptoms
-gen sympcat = 1 if symp_head==1 & symp_sweat==1 & symp_palp==1 // headache, sweating and palpitations
 
-recode sympcat (.=2) if symp_head==1 | symp_head==1 | symp_sweat==1 // 1-2 of headache, sweating or palpitations
+/* Paroxystic symptoms
+Data recorded on 
+- Classic symptoms: paroxysmal headache, sweating and palpitations
+- Other symptoms: flushing, whitening, nausea, abdominal pain, dyspnea, syncope, lightheadedness, chest pain, tremor, or unspecified "attacks"
 
-recode sympcat (.=3) if inlist(1, symp_flush, symp_white, symp_naus, symp_abdo, symp_dysp,  symp_sync, symp_chest, symp_tremor, symp_sync, symp_light, symp_atta) // 1 or more other paroxcystic symp (flushing, whitening, nausea, abdominal pain, dyspnea, syncope, lightheadedness, chest pain, tremor, or unspecified "attacks")
+symp_x:
+	1: Present and paroxysmal
+	2: Present but not paroxysmal
+	3: Present, unspecied if paroxysmal or not (treated as not paroxysmal)
+	4: Not present, 
+	98: Health records missing
+	99: Unspecified in records if present (treated as not present)
+*/
+gen sympcat = 1 if /// classic triad
+	symp_head==1 & symp_sweat==1 & symp_palp==1 
 
-foreach symp in symp_atta symp_palp symp_head symp_sweat symp_light symp_white symp_flush symp_sync symp_naus symp_chest symp_abdo symp_tremor symp_dysp {
-	qui: recode sympcat (.=4) if inlist(`symp', 2, 4, 99) // 2: present but not paroxcystic, 4: Not present, 99: unspecified in records if present
+recode sympcat (.=2) if /// 1-2 classic symp
+	symp_head==1 | symp_head==1 | symp_sweat==1
+
+recode sympcat (.=3) if /// other paroxysmal symp
+	inlist(1, symp_flush, symp_white, symp_naus, symp_abdo, symp_dysp, symp_sync, symp_chest, symp_tremor, symp_sync, symp_light, symp_atta) 
+
+foreach symp in /// no paroxysmal symp
+	symp_palp symp_head symp_sweat symp_light symp_white symp_flush ///
+	symp_sync symp_naus symp_chest symp_abdo symp_tremor symp_dysp symp_atta {
+	qui: recode sympcat (.=4) if inlist(`symp', 2, 4, 99) 
 }
 
-recode sympcat (.=.a) if inlist(98, symp_atta, symp_palp, symp_head, symp_sweat, symp_light, symp_white, symp_flush, symp_sync, symp_naus, symp_chest, symp_abdo, symp_tremor, symp_dysp) // Health reocrds not found
+recode sympcat (.=.a) if inlist(98, /// health records not found
+	symp_palp, symp_head, symp_sweat, symp_light, symp_white, symp_flush, ///
+	symp_sync, symp_naus, symp_chest, symp_abdo, symp_tremor, symp_dysp, symp_atta) 
+
+* Years of symptoms before diagnosis
+gen sympyears = (date_index-date_symp)/365.25
+label var sympyears "Years with symptoms"
+
+* Biochemical profile
+recode tumo_bioc ${biocat}, gen(biocat) label(biocat_)
+label var biocat "Biochemical profile"
+
+* Biochemical elevation
+egen biomax = rowmax(tumo_bioc_ne tumo_bioc_e tumo_bioc_uns)
+label var biomax "Biochemical increase above lab range"
+
+* Surgery 
+// To be continued..
 
 
 
-
-*** Remove superfluous/PID variables
-drop cpr rec_nr *_comm_* *_comm *_kommentarer /// Sensitive data 
-	ppgl exclude algo_* vali_* /// Validation data
+*** Remove superfluous variables
+drop cpr id rec_nr *_comm_* *_comm *_kommentarer d_foddato include_kom c_status d_status /// Sensitive data 
+	tumo_numb tumo_loc* tumo_size* tumo_late* tumo_bioc symp_* /// Aggregated in code above
+	date_symp date_index date_diag date_recu* date_surg* /// Aggregated in code above
+	ppgl cohort exclude algo_* vali_* ext_algosample /// Validation data
 	from_* all_* allhighrisk* allfirstdate* /// Details on inclusion criteria 
-	pato_* immuno_* datediagnosispato gen_performed gen_mut_* gen_report *_complete // Irrelevant 
+	pato_* immuno_* datediagnosispato gen_performed gen_mut_* gen_report *_complete obta_* regeval_surg // Irrelevant for study
 	
 
-
-
-save ppgl_cohort.dta, replace
+*** Save data
+order cohort_simple ppgl* include_reg year_index period* age* sex mod* size* symp* bio* tumo*
+save ppgl_cohort_pid.dta, replace
