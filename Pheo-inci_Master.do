@@ -46,8 +46,6 @@ global agecat = `"(0/24.999=1 "<25")"' ///
 				+ `" (75/100=4 ">75")"'
 
 * Mode of discovery grouping
-numlabel mod_, add
-tab mod
 global modcat = `"(1 3 4=1 "Symptoms")"' ///
 				+ `" (2=2 "Hypertension")"' ///
 				+ `" (20=3 "Adrenal incidentaloma")"' ///
