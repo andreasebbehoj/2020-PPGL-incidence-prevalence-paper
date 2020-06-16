@@ -1,5 +1,5 @@
 ***** Pheo-inci_CohortAndVars.do *****
-use redcap.dta, clear
+use cohort_alldata.dta, clear
 
 
 *** Define cohort
@@ -160,4 +160,4 @@ putdocx save Results_TextPatientFlow, replace
 
 ** Stata
 order cohort_simple ppgl* include_reg year_index period* age* sex mod* size* symp* bio* tumo*
-save ppgl_cohort_pid.dta, replace
+save cohort_ppgl.dta, replace
