@@ -19,6 +19,7 @@ file close _all
 /*** Install necessary packages
 net install github, from("https://haghish.github.io/github/")
 github install andreasebbehoj/dstpop
+ssc install grstyle
 net install mat2txt.pkg
 tab2xl2, from(https://github.com/leonardoshibata/tab2xl2/blob/master/) replace
 */
@@ -98,10 +99,10 @@ Defined in Pheo-inci_CohortAndVars.do */
 ***** 3) IMPORT AND PREPARE DATA
 /*
 This section: 
-1) Import data on Danish population from Statistics Denmark
-2) Define European Standard population
-3) Import clinical data on PPGL patients from a REDCap database
-4) Generate study variables and restrict to final PPGL cohort
+- Import data on Danish population from Statistics Denmark
+- Define European Standard population
+- Import clinical data on PPGL patients from a REDCap database
+- Generate study variables and restrict to final PPGL cohort
 */
 
 ** Danish population
@@ -122,22 +123,28 @@ do Pheo-inci_CohortAndVars.do
 ***** 4) Analysis
 /*
 This section: 
-1) Makes calculations for text 
-2) Export tables 
-3) Export graphs
-4) Combines results in a single report
+- Defines common settings for figures and tables
+- Makes calculations for text 
+- Export tables 
+- Export graphs
+- Generate supplementary results
+- Combines results in a single report
 */
 
-** Table - Baseline
+** Common settings for all figures
+do Pheo-inci_FigTabLayout.do
+
+** Baseline
 
 
-** Figure - SIR overall
+** SIR overall
+do Pheo-inci_SirOverall.do
 
-
-** Figure - SIR by MoD
+** SIR by MoD
 
 
 ** Combine report
+do Pheo-inci_Report.do
 
 
 window manage close graph _all

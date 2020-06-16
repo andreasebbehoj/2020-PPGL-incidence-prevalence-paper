@@ -150,7 +150,7 @@ drop cpr id rec_nr *_comm_* *_comm *_kommentarer d_foddato include_kom c_status 
 *** Save data
 ** Report
 putdocx begin
-putdocx paragraph, style(Heading1)
+putdocx paragraph, style(Heading2)
 putdocx text ("Patient flow")
 putdocx paragraph
 putdocx text ("Total PPGL cohort from 1977-2016 was `incitotal' (Ebbehoj A 2018, Clin Epidemiol). ")
