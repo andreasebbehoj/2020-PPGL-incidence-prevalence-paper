@@ -20,7 +20,6 @@ set more off
 clear
 file close _all
 
-
 *** Prepare data on cohort
 ** Import from ReDCap
 	// Stored in redcap.dta (with patient identifiable data)
@@ -99,8 +98,6 @@ sympcat:
 Defined in Pheo-inci_CohortAndVars.do */
 
 
-
-
 ** Run do file
 do Pheo-inci_CohortAndVars.do
 
@@ -126,5 +123,7 @@ do Pheo-inci_CohortAndVars.do
 *** Table 1
 
 
-*****
+***** Combine report
+
+
 window manage close graph _all

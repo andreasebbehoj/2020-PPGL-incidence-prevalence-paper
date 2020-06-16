@@ -1,6 +1,7 @@
 ***** Pheo-inci_CohortAndVars.do *****
 use redcap.dta, clear
 
+
 *** Define cohort
 ** Study area
 recode cohort (1 2 5 = 1 "North/Central Region") (3=2 "Remaining DK"), gen(cohort_simple)
@@ -30,13 +31,8 @@ gen ppgl_incident = 1 if ///
 	| cohort_simple==2 & algo_9l==1 & ext_algosample==1 & inlist(ppgl, 0, 2)==0 // 
 recode ppgl_incident (.=0)
 
-** Removing non-PPGL patients
-keep if inlist(1, ppgl_incident, ppgl_prevalent)
-count if ppgl_incident==1 // 588, as reported in validation article (Ebbehoj A 2018, Clin Epidemiol)
-drop if year_index>${lastyear} // 21 diagnosed after 2015 removed
 
-
-*** Define variables
+*** Define study variables
 * Study period (10-year intervals)
 recode year_index $period10ycat, gen(period10y) label(period10y_)
 label var period10y "Study period 10-year intervals"
@@ -127,6 +123,20 @@ label var biomax "Biochemical increase above lab range"
 // To be continued..
 
 
+*** Restrict to PPGL patients
+keep if inlist(1, ppgl_incident, ppgl_prevalent)
+
+count if ppgl_incident==1
+local incitotal=`r(N)'
+count if year_index>${lastyear} // Patients diagnosed after 2015 removed
+local afterlastyear=`r(N)'
+
+drop if year_index>${lastyear}
+
+count if ppgl_incident==1
+local incifinal=`r(N)'
+count if ppgl_prevalent==1 
+local prevfinal=`r(N)'
 
 *** Remove superfluous variables
 drop cpr id rec_nr *_comm_* *_comm *_kommentarer d_foddato include_kom c_status d_status /// Sensitive data 
@@ -138,5 +148,16 @@ drop cpr id rec_nr *_comm_* *_comm *_kommentarer d_foddato include_kom c_status 
 	
 
 *** Save data
+** Report
+putdocx begin
+putdocx paragraph, style(Heading1)
+putdocx text ("Patient flow")
+putdocx paragraph
+putdocx text ("Total PPGL cohort from 1977-2016 was `incitotal' (Ebbehoj A 2018, Clin Epidemiol). ")
+putdocx text ("We excluded `afterlastyear' patients diagnosed after ${lastyear}. ")
+putdocx text ("Final cohort in this study was `incitotal' incident cases of PPGL and `prevfinal' prevalent cases. "), linebreak
+putdocx save results_patientflow, replace
+
+** Stata
 order cohort_simple ppgl* include_reg year_index period* age* sex mod* size* symp* bio* tumo*
 save ppgl_cohort_pid.dta, replace
