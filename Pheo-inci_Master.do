@@ -1,35 +1,31 @@
 ***** pheo-inci_Master.do *****
-/*** Introduction
-Some text
+/*
+This do file runs the analyzing for the paper on Incidence and Prevalence of PPGL by Ebbehoj et al, 2020. 
 
+The do-file is split in four sections: 
+1) Stata setup
+2) Define study variables 
+3) Import and prepare data
+4) Analysis
 */
 
-/*** Install necessary packages
-** For importing Danish population
-net install github, from("https://haghish.github.io/github/")
-github install andreasebbehoj/dstpop
 
-** For exporting tables
-net install mat2txt.pkg
-tab2xl2, from(https://github.com/leonardoshibata/tab2xl2/blob/master/) replace
-*/
-
-*** Initialize do file
+***** 1) STATA SETUP
 version 16
 set more off
 clear
 file close _all
 
-*** Prepare data on cohort
-** Import from ReDCap
-	// Stored in redcap.dta (with patient identifiable data)
-do Pheo-inci_ImportRedcap.do 
+/*** Install necessary packages
+net install github, from("https://haghish.github.io/github/")
+github install andreasebbehoj/dstpop
+net install mat2txt.pkg
+tab2xl2, from(https://github.com/leonardoshibata/tab2xl2/blob/master/) replace
+*/
 
 
-** Define cohort and study variables
-	// Restrict data to incident/prevalent PPGL
-	// Stored in ppgl_cohort.dta (without PID)
 
+***** 2) DEFINE STUDY VARIABLES
 * End of study period
 global lastyear = 2015
 
@@ -98,32 +94,52 @@ sympcat:
 Defined in Pheo-inci_CohortAndVars.do */
 
 
-** Run do file
+
+
+
+***** 3) IMPORT AND PREPARE DATA
+/*
+This section: 
+1) Import data on Danish population from Statistics Denmark
+2) Define European Standard population
+3) Import clinical data on PPGL patients from a REDCap database
+4) Generate study variables and restrict to final PPGL cohort
+*/
+
+** Danish population
+do Pheo-inci_PopDK.do
+
+** EU standard population
+do Pheo-inci_PopEU.do
+
+** Import PPGL patients from ReDCap
+do Pheo-inci_ImportRedcap.do 
+
+** Generate study variables and restrict to cohort
 do Pheo-inci_CohortAndVars.do
 
 
 
 
-*** Prepare population data
-** Danish population
+***** 4) Analysis
+/*
+This section: 
+1) Makes calculations for text 
+2) Export tables 
+3) Export graphs
+4) Combines results in a single report
+*/
+
+** Table - Baseline
 
 
-** EU standard population
+** Figure - SIR overall
 
 
-*** Prepare data
+** Figure - SIR by MoD
 
 
-*** Figure 1
-
-
-*** Figure 2
-
-
-*** Table 1
-
-
-***** Combine report
+** Combine report
 
 
 window manage close graph _all
