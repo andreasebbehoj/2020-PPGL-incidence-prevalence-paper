@@ -57,13 +57,10 @@ global modcat = `"(1 3 4=1 "Symptoms")"' ///
 				+ `" (98 99=8 "Unknown")"' //
 				
 * Tumor size (largest diameter)
-global sizecat = `"(0/1.999=1 "<2 cm")"' ///
-					+ `" (2/3.999=2 "2-3.9 cm")"' ///
-					+ `" (4/5.999=3 "4-5.9 cm")"' ///
-					+ `" (6/7.999=4 "6-7.9 cm")"' ///
-					+ `" (8/9.999=5 "8-9.9 cm")"' ///
-					+ `" (10/50=6 "{&ge}10 cm")"' ///
-					+`" (.=.a "Missing")"'
+global sizecat = `"(0/3.999=1 "<4 cm")"' ///
+					+ `" (4/7.999=2 "4-7.9 cm")"' ///
+					+ `" (8/50=3 "{&ge}8 cm")"' ///
+					+`" (.=4 "Missing")"'
 
 * Biochemical profile
 global biocat = `"(1=1 "NE only")"' ///
@@ -148,6 +145,10 @@ do 4_SirByMod.do
 
 ** SIR by symptoms
 do 4_SirBySymp.do
+
+** SIR by tumor size
+do 4_SirBySize.do
+
 
 
 
