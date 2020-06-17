@@ -69,18 +69,18 @@ foreach var in `r(varlist)' {
 
 ** Graph (SIR per year)
 twoway ///
-	(scatter sir_yAdjuste Year, mcolor(${colour1})) /// mean
-	(rcap sir_yLeft sir_yRight Year, lcolor(${colour1})) /// 95% CI
+	(scatter sir_yAdjuste Year, mcolor(${color1})) /// mean
+	(rcap sir_yLeft sir_yRight Year, lcolor(${color1})) /// 95% CI
 	, legend(off) /// legend 
 	xlabel(1977 "1977" 1982 "1982" 1987 "1987" 1992 "1992" 1997 "1997" 2002 "2002" 2007 "2007" 2012 "2012" $lastyear "$lastyear") ///
 	xmtick(1977(1)$lastyear) ///
 	ylabel(0(1)10) ///
 	ytitle("Age-standardized IR" "per 1,000,000 years") //
-graph export fig_SirByYear${exportformat} ${exportoptions}
+graph export Results_FigSirByYear${exportformat} ${exportoptions}
 
 putdocx begin
 putdocx paragraph, halign(center)
-putdocx image fig_SirByYear${exportformat}, height(5 in)
+putdocx image Results_FigSirByYear${exportformat}, height(5 in)
 putdocx save Results_FigSirByYear, replace
 
 

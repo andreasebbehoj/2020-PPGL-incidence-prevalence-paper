@@ -19,7 +19,9 @@ file close _all
 /*** Install necessary packages
 net install github, from("https://haghish.github.io/github/")
 github install andreasebbehoj/dstpop
-ssc install grstyle
+ssc install grstyle, replace
+ssc install palettes, replace
+ssc install colrspace, replace
 */
 
 

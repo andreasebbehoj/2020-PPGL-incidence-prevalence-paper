@@ -6,27 +6,35 @@ set scheme s2color
 grstyle init graphlayout, replace
 grstyle set plain // No plot region color, white background + other tweaks
 
-* Size 
+** Size 
 grstyle set graphsize 560pt 1200pt // in pixels, default is 5.5 inches *72 pt/inch = 396pt
 grstyle set symbolsize small
 grstyle set size 25pt: axis_title // X and Y axis text size
 
-* Axis
+** Axis
 grstyle anglestyle vertical_tick horizontal // Horizontal "tick"text on y-axis
 grstyle color major_grid gs11 // colour of horizontal lines
 
-* Legend
+** Legend
 grstyle set legend ///
 	10, /// clock position of legend (1-12).
 	nobox /// no legend background
 	inside // inside plotregion
 
-* Colors
-global colour1 = "navy" 
-global colour2 = "gs9" 
-global colour3 = "gs12" 
+** Colors
+* Graphs with 1 color
+global color1 = "navy" 
 
-* Export
+* Graphs with 3 colors
+global color3_1 = "navy"
+global color3_2 = "gs9" 
+global color3_3 = "gs12" 
+
+* Graphs with 8 colors
+colorpalette tfl, n(8) globals(, prefix(color8_) nonames)
+
+
+** Export
 graph set eps logo off
 global exportformat = ".png" 
 global exportoptions = ", replace width(1200)"

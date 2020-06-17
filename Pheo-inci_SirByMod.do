@@ -54,7 +54,9 @@ bysort Period (ModeOfDiscovery): gen sir = sum(sirAdjusted) if sirAdjusted!=0 //
 qui: su ModeOfDiscovery 
 local legendorder = `r(max)'
 forvalues mod = 1(1)`r(max)' {
-		local twoway = "(bar sir Period if ModeOfDiscovery==`mod') `twoway'"
+		local twoway = "(bar sir Period if ModeOfDiscovery==`mod'" /// bar chart
+					+ `", lcolor(none) fcolor(${color8_`mod'})) "' /// Colors
+					+ `"`twoway'"' // Append
 		local legend = `"`legendorder' "`: label modcat_ `mod''" `legend'"'
 		local legendorder = `legendorder'-1
 }
@@ -67,7 +69,7 @@ foreach per in `r(levels)' {
 }
 
 * Export
-di "`twoway'" _n(2) `"`legend'"' _n(2) `"`xlabel'"'
+di `"`twoway'"' _n(2) `"`legend'"' _n(2) `"`xlabel'"'
 twoway `twoway', ///
 	legend(on col(2) order(`legend') ) ///
 	xlabel(`xlabel') ///
