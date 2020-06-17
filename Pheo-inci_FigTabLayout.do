@@ -30,6 +30,12 @@ global color3_1 = "navy"
 global color3_2 = "gs9" 
 global color3_3 = "gs12" 
 
+* Graphs with 4 colors
+global color4_1 = "navy"
+global color4_2 = "maroon" 
+global color4_3 = "orange" 
+global color4_4 = "gs9" 
+
 * Graphs with 8 colors
 colorpalette tfl, n(8) globals(, prefix(color8_) nonames)
 

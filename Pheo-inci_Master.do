@@ -41,10 +41,10 @@ global period2cat =		`"(1977/2006=1 "1977-2006")"' ///
 						+ `" (2007/${lastyear}=2 "2007-${lastyear}")"' //
 
 * Age categories
-global agecat = `"(0/24.999=1 "<25")"' ///
-				+ `" (25/49.999=2 "25-49")"' ///
-				+ `" (50/74.999=3 "50-74")"' ///
-				+ `" (75/100=4 ">75")"'
+global agecat = `"(0/24.999=1 "<25 years")"' ///
+				+ `" (25/49.999=2 "25-49 years")"' ///
+				+ `" (50/74.999=3 "50-74 years")"' ///
+				+ `" (75/100=4 "{&ge}75 years")"'
 
 * Mode of discovery grouping
 global modcat = `"(1 3 4=1 "Symptoms")"' ///
@@ -62,7 +62,7 @@ global sizecat = `"(0/1.999=1 "<2 cm")"' ///
 					+ `" (4/5.999=3 "4-5.9 cm")"' ///
 					+ `" (6/7.999=4 "6-7.9 cm")"' ///
 					+ `" (8/9.999=5 "8-9.9 cm")"' ///
-					+ `" (10/50=6 ">10 cm")"' ///
+					+ `" (10/50=6 "{&ge}10 cm")"' ///
 					+`" (.=.a "Missing")"'
 
 * Biochemical profile
@@ -140,11 +140,15 @@ do Pheo-inci_FigTabLayout.do
 ** SIR overall
 do Pheo-inci_SirOverall.do
 
+** IR by age and sex
+do Pheo-inci_IrByAgeSex.do
+
 ** SIR by MoD
 do Pheo-inci_SirByMod.do
 
 ** SIR by symptoms
 do Pheo-inci_SirBySymp.do
+
 
 
 ** Combine report

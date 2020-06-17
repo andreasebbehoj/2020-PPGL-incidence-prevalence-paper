@@ -35,11 +35,11 @@ recode ppgl_incident (.=0)
 *** Define study variables
 * Study period (10-year intervals)
 recode year_index $period10ycat, gen(period10y) label(period10y_)
-label var period10y "Study period 10-year intervals"
+label var period10y "Period"
 
 * Study period (first 3 periods vs last period)
 recode year_index $period2cat, gen(period2cat) label(period2cat_)
-label var period2cat "Study period 1977-2006 vs 2007-${lastyear}"
+label var period2cat "Period"
 
 * Age at diagnosis
 gen age = (date_index-d_foddato)/365.25
@@ -48,6 +48,10 @@ label var age "Age at diagnosis"
 * Age categories
 recode age $agecat, gen(agecat) label(agecat_)
 label var agecat "Age category"
+
+* Sex 
+recode sex (0=2)
+label define sex_ 1 "Male" 2 "Female" 0 "", modify
 
 * Mode of discovery groups
 recode mod $modcat, gen(modcat) label(modcat_)
