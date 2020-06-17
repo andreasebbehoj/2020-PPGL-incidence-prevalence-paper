@@ -1,4 +1,4 @@
-***** Pheo-inci_SirByMod.do *****
+***** 4_SirByMod.do *****
 
 *** Calculations
 ** Cases per year
@@ -13,10 +13,10 @@ merge m:1 period agecat using popRegion_age_period.dta, assert(match using) noge
 
 
 ** Sir by period and modcat
-qui: dstdize N pop agecat, by(period modcat) using(popEU_age.dta) format(%12.3g) 
+qui: dstdize N pop agecat, by(period modcat) using(popEU_age.dta) format(%12.3g)
 
 matrix sir=  r(Nobs) \ r(crude) \ r(adj) \ r(lb) \ r(ub)
-matrix sir=sir' 
+matrix sir=sir'
 
 *** Export
 ** Save labels
@@ -25,7 +25,7 @@ levelsof modcat, local(modcats)
 
 ** Load
 drop _all
-svmat double sir, name(matcol) 
+svmat double sir, name(matcol)
 
 * Change to SIR per million
 ds *Crude *Adjusted *Left *Right
@@ -39,8 +39,8 @@ gen ModeOfDiscovery = .
 local obs = 1
 foreach per of local periods {
     foreach mod of local modcats {
-		qui: replace Period = `per' if _n==`obs' // "`: label period_ `per''" 
-		qui: replace ModeOfDiscovery = `mod' if _n==`obs' // "`: label modcat_ `mod''" 
+		qui: replace Period = `per' if _n==`obs' // "`: label period_ `per''"
+		qui: replace ModeOfDiscovery = `mod' if _n==`obs' // "`: label modcat_ `mod''"
 		local obs = `obs'+1
 	}
 }
@@ -48,10 +48,10 @@ label values Period period_
 label values ModeOfDiscovery modcat_
 
 ** Graph (SIR by modcat and period)
-bysort Period (ModeOfDiscovery): gen sir = sum(sirAdjusted) if sirAdjusted!=0 // Cumulative value for stacked bars 
+bysort Period (ModeOfDiscovery): gen sir = sum(sirAdjusted) if sirAdjusted!=0 // Cumulative value for stacked bars
 
 * Define graphs and legend
-qui: su ModeOfDiscovery 
+qui: su ModeOfDiscovery
 local legendorder = `r(max)'
 forvalues mod = 1(1)`r(max)' {
 		local twoway = "(bar sir Period if ModeOfDiscovery==`mod'" /// bar chart

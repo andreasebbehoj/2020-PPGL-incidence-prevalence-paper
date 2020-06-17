@@ -1,4 +1,4 @@
-***** Article-pheo-inci_ImportRedcap.do *****
+***** 3_ImportRedcap.do *****
 clear
 file close _all
 
@@ -18,7 +18,7 @@ shell  `curlpath' 	///
 	--form content=record 	///
 	--form format=csv 		///
 	--form type=flat 		///
-	--form filterLogic="[ppgl]='1' or [algo_9l]='1'" /// 
+	--form filterLogic="[ppgl]='1' or [algo_9l]='1'" ///
 	`apiurl'
 
 
@@ -30,7 +30,7 @@ qui: erase `outfile'
 
 qui: ds
 local varorder = "`r(varlist)'"
-qui: do RedcapCodebook.do, nostop // Redcap Stata export format tool, updated 27-05-2020
+qui: do 3_RedcapCodebook.do, nostop // Redcap Stata export format tool, updated 27-05-2020
 order `varorder'
 
 

@@ -1,4 +1,4 @@
-***** Pheo-inci_PopEU.do *****
+***** 3_ImportPopEU.do *****
 /*
 European Standard Population 2013 edition - Appendix F
 Link: https://ec.europa.eu/eurostat/web/products-manuals-and-guidelines/-/KS-RA-13-028
@@ -32,7 +32,7 @@ end
 recode age_to $agecat, gen(agecat) label(agecat_)
 label var agecat "Age category"
 bysort agecat: egen poptotal=total(pop)
-drop age_from age_to pop 
+drop age_from age_to pop
 rename poptotal pop
 duplicates drop
 

@@ -1,4 +1,4 @@
-***** Pheo-inci_SirBySymp.do *****
+***** 4_SirBySymp.do *****
 
 *** Calculations
 ** Cases per year
@@ -13,10 +13,10 @@ merge m:1 period agecat using popRegion_age_period.dta, assert(match using) noge
 
 
 ** Sir by period and sympcat
-qui: dstdize N pop agecat, by(period sympcat) using(popEU_age.dta) format(%12.3g) 
+qui: dstdize N pop agecat, by(period sympcat) using(popEU_age.dta) format(%12.3g)
 
 matrix sir=  r(Nobs) \ r(crude) \ r(adj) \ r(lb) \ r(ub)
-matrix sir=sir' 
+matrix sir=sir'
 
 *** Export
 ** Save labels
@@ -25,7 +25,7 @@ levelsof sympcat, local(sympcats)
 
 ** Load
 drop _all
-svmat double sir, name(matcol) 
+svmat double sir, name(matcol)
 
 * Change to SIR per million
 ds *Crude *Adjusted *Left *Right
@@ -39,8 +39,8 @@ gen Symptoms = .
 local obs = 1
 foreach per of local periods {
     foreach symp of local sympcats {
-		qui: replace Period = `per' if _n==`obs' // "`: label period_ `per''" 
-		qui: replace Symptoms = `symp' if _n==`obs' // "`: label sympcat_ `symp''" 
+		qui: replace Period = `per' if _n==`obs' // "`: label period_ `per''"
+		qui: replace Symptoms = `symp' if _n==`obs' // "`: label sympcat_ `symp''"
 		local obs = `obs'+1
 	}
 }
@@ -48,10 +48,10 @@ label values Period period_
 label values Symptoms sympcat_
 
 ** Graph (SIR by sympcat and period)
-bysort Period (Symptoms): gen sir = sum(sirAdjusted) if sirAdjusted!=0 // Cumulative value for stacked bars 
+bysort Period (Symptoms): gen sir = sum(sirAdjusted) if sirAdjusted!=0 // Cumulative value for stacked bars
 
 * Define graphs and legend
-qui: su Symptoms 
+qui: su Symptoms
 local legendorder = `r(max)'
 forvalues symp = 1(1)`r(max)' {
 		local twoway = "(bar sir Period if Symptoms==`symp'" /// bar chart

@@ -1,4 +1,4 @@
-***** pheo-inci_Master.do *****
+***** 0_Master.do *****
 /*
 This do file runs the analyzing for the paper on Incidence and Prevalence of PPGL by Ebbehoj et al, 2020. 
 
@@ -106,16 +106,16 @@ This section:
 */
 
 ** Danish population
-do Pheo-inci_PopDK.do
+do 3_ImportPopDK.do
 
 ** EU standard population
-do Pheo-inci_PopEU.do
+do 3_ImportPopEU.do
 
 ** Import PPGL patients from ReDCap
-do Pheo-inci_ImportRedcap.do 
+do 3_ImportRedcap.do 
 
 ** Generate study variables and restrict to cohort
-do Pheo-inci_CohortAndVars.do
+do 3_CohortAndVars.do
 
 
 
@@ -132,27 +132,27 @@ This section:
 */
 
 ** Common settings for all figures
-do Pheo-inci_FigTabLayout.do
+do 4_FigTabLayout.do
 
 ** Baseline
 
 
 ** SIR overall
-do Pheo-inci_SirOverall.do
+do 4_SirOverall.do
 
 ** IR by age and sex
-do Pheo-inci_IrByAgeSex.do
+do 4_IrByAgeSex.do
 
 ** SIR by MoD
-do Pheo-inci_SirByMod.do
+do 4_SirByMod.do
 
 ** SIR by symptoms
-do Pheo-inci_SirBySymp.do
+do 4_SirBySymp.do
 
 
 
 ** Combine report
-do Pheo-inci_Report.do
+do 4_Report.do
 
 
 window manage close graph _all

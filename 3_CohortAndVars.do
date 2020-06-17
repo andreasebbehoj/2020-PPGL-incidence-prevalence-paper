@@ -1,4 +1,4 @@
-***** Pheo-inci_CohortAndVars.do *****
+***** 3_CohortAndVars.do *****
 use cohort_alldata.dta, clear
 
 
@@ -12,23 +12,23 @@ replace date_index = allfirstdate if cohort_simple==2
 label var date_index "Index date"
 format %d date_index
 
-gen year_index = year(date_index) 
+gen year_index = year(date_index)
 label var year_index "Index year"
 
 
 ** Prevalent cases
-gen ppgl_prevalent = 1 if /// 
+gen ppgl_prevalent = 1 if ///
 	cohort_simple==1 & inlist(ppgl, 1, 2) /// Confirmed in health records (in North/central region)
 	| cohort_simple==2 & algo_9l==1 & ext_algosample==0 /// Algorithm-positive (in remaining DK)
 	| cohort_simple==2 & algo_9l==1 & ext_algosample==1 & ppgl!=0 // Algorithm-positive refuted/excluded in ext.sample
 recode ppgl_prevalent (.=0)
 
 * PPGL cases diagnosed 1977-2015 while living in Denmark
-	// As prevalent but excluding 3 diagnosed <1977 / outside DK in health records 
-gen ppgl_incident = 1 if /// 
-	cohort_simple==1 & ppgl==1 & mi(vali_exclude) /// 
-	| cohort_simple==2 & algo_9l==1 & ext_algosample==0 ///  
-	| cohort_simple==2 & algo_9l==1 & ext_algosample==1 & inlist(ppgl, 0, 2)==0 // 
+	// As prevalent but excluding 3 diagnosed <1977 / outside DK in health records
+gen ppgl_incident = 1 if ///
+	cohort_simple==1 & ppgl==1 & mi(vali_exclude) ///
+	| cohort_simple==2 & algo_9l==1 & ext_algosample==0 ///
+	| cohort_simple==2 & algo_9l==1 & ext_algosample==1 & inlist(ppgl, 0, 2)==0 //
 recode ppgl_incident (.=0)
 
 
@@ -49,7 +49,7 @@ label var age "Age at diagnosis"
 recode age $agecat, gen(agecat) label(agecat_)
 label var agecat "Age category"
 
-* Sex 
+* Sex
 recode sex (0=2)
 label define sex_ 1 "Male" 2 "Female" 0 "", modify
 
@@ -81,7 +81,7 @@ label value tumorcat tumorcat_
 
 
 /* Paroxystic symptoms
-Data recorded on 
+Data recorded on
 - Classic symptoms: paroxysmal headache, sweating and palpitations
 - Other symptoms: flushing, whitening, nausea, abdominal pain, dyspnea, syncope, lightheadedness, chest pain, tremor, or unspecified "attacks"
 
@@ -89,28 +89,28 @@ symp_x:
 	1: Present and paroxysmal
 	2: Present but not paroxysmal
 	3: Present, unspecied if paroxysmal or not (treated as not paroxysmal)
-	4: Not present, 
+	4: Not present,
 	98: Health records missing
 	99: Unspecified in records if present (treated as not present)
 */
 gen sympcat = 1 if /// classic triad
-	symp_head==1 & symp_sweat==1 & symp_palp==1 
+	symp_head==1 & symp_sweat==1 & symp_palp==1
 
 recode sympcat (.=2) if /// 1-2 classic symp
 	symp_head==1 | symp_head==1 | symp_sweat==1
 
 recode sympcat (.=3) if /// other paroxysmal symp
-	inlist(1, symp_flush, symp_white, symp_naus, symp_abdo, symp_dysp, symp_sync, symp_chest, symp_tremor, symp_sync, symp_light, symp_atta) 
+	inlist(1, symp_flush, symp_white, symp_naus, symp_abdo, symp_dysp, symp_sync, symp_chest, symp_tremor, symp_sync, symp_light, symp_atta)
 
 foreach symp in /// no paroxysmal symp
 	symp_palp symp_head symp_sweat symp_light symp_white symp_flush ///
 	symp_sync symp_naus symp_chest symp_abdo symp_tremor symp_dysp symp_atta {
-	qui: recode sympcat (.=4) if inlist(`symp', 2, 4, 99) 
+	qui: recode sympcat (.=4) if inlist(`symp', 2, 4, 99)
 }
 
 recode sympcat (.=5) if inlist(98, /// health records not found
 	symp_palp, symp_head, symp_sweat, symp_light, symp_white, symp_flush, ///
-	symp_sync, symp_naus, symp_chest, symp_abdo, symp_tremor, symp_dysp, symp_atta) 
+	symp_sync, symp_naus, symp_chest, symp_abdo, symp_tremor, symp_dysp, symp_atta)
 
 label define sympcat_ ///
 	1 "Classic triad" ///
@@ -133,7 +133,7 @@ label var biocat "Biochemical profile"
 egen biomax = rowmax(tumo_bioc_ne tumo_bioc_e tumo_bioc_uns)
 label var biomax "Biochemical increase above lab range"
 
-* Surgery 
+* Surgery
 // To be continued..
 
 
@@ -149,17 +149,17 @@ drop if year_index>${lastyear}
 
 count if ppgl_incident==1
 local incifinal=`r(N)'
-count if ppgl_prevalent==1 
+count if ppgl_prevalent==1
 local prevfinal=`r(N)'
 
 *** Remove superfluous variables
-drop cpr id rec_nr *_comm_* *_comm *_kommentarer d_foddato include_kom c_status d_status /// Sensitive data 
+drop cpr id rec_nr *_comm_* *_comm *_kommentarer d_foddato include_kom c_status d_status /// Sensitive data
 	tumo_numb tumo_loc* tumo_size* tumo_late* tumo_bioc symp_* /// Aggregated in code above
 	date_symp date_index date_diag date_recu* date_surg* /// Aggregated in code above
 	ppgl cohort exclude algo_* vali_* ext_algosample /// Validation data
-	from_* all_* allhighrisk* allfirstdate* /// Details on inclusion criteria 
+	from_* all_* allhighrisk* allfirstdate* /// Details on inclusion criteria
 	pato_* immuno_* datediagnosispato gen_performed gen_mut_* gen_report *_complete obta_* regeval_surg // Irrelevant for study
-	
+
 
 *** Save data
 ** Report

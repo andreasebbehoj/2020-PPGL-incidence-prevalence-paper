@@ -1,4 +1,4 @@
-***** Pheo-inci_FigTabLayout.do *****
+***** 4_FigTabLayout.do *****
 
 ***** Graphs
 ** General
@@ -6,7 +6,7 @@ set scheme s2color
 grstyle init graphlayout, replace
 grstyle set plain // No plot region color, white background + other tweaks
 
-** Size 
+** Size
 grstyle set graphsize 560pt 1200pt // in pixels, default is 5.5 inches *72 pt/inch = 396pt
 grstyle set symbolsize small
 grstyle set size 25pt: axis_title // X and Y axis text size
@@ -23,18 +23,18 @@ grstyle set legend ///
 
 ** Colors
 * Graphs with 1 color
-global color1 = "navy" 
+global color1 = "navy"
 
 * Graphs with 3 colors
 global color3_1 = "navy"
-global color3_2 = "gs9" 
-global color3_3 = "gs12" 
+global color3_2 = "gs9"
+global color3_3 = "gs12"
 
 * Graphs with 4 colors
 global color4_1 = "navy"
-global color4_2 = "maroon" 
-global color4_3 = "orange" 
-global color4_4 = "gs9" 
+global color4_2 = "maroon"
+global color4_3 = "orange"
+global color4_4 = "gs9"
 
 * Graphs with 8 colors
 colorpalette tfl, n(8) globals(, prefix(color8_) nonames)
@@ -42,7 +42,7 @@ colorpalette tfl, n(8) globals(, prefix(color8_) nonames)
 
 ** Export
 graph set eps logo off
-global exportformat = ".png" 
+global exportformat = ".png"
 global exportoptions = ", replace width(1200)"
 
 

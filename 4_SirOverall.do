@@ -1,6 +1,6 @@
-***** Pheo-inci_SirOverall.do *****
+***** 4_SirOverall.do *****
 
-*** Calculations 
+*** Calculations
 ** Cases per year
 use cohort_ppgl.dta, clear
 keep if ppgl_incident==1
@@ -29,7 +29,7 @@ local sir_ub = string(round(r(ub_adj)[1,1]*1000000 `format'
 
 
 ** SIR by year
-qui: dstdize N pop agecat, by(year) using(popEU_age.dta) format(%12.3g) 
+qui: dstdize N pop agecat, by(year) using(popEU_age.dta) format(%12.3g)
 matrix sir_y=  r(Nobs) \ r(crude) \ r(adj) \ r(lb) \ r(ub)
 matrix sir_y=sir_y'
 
@@ -41,7 +41,7 @@ bysort agecat period: egen Ntotal=total(N)
 keep agecat poptotal period Ntotal
 rename poptotal pop
 duplicates drop
-dstdize Ntotal pop agecat, by(period) using(popEU_age.dta) format(%12.3g) 
+dstdize Ntotal pop agecat, by(period) using(popEU_age.dta) format(%12.3g)
 matrix sir_p=  r(Nobs) \ r(crude) \ r(adj) \ r(lb) \ r(ub)
 matrix sir_p=sir_p'
 
@@ -51,11 +51,11 @@ matrix sir_p=sir_p'
 ** Load
 drop _all
 
-svmat double sir_y, name(matcol) 
+svmat double sir_y, name(matcol)
 egen Year= seq(), f(1977) t($lastyear) b(1)
 label var Year "Year"
 
-svmat double sir_p, name(matcol) 
+svmat double sir_p, name(matcol)
 gen Period = _n if _n<=4
 label values Period period_
 label var Period "Period"
@@ -71,7 +71,7 @@ foreach var in `r(varlist)' {
 twoway ///
 	(scatter sir_yAdjuste Year, mcolor(${color1})) /// mean
 	(rcap sir_yLeft sir_yRight Year, lcolor(${color1})) /// 95% CI
-	, legend(off) /// legend 
+	, legend(off) /// legend
 	xlabel(1977 "1977" 1982 "1982" 1987 "1987" 1992 "1992" 1997 "1997" 2002 "2002" 2007 "2007" 2012 "2012" $lastyear "$lastyear") ///
 	xmtick(1977(1)$lastyear) ///
 	ylabel(0(1)10) ///
@@ -151,7 +151,7 @@ gen SIR = sir_yAdjusted + " (" + sir_yLeft + "-" + sir_yRight + ")"
 
 putdocx begin
 putdocx paragraph
-putdocx table tbl1 = data("Year Crude SIR"), varnames 
+putdocx table tbl1 = data("Year Crude SIR"), varnames
 putdocx table tbl1(., .), ${tableoverall}
 putdocx table tbl1(., 1), ${tablefirstcol}
 putdocx table tbl1(1, .), ${tablefirstrow}

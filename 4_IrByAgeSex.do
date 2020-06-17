@@ -1,4 +1,4 @@
-***** Pheo-inci_IrByAge.do *****
+***** 4_IrByAge.do *****
 
 *** Calculations
 ** Cases per year
@@ -13,9 +13,9 @@ merge 1:1 agecat sex period using popDK_ageperiod.dta, assert(match using) nogen
 
 
 ** IR by period/age and period/sex
-tempfile byage 
+tempfile byage
 statsby, by(period agecat) saving(`byage', replace): ci means N, poisson exposure(pop)
-tempfile bysex 
+tempfile bysex
 statsby, by(period sex) saving(`bysex', replace): ci means N, poisson exposure(pop)
 
 
