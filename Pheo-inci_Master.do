@@ -143,6 +143,10 @@ do Pheo-inci_SirOverall.do
 ** SIR by MoD
 do Pheo-inci_SirByMod.do
 
+** SIR by symptoms
+do Pheo-inci_SirBySymp.do
+
+
 ** Combine report
 do Pheo-inci_Report.do
 
