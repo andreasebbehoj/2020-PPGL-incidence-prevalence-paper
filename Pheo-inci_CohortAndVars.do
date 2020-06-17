@@ -71,6 +71,7 @@ label define tumorcat_ ///
 	2 "Unilateral paraganglioma" ///
 	3 "Bilateral pheochromocytomas" ///
 	4 "Multiple paragangliomas" ///
+	.a "Missing" ///
 	, replace
 label value tumorcat tumorcat_
 
@@ -103,9 +104,18 @@ foreach symp in /// no paroxysmal symp
 	qui: recode sympcat (.=4) if inlist(`symp', 2, 4, 99) 
 }
 
-recode sympcat (.=.a) if inlist(98, /// health records not found
+recode sympcat (.=5) if inlist(98, /// health records not found
 	symp_palp, symp_head, symp_sweat, symp_light, symp_white, symp_flush, ///
 	symp_sync, symp_naus, symp_chest, symp_abdo, symp_tremor, symp_dysp, symp_atta) 
+
+label define sympcat_ ///
+	1 "Classic triad" ///
+	2 "1-2 classic symptoms" ///
+	3 "Other paroxysmal symptoms" ///
+	4 "No paroxysmal symptoms" ///
+	5 "Missing" ///
+	, replace
+label value sympcat sympcat_
 
 * Years of symptoms before diagnosis
 gen sympyears = (date_index-date_symp)/365.25
