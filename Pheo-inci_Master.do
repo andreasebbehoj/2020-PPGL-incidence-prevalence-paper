@@ -20,8 +20,6 @@ file close _all
 net install github, from("https://haghish.github.io/github/")
 github install andreasebbehoj/dstpop
 ssc install grstyle
-net install mat2txt.pkg
-tab2xl2, from(https://github.com/leonardoshibata/tab2xl2/blob/master/) replace
 */
 
 
@@ -141,7 +139,7 @@ do Pheo-inci_FigTabLayout.do
 do Pheo-inci_SirOverall.do
 
 ** SIR by MoD
-
+do Pheo-inci_SirByMod.do
 
 ** Combine report
 do Pheo-inci_Report.do
