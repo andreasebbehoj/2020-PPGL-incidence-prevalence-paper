@@ -153,15 +153,15 @@ count if ppgl_prevalent==1
 local prevfinal=`r(N)'
 
 *** Remove superfluous variables
-drop cpr id rec_nr *_comm_* *_comm *_kommentarer d_foddato c_status d_status /// Sensitive data
-	tumo_numb tumo_loc* tumo_size* tumo_late* tumo_bioc symp_* /// Aggregated in code above
-	date_symp date_index date_diag date_recu* date_surg* /// Aggregated in code above
+drop tumo_numb tumo_loc* tumo_size* tumo_late* tumo_bioc symp_* /// Aggregated in code above
 	ppgl cohort exclude algo_* vali_* ext_algosample /// Validation data
 	from_* all_* allhighrisk* allfirstdate* /// Details on inclusion criteria
 	pato_* immuno_* datediagnosispato gen_performed gen_mut_* gen_report *_complete obta_* regeval_surg // Irrelevant for study
 
 
 *** Save data
+order cohort_simple ppgl* include_reg year_index period* age* sex mod* size* symp* bio* tumo*
+
 ** Report
 putdocx begin
 putdocx paragraph, style(Heading2)
@@ -172,6 +172,12 @@ putdocx text ("We excluded `afterlastyear' patients diagnosed after ${lastyear}.
 putdocx text ("Final cohort in this study was `incitotal' incident cases of PPGL and `prevfinal' prevalent cases. "), linebreak
 putdocx save results/TextPatientFlow, replace
 
-** Stata
-order cohort_simple ppgl* include_reg year_index period* age* sex mod* size* symp* bio* tumo*
+** With PID
+save data/cohort_pid.dta, replace
+
+
+** Without PID
+drop cpr id rec_nr *_comm_* *_comm d_foddato c_status d_status /// Sensitive data
+	date_symp date_index date_diag date_recu* date_surg* // Aggregated in code above
+
 save data/cohort_ppgl.dta, replace

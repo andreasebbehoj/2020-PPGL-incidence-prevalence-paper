@@ -158,10 +158,11 @@ do 4_SirBySymp.do
 do 4_SirBySize.do
 
 ** Prevalence
-
+do 4_Prev.do
 
 ** Combine report
 do 4_Report.do
 
 
+file close _all
 window manage close graph _all
