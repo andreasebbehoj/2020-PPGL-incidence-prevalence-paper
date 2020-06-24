@@ -1,6 +1,6 @@
 ***** 0_Master.do *****
 /*
-This do file runs the analyzing for the paper on Incidence and Prevalence of PPGL by Ebbehoj et al, 2020. 
+This do file runs the analysis for the paper on Incidence and Prevalence of PPGL by Ebbehoj et al, 2020. 
 
 The do-file is split in four sections: 
 1) Stata setup
@@ -15,6 +15,7 @@ version 16
 set more off
 clear
 file close _all
+cd "U:\2020-PPGL-incidence-prevalence-paper"
 
 /*** Install necessary packages
 net install github, from("https://haghish.github.io/github/")
@@ -22,6 +23,8 @@ github install andreasebbehoj/dstpop
 ssc install grstyle, replace
 ssc install palettes, replace
 ssc install colrspace, replace
+ssc install spmap, replace
+ssc install shp2dta, replace
 */
 
 
@@ -136,6 +139,9 @@ do 4_FigTabLayout.do
 
 ** SIR overall
 do 4_SirOverall.do
+
+** SIR by municipality
+do 4_SirByMunicipality.do
 
 ** IR by age and sex
 do 4_IrByAgeSex.do
