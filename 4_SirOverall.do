@@ -2,13 +2,13 @@
 
 *** Calculations
 ** Cases per year
-use cohort_ppgl.dta, clear
+use data/cohort_ppgl.dta, clear
 keep if ppgl_incident==1
 keep agecat year_index
 contract _all, freq(N) zero
 rename year_index year
 
-merge 1:1 year agecat using popDK_age.dta, assert(match using) nogen
+merge 1:1 year agecat using data/popDK_age.dta, assert(match using) nogen
 
 
 ** Crude IR
@@ -21,7 +21,7 @@ local ir_ub = string(round(`r(ub)'*1000000 `format'
 
 ** Overall SIR
 gen dummy=1
-dstdize N pop agecat, by(dummy) using(popEU_age.dta) format(%12.3g)
+dstdize N pop agecat, by(dummy) using(data/popEU_age.dta) format(%12.3g)
 local format = `", 0.01), "%03.2f")"' // 3 significant numbers
 local sir_mean = string(round(r(adj)[1,1]*1000000 `format'
 local sir_lb = string(round(r(lb_adj)[1,1]*1000000 `format'
@@ -29,7 +29,7 @@ local sir_ub = string(round(r(ub_adj)[1,1]*1000000 `format'
 
 
 ** SIR by year
-qui: dstdize N pop agecat, by(year) using(popEU_age.dta) format(%12.3g)
+qui: dstdize N pop agecat, by(year) using(data/popEU_age.dta) format(%12.3g)
 matrix sir_y=  r(Nobs) \ r(crude) \ r(adj) \ r(lb) \ r(ub)
 matrix sir_y=sir_y'
 
@@ -41,7 +41,7 @@ bysort agecat period: egen Ntotal=total(N)
 keep agecat poptotal period Ntotal
 rename poptotal pop
 duplicates drop
-dstdize Ntotal pop agecat, by(period) using(popEU_age.dta) format(%12.3g)
+dstdize Ntotal pop agecat, by(period) using(data/popEU_age.dta) format(%12.3g)
 matrix sir_p=  r(Nobs) \ r(crude) \ r(adj) \ r(lb) \ r(ub)
 matrix sir_p=sir_p'
 
@@ -76,12 +76,12 @@ twoway ///
 	xmtick(1977(1)$lastyear) ///
 	ylabel(0(1)10) ///
 	ytitle("Age-standardized IR" "per 1,000,000 years") //
-graph export Results_FigSirByYear${exportformat} ${exportoptions}
+graph export results/FigSirByYear${exportformat} ${exportoptions}
 
 putdocx begin
 putdocx paragraph, halign(center)
-putdocx image Results_FigSirByYear${exportformat}, height(5 in)
-putdocx save Results_FigSirByYear, replace
+putdocx image results/FigSirByYear${exportformat}, height(5 in)
+putdocx save results/FigSirByYear, replace
 
 
 ** Text
@@ -138,7 +138,7 @@ putdocx text ("SIR `perlabel2': `sirper2_mean' (95%CI `sirper2_lb'-`sirper2_ub')
 putdocx text ("SIR `perlabel3': `sirper3_mean' (95%CI `sirper3_lb'-`sirper3_ub')"), linebreak
 putdocx text ("SIR `perlabel4': `sirper4_mean' (95%CI `sirper4_lb'-`sirper4_ub')"), linebreak
 
-putdocx save Results_TextSirOverall, replace
+putdocx save results/TextSirOverall, replace
 
 
 ** Table (SIR per year)
@@ -157,4 +157,4 @@ putdocx table tbl1(., 1), ${tablefirstcol}
 putdocx table tbl1(1, .), ${tablefirstrow}
 local lastrow = _N
 putdocx table tbl1(3(2)`lastrow', .), ${tablerows}
-putdocx save Results_TabSirByYear, replace
+putdocx save results/TabSirByYear, replace

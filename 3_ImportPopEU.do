@@ -36,4 +36,4 @@ drop age_from age_to pop
 rename poptotal pop
 duplicates drop
 
-save popEU_age.dta, replace
+save data/popEU_age.dta, replace

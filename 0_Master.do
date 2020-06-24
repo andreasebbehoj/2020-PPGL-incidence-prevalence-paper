@@ -16,6 +16,8 @@ set more off
 clear
 file close _all
 cd "U:\2020-PPGL-incidence-prevalence-paper"
+capture: mkdir data
+capture: mkdir results
 
 /*** Install necessary packages
 net install github, from("https://haghish.github.io/github/")
@@ -155,7 +157,7 @@ do 4_SirBySymp.do
 ** SIR by tumor size
 do 4_SirBySize.do
 
-
+** Prevalence
 
 
 ** Combine report

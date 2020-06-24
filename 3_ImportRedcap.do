@@ -40,4 +40,4 @@ format %tdCCYY-NN-DD `r(varlist)'
 
 
 *** Save
-save cohort_alldata.dta, replace
+save data/cohort_alldata.dta, replace

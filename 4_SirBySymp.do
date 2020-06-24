@@ -2,18 +2,18 @@
 
 *** Calculations
 ** Cases per year
-use cohort_ppgl.dta, clear
+use data/cohort_ppgl.dta, clear
 keep if ppgl_incident==1
 keep if cohort_simple==1 // Central and Northern Regions only
 keep agecat period10y sympcat
 rename period10y period
 contract _all, freq(N) zero
 
-merge m:1 period agecat using popRegion_age_period.dta, assert(match using) nogen
+merge m:1 period agecat using data/popRegion_age_period.dta, assert(match using) nogen
 
 
 ** Sir by period and sympcat
-qui: dstdize N pop agecat, by(period sympcat) using(popEU_age.dta) format(%12.3g)
+qui: dstdize N pop agecat, by(period sympcat) using(data/popEU_age.dta) format(%12.3g)
 
 matrix sir=  r(Nobs) \ r(crude) \ r(adj) \ r(lb) \ r(ub)
 matrix sir=sir'
@@ -75,9 +75,9 @@ twoway `twoway', ///
 	xlabel(`xlabel') ///
 	ylabel(0(1)5) ///
 	ytitle("Age-standardized IR" "per 1,000,000 years") //
-graph export Results_FigSirBySymp${exportformat} ${exportoptions}
+graph export results/FigSirBySymp${exportformat} ${exportoptions}
 
 putdocx begin
 putdocx paragraph, halign(center)
-putdocx image Results_FigSirBySymp${exportformat}, height(5 in)
-putdocx save Results_FigSirBySymp, replace
+putdocx image results/FigSirBySymp${exportformat}, height(5 in)
+putdocx save results/FigSirBySymp, replace

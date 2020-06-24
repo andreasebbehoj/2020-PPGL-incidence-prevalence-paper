@@ -2,14 +2,14 @@
 
 *** Calculations
 ** Cases per year
-use cohort_ppgl.dta, clear
+use data/cohort_ppgl.dta, clear
 keep if ppgl_incident==1
 
 keep agecat sex period10y
 rename period10y period
 contract _all, freq(N) zero
 
-merge 1:1 agecat sex period using popDK_ageperiod.dta, assert(match using) nogen
+merge 1:1 agecat sex period using data/popDK_ageperiod.dta, assert(match using) nogen
 
 
 ** IR by period/age and period/sex

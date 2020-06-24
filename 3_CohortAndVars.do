@@ -1,5 +1,5 @@
 ***** 3_CohortAndVars.do *****
-use cohort_alldata.dta, clear
+use data/cohort_alldata.dta, clear
 
 
 *** Define cohort
@@ -170,8 +170,8 @@ putdocx paragraph
 putdocx text ("Total PPGL cohort from 1977-2016 was `incitotal' (Ebbehoj A 2018, Clin Epidemiol). ")
 putdocx text ("We excluded `afterlastyear' patients diagnosed after ${lastyear}. ")
 putdocx text ("Final cohort in this study was `incitotal' incident cases of PPGL and `prevfinal' prevalent cases. "), linebreak
-putdocx save Results_TextPatientFlow, replace
+putdocx save results/TextPatientFlow, replace
 
 ** Stata
 order cohort_simple ppgl* include_reg year_index period* age* sex mod* size* symp* bio* tumo*
-save cohort_ppgl.dta, replace
+save data/cohort_ppgl.dta, replace

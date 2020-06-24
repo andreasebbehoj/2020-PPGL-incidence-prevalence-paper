@@ -4,7 +4,7 @@ dstpop, clear ///
 	fyear(1977) tyear($lastyear) /// 
 	area(total)
 
-save popDK_total.dta, replace
+save data/popDK_total.dta, replace
 
 
 *** Population by year and age group
@@ -21,7 +21,7 @@ drop age pop
 rename poptotal pop
 duplicates drop
 
-save popDK_age.dta, replace
+save data/popDK_age.dta, replace
 
 *** Population in DK by period, sex and age
 dstpop, clear ///
@@ -41,7 +41,7 @@ drop year age pop
 rename poptotal pop
 duplicates drop
 
-save popDK_ageperiod.dta, replace
+save data/popDK_ageperiod.dta, replace
 
 *** Population in DK by municipality and age
 dstpop, clear ///
@@ -56,7 +56,7 @@ bysort area agecat: egen poptotal=total(pop)
 drop year age pop
 rename poptotal pop
 duplicates drop
-save popDK_age_municipality.dta
+save data/popDK_age_municipality.dta
 
 *** Population in Central and Northern Regions by period and age group
 dstpop, clear ///
@@ -76,4 +76,4 @@ drop year age pop area
 rename poptotal pop
 duplicates drop
 
-save popRegion_age_period.dta, replace
+save data/popRegion_age_period.dta, replace
