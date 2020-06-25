@@ -65,15 +65,16 @@ global modcat = `"(1 3 4=1 "Symptoms")"' ///
 global sizecat = `"(0/3.999=1 "<4 cm")"' ///
 					+ `" (4/7.999=2 "4-7.9 cm")"' ///
 					+ `" (8/50=3 "{&ge}8 cm")"' ///
-					+`" (.=4 "Missing")"'
+					+`" (.=4 "Unknown")"'
 
 * Biochemical profile
 global biocat = `"(1=1 "NE only")"' ///
 					+ `" (2=2 "E only")"' ///
 					+ `" (3=3 "Both NE and E")"' ///
-					+ `" (98=.a "Not found")"' ///
-					+ `" (4=.b "Unspecified (NE+E measured together)")"' ///
-					+ `" (7=.c "Never tested")"' //
+					+ `" (4=4 "Unspecified (NE+E measured together)")"' ///
+					+ `" (7=5 "Never tested")"' ///
+					+ `" (98=6 "Not found")"' //
+					
 
 /* Tumor location
 tumorcat: 
@@ -137,7 +138,7 @@ This section:
 do 4_FigTabLayout.do
 
 ** Baseline
-
+do 4_TabCharacteristics.do
 
 ** SIR overall
 do 4_SirOverall.do

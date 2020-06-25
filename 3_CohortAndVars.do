@@ -4,7 +4,8 @@ use data/cohort_alldata.dta, clear
 
 *** Define cohort
 ** Study area
-recode cohort (1 2 5 = 1 "North/Central Region") (3=2 "Remaining DK"), gen(cohort_simple)
+recode cohort (1 2 5 = 1 "North and Central Region") (3=2 "Remaining DK"), gen(cohort_simple_)
+label var cohort_simple "Study area"
 
 ** Index date and year
 gen date_index = date_diag if cohort_simple==1
@@ -117,9 +118,11 @@ label define sympcat_ ///
 	2 "1-2 classic symptoms" ///
 	3 "Other paroxysmal symptoms" ///
 	4 "No paroxysmal symptoms" ///
-	5 "Missing" ///
+	5 "Unknown" ///
 	, replace
 label value sympcat sympcat_
+label variable sympcat "Symptoms"
+
 
 * Years of symptoms before diagnosis
 gen sympyears = (date_index-date_symp)/365.25
