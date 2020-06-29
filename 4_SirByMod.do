@@ -76,8 +76,3 @@ twoway `twoway', ///
 	ylabel(0(1)5) ///
 	ytitle("Age-standardized IR" "per 1,000,000 years") //
 graph export results/FigSirByMod${exportformat} ${exportoptions}
-
-putdocx begin
-putdocx paragraph, halign(center)
-putdocx image results/FigSirByMod${exportformat}, height(5 in)
-putdocx save results/FigSirByMod, replace

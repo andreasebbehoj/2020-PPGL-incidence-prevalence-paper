@@ -47,12 +47,7 @@ twoway `twoway', ///
 	xlabel(1(1)4,valuelabel) ///
 	ylabel(0(1)10) ///
 	ytitle("IR" "per 1,000,000 years") //
-graph export Results_FigIrByAge${exportformat} ${exportoptions}
-
-putdocx begin
-putdocx paragraph, halign(center)
-putdocx image Results_FigIrByAge${exportformat}, height(5 in)
-putdocx save Results_FigIrByAge, replace
+graph export results/FigIrByAge${exportformat} ${exportoptions}
 
 
 *** Graph by sex
@@ -85,9 +80,4 @@ twoway `twoway', ///
 	xlabel(1(1)4,valuelabel) ///
 	ylabel(0(1)10) ///
 	ytitle("IR" "per 1,000,000 years") //
-graph export Results_FigIrBySex${exportformat} ${exportoptions}
-
-putdocx begin
-putdocx paragraph, halign(center)
-putdocx image Results_FigIrBySex${exportformat}, height(5 in)
-putdocx save Results_FigIrBySex, replace
+graph export results/FigIrBySex${exportformat} ${exportoptions}

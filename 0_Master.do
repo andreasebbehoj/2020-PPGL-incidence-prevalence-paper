@@ -1,12 +1,13 @@
 ***** 0_Master.do *****
 /*
-This do file runs the analysis for the paper on Incidence and Prevalence of PPGL by Ebbehoj et al, 2020. 
+This do file runs the analysis for the paper on Incidence and Prevalence of PPGL by Ebbehoj et al, 2020.
 
-The do-file is split in four sections: 
+The do-file is split in four sections:
 1) Stata setup
-2) Define study variables 
+2) Define study variables
 3) Import and prepare data
 4) Analysis
+5) Combine report
 */
 
 
@@ -60,7 +61,7 @@ global modcat = `"(1 3 4=1 "Symptoms")"' ///
 				+ `" (50=6 "Autopsy")"' ///
 				+ `" (60 61 62 63 64 66=7 "Other")"' ///
 				+ `" (98 99=8 "Unknown")"' //
-				
+
 * Tumor size (largest diameter)
 global sizecat = `"(0/3.999=1 "<4 cm")"' ///
 					+ `" (4/7.999=2 "4-7.9 cm")"' ///
@@ -74,26 +75,26 @@ global biocat = `"(1=1 "NE only")"' ///
 					+ `" (4=4 "Unspecified (NE+E measured together)")"' ///
 					+ `" (7=5 "Never tested")"' ///
 					+ `" (98=6 "Not found")"' //
-					
+
 
 /* Tumor location
-tumorcat: 
+tumorcat:
 	1: single pheo
 	2: single para
 	3: bilat pheo
 	4: multiple para
 	.a: missing
-Defined in Pheo-inci_CohortAndVars.do */
+Defined in 3_CohortAndVars.do */
 
 
 /* Symptoms
 sympcat:
-	1: all three of classic symptoms 
+	1: all three of classic symptoms
 	2: 1-2 of classic symptoms
 	3: 1 or more other paroxysmal symptom
-	4: no paroxysmal symptoms described 
+	4: no paroxysmal symptoms described
 	.a: Missing
-Defined in Pheo-inci_CohortAndVars.do */
+Defined in 3_CohortAndVars.do */
 
 
 
@@ -101,7 +102,7 @@ Defined in Pheo-inci_CohortAndVars.do */
 
 ***** 3) IMPORT AND PREPARE DATA
 /*
-This section: 
+This section:
 - Import data on Danish population from Statistics Denmark
 - Define European Standard population
 - Import clinical data on PPGL patients from a REDCap database
@@ -115,7 +116,7 @@ do 3_ImportPopDK.do
 do 3_ImportPopEU.do
 
 ** Import PPGL patients from ReDCap
-do 3_ImportRedcap.do 
+do 3_ImportRedcap.do
 
 ** Generate study variables and restrict to cohort
 do 3_CohortAndVars.do
@@ -125,13 +126,12 @@ do 3_CohortAndVars.do
 
 ***** 4) Analysis
 /*
-This section: 
+This section:
 - Defines common settings for figures and tables
-- Makes calculations for text 
-- Export tables 
+- Makes calculations for text
+- Export tables
 - Export graphs
 - Generate supplementary results
-- Combines results in a single report
 */
 
 ** Common settings for all figures
@@ -161,8 +161,13 @@ do 4_SirBySize.do
 ** Prevalence
 do 4_Prev.do
 
-** Combine report
-do 4_Report.do
+***** 5) Report
+/*
+This section:
+- Add headers and footnotes to graphs and tables
+- Combine all documents into FigTablesCombined and ReportCombined
+*/
+do 5_Report.do
 
 
 file close _all

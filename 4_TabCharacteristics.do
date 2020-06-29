@@ -146,16 +146,7 @@ ds cell*
 foreach var in `r(varlist)' {
 	replace `var' = "-" if `var'==". (.)"
 }
-
-** Export to table
-putdocx clear
-putdocx begin, landscape
-putdocx paragraph
-putdocx table tbl1 = data("rowname cell_0 cell_1 cell_2 cell_3 cell_4"), width(100%) layout(autofitcontents)
-putdocx table tbl1(., .), ${tablecells} 
-putdocx table tbl1(., 1), ${tablefirstcol}
-putdocx table tbl1(1, .), ${tablefirstrow}
 gen row = _n
-levelsof row if !mi(firstcol) & mi(seccol)
-putdocx table tbl1(`r(levels)', .), ${tablerows}
-putdocx save results/TabCharacteristics, replace
+
+** Export 
+save results/TabPatCharac.dta, replace

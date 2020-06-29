@@ -78,11 +78,6 @@ twoway ///
 	ytitle("Age-standardized IR" "per 1,000,000 years") //
 graph export results/FigSirByYear${exportformat} ${exportoptions}
 
-putdocx begin
-putdocx paragraph, halign(center)
-putdocx image results/FigSirByYear${exportformat}, height(5 in)
-putdocx save results/FigSirByYear, replace
-
 
 ** Text
 * SIR first to last year
@@ -149,13 +144,4 @@ foreach var in `r(varlist)' {
 rename sir_yCrude Crude
 gen SIR = sir_yAdjusted + " (" + sir_yLeft + "-" + sir_yRight + ")"
 
-putdocx clear
-putdocx begin
-putdocx paragraph
-putdocx table tbl1 = data("Year Crude SIR"), varnames
-putdocx table tbl1(., .), ${tablecells}
-putdocx table tbl1(., 1), ${tablefirstcol}
-putdocx table tbl1(1, .), ${tablefirstrow}
-local lastrow = _N
-putdocx table tbl1(3(2)`lastrow', .), ${tablerows}
-putdocx save results/TabSirByYear, replace
+save results/TabSirByYear.dta, replace

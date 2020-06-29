@@ -54,9 +54,3 @@ spmap sir_areaAdjusted ///
 		legend(order(1 "0" 2 "0.1-2" 3 "2-4" 4 "4-6" 5 "6-8" 6 "8-10") pos(2)) ///
 		// label(select(keep if showlab==1 & (sir_areaAdjusted==0 | sir_areaAdjusted>6)) xcoord(x_labelloc) ycoord(y_labelloc) label(KOMNAVN) size(1))
 graph export results/FigSirByMun${exportformat} ${exportoptions}
-
-putdocx begin
-putdocx paragraph, halign(center)
-putdocx image results/FigSirByMun${exportformat}, height(5 in)
-putdocx save results/FigSirByMun, replace
-
