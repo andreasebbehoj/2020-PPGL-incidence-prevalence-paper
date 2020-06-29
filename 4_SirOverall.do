@@ -149,10 +149,11 @@ foreach var in `r(varlist)' {
 rename sir_yCrude Crude
 gen SIR = sir_yAdjusted + " (" + sir_yLeft + "-" + sir_yRight + ")"
 
+putdocx clear
 putdocx begin
 putdocx paragraph
 putdocx table tbl1 = data("Year Crude SIR"), varnames
-putdocx table tbl1(., .), ${tableoverall}
+putdocx table tbl1(., .), ${tablecells}
 putdocx table tbl1(., 1), ${tablefirstcol}
 putdocx table tbl1(1, .), ${tablefirstrow}
 local lastrow = _N

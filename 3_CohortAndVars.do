@@ -44,11 +44,11 @@ label var period2cat "Period"
 
 * Age at diagnosis
 gen age = (date_index-d_foddato)/365.25
-label var age "Age at diagnosis"
+label var age "Age in years"
 
 * Age categories
 recode age $agecat, gen(agecat) label(agecat_)
-label var agecat "Age category"
+label var agecat "Age at diagnosis"
 
 * Sex
 recode sex (0=2)
@@ -61,7 +61,7 @@ label var modcat "Mode of discovery"
 * Tumor size
 egen sizemax = rowmax(tumo_size*)
 recode sizemax $sizecat, gen(sizecat) label(sizecat_)
-label var sizemax "Tumor size"
+label var sizemax "Size in cm"
 label var sizecat "Tumor size"
 
 * Tumor location
@@ -121,12 +121,12 @@ label define sympcat_ ///
 	5 "Unknown" ///
 	, replace
 label value sympcat sympcat_
-label variable sympcat "Symptoms"
+label variable sympcat "Symptoms at diagnosis"
 
 
 * Years of symptoms before diagnosis
 gen sympyears = (date_index-date_symp)/365.25
-label var sympyears "Years with symptoms"
+label var sympyears "Symptom duration in years"
 
 * Biochemical profile
 recode tumo_bioc ${biocat}, gen(biocat) label(biocat_)
@@ -134,7 +134,7 @@ label var biocat "Biochemical profile"
 
 * Biochemical elevation
 egen biomax = rowmax(tumo_bioc_ne tumo_bioc_e tumo_bioc_uns)
-label var biomax "Biochemical increase above lab range"
+label var biomax "CA level in fold above normal"
 
 * Surgery
 // To be continued..
@@ -166,6 +166,7 @@ drop tumo_numb tumo_loc* tumo_size* tumo_late* tumo_bioc symp_* /// Aggregated i
 order cohort_simple ppgl* include_reg year_index period* age* sex mod* size* symp* bio* tumo*
 
 ** Report
+putdocx clear
 putdocx begin
 putdocx paragraph, style(Heading2)
 putdocx text ("Patient flow")

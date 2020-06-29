@@ -13,6 +13,7 @@ putdocx paragraph
 label define period10y_ 0 "Total", modify
 local collist = "0 1 2 3 4"
 
+* Total N per column
 foreach col of local collist {
 	local label`col' : label period10y_ `col'
 	di " `col' - `label`col''"
@@ -27,8 +28,6 @@ foreach col of local collist {
 }
 
 ** Categorical vars
-
-
 foreach var in cohort_simple sex agecat modcat sizecat sympcat biocat tumorcat {
 	di "`var'"
 	preserve
@@ -59,8 +58,8 @@ foreach var in cohort_simple sex agecat modcat sizecat sympcat biocat tumorcat {
 	}
 	
 	* Row names (subgroups)
-	
 	qui: decode `var', gen(seccol)
+	qui: replace seccol = seccol + ", n(%)"
 	
 	* Row names (var group)
 	local name : variable label `var'
@@ -84,9 +83,43 @@ foreach var in cohort_simple sex agecat modcat sizecat sympcat biocat tumorcat {
 
 
 ** Continous results
+foreach var in age sizemax biomax sympyears { //  
+	di "`var'"
+	preserve
+	
+	local name : variable label `var'
+	
+	* Calculate median and range
+	statsby, by(period10y) clear total: su `var' if cohort_simple==1, detail
+	gen cell_ = string(round(p50, 0.1), "%3.1f") /// Median
+							+ " (" /// 
+							+ string(round(min, 0.1), "%3.1f") /// min
+							+ "-" ///
+							+ string(round(max, 0.1), "%3.1f") /// max
+							+ ")"
+	
+	* Row names (var group)
+	qui: gen firstcol = "`name', median (range)" 
+	qui: gen seccol = " "
+	qui: gen var = "`var'"
+	
+	* Reshape 
+	qui: recode period10y (.=0)
+	keep var var firstcol seccol period10y cell_
+	reshape wide cell_, i(var) j(period10y)
+	
+	* Order
+	order var firstcol seccol cell_0 cell_*
+	
+	* Save
+	tempfile results_`var'
+	qui: save `results_`var'', replace
+	
+	restore
+}
 
-
-** Appending results
+** Combining results
+* Headings and N 
 drop _all
 set obs 2
 gen var = " "
@@ -94,52 +127,35 @@ gen firstcol = "Patients, n " if _n==2
 gen seccol = " "
 foreach col of local collist {
 	di " `col' - `label`col''"
-	gen cell_`col' = "`label`col''" if _n==1
-	replace cell_`col' = "`coltotal_`col''" if _n==2
+	qui: gen cell_`col' = "`label`col''" if _n==1
+	qui: replace cell_`col' = "`coltotal_`col''" if _n==2
 }
 
-foreach var in cohort_simple sex agecat modcat sizecat sympcat biocat tumorcat {
-	append using `results_`var''
+* Appending results
+foreach var in cohort_simple sex agecat age modcat sizecat sizemax sympcat sympyears biocat biomax tumorcat {
+	qui: append using `results_`var''
 }
 
+* Format first column
+replace seccol = subinstr(seccol, "{&ge}", ustrunescape("\u2265"), 1) // equal-or-above-sign
+gen rowname = firstcol
+replace rowname = "    " + seccol if mi(rowname)
+
+* Format cells
+ds cell*
+foreach var in `r(varlist)' {
+	replace `var' = "-" if `var'==". (.)"
+}
 
 ** Export to table
-replace seccol = subinstr(seccol, "{&ge}", "+", 1)
-gen rowname = firstcol
-replace rowname = "   " + seccol if mi(rowname)
-
 putdocx clear
-putdocx begin
+putdocx begin, landscape
 putdocx paragraph
-putdocx table tbl1 = data("rowname cell_0 cell_1 cell_2 cell_3 cell_4")
-putdocx table tbl1(., .), ${tableoverall}
-putdocx table tbl1(., 1/2), ${tablefirstcol}
+putdocx table tbl1 = data("rowname cell_0 cell_1 cell_2 cell_3 cell_4"), width(100%) layout(autofitcontents)
+putdocx table tbl1(., .), ${tablecells} 
+putdocx table tbl1(., 1), ${tablefirstcol}
 putdocx table tbl1(1, .), ${tablefirstrow}
 gen row = _n
 levelsof row if !mi(firstcol) & mi(seccol)
 putdocx table tbl1(`r(levels)', .), ${tablerows}
 putdocx save results/TabCharacteristics, replace
-
-* Modify categorical vars
-
-
-sss
-putdocx text ("Overall crude IR: `ir_mean' (95%CI `ir_lb'-`ir_ub')"), linebreak
-putdocx text ("Overall SIR: `sir_mean' (95%CI `sir_lb'-`sir_ub')"), linebreak
-
-putdocx text ("SIR increased from `sirfirst_mean' (95%CI `sirfirst_lb'-`sirfirst_ub') in 1977 to `sirlast_mean' (95%CI `sirlast_lb'-`sirlast_ub') in ${lastyear}."), linebreak
-putdocx text ("Fold increase from 1977-${lastyear}: `foldincrease'"), linebreak
-
-putdocx text ("SIR `perlabel1': `sirper1_mean' (95%CI `sirper1_lb'-`sirper1_ub')"), linebreak
-putdocx text ("SIR `perlabel2': `sirper2_mean' (95%CI `sirper2_lb'-`sirper2_ub')"), linebreak
-putdocx text ("SIR `perlabel3': `sirper3_mean' (95%CI `sirper3_lb'-`sirper3_ub')"), linebreak
-putdocx text ("SIR `perlabel4': `sirper4_mean' (95%CI `sirper4_lb'-`sirper4_ub')"), linebreak
-
-putdocx save results/TextSirOverall, replace
-
-
-
-
-
-** Table (SIR per year)
-
