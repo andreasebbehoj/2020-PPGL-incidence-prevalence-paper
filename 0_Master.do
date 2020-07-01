@@ -36,6 +36,15 @@ ssc install shp2dta, replace
 * End of study period
 global lastyear = 2015
 
+* Arrows with diagnostic changes in study period
+global arrows =  `" "1996 National coverage of Pathology Registry" "' ///
+				+ `" "2002 AI guideline (NIH)" "' ///
+				+ `" "2007 Fast-track cancer diagnosis introduced in Denmark" "' ///
+				+ `" "2009 AI guideline (AACE) and p-Met introduced in Denmark" "' ///
+				+ `" "2011 AI guideline (AME)" "' ///
+				+ `" "2012 AI guideline (Danish)" "' ///
+				+ `" "2014 PPGL guidelines (Danish and ECE)" "' //
+
 * Study period (10-year intervals)
 global period10ycat = 	`"(1977/1986=1 "1977-1986")"' ///
 						+ `" (1987/1996=2 "1987-1996")"' ///

@@ -66,11 +66,30 @@ foreach var in `r(varlist)' {
 	qui: replace `var' = `var' * 1000000 // IR Per million
 }
 
+** Add arrows
+local scatterarrows = ""
+foreach arrow of global arrows {
+	di `"`arrow'"'
+	* x-coordinate
+	local x = word("`arrow'", 1)
+	* y-coordinate
+	qui: su sir_yRight if Year==`x'
+	local y2 = `r(max)'+0.3
+	local y1 = `y2'+1.2
+	* label 
+	local label = subinstr(`"`arrow'"', "`x' ", "", 1)
+	di "`label'"
+	* Combine
+	local scatterarrows =  `"`scatterarrows' `y1' `x' `y2' `x' "`label'""'
+}				
+di `"`scatterarrows'"'
+
 
 ** Graph (SIR per year)
 twoway ///
-	(scatter sir_yAdjuste Year, mcolor(${color1})) /// mean
+	(line sir_yAdjuste Year, mcolor(${color1})) /// mean
 	(rcap sir_yLeft sir_yRight Year, lcolor(${color1})) /// 95% CI
+	(pcarrowi `scatterarrows', lcolor(black) mcolor(black) mlabcolor(black) mlabangle(0) mlabposition(11)) /// Arrows
 	, legend(off) /// legend
 	xlabel(1977 "1977" 1982 "1982" 1987 "1987" 1992 "1992" 1997 "1997" 2002 "2002" 2007 "2007" 2012 "2012" $lastyear "$lastyear") ///
 	xmtick(1977(1)$lastyear) ///
