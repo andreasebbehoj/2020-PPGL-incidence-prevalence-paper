@@ -71,7 +71,7 @@ foreach per in `r(levels)' {
 * Export
 di `"`twoway'"' _n(2) `"`legend'"' _n(2) `"`xlabel'"'
 twoway `twoway', ///
-	legend(on col(2) order(`legend') ) ///
+	legend(on col(2) colfirst order(`legend') ) ///
 	xlabel(`xlabel') ///
 	ylabel(0(1)5) ///
 	ytitle("Age-standardized IR" "per 1,000,000 years") //
