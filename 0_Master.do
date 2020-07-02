@@ -36,14 +36,15 @@ ssc install shp2dta, replace
 * End of study period
 global lastyear = 2015
 
-* Arrows with diagnostic changes in study period
-global arrows =  `" "1996 National coverage of Pathology Registry" "' ///
-				+ `" "2002 AI guideline (NIH)" "' ///
-				+ `" "2007 Fast-track cancer diagnosis introduced in Denmark" "' ///
-				+ `" "2009 AI guideline (AACE) and p-Met introduced in Denmark" "' ///
-				+ `" "2011 AI guideline (AME)" "' ///
-				+ `" "2012 AI guideline (Danish)" "' ///
-				+ `" "2014 PPGL guidelines (Danish and ECE)" "' //
+/* Arrows with diagnostic changes in study period
+global arrows =  `""1996 National coverage of Pathology Registry" "' ///
+				+ `""2002 AI guideline (NIH)" "' ///
+				+ `""2007 Fast-track cancer diagnosis introduced in Denmark" "' ///
+				+ `""2009 AI guideline (AACE) and p-Met introduced in Denmark" "' ///
+				+ `""2011 AI guideline (AME)" "' ///
+				+ `""2012 AI guideline (Danish)" "' ///
+				+ `""2014 PPGL guidelines (Danish and ECE)" "' //
+*/
 
 * Study period (10-year intervals)
 global period10ycat = 	`"(1977/1986=1 "1977-1986")"' ///
@@ -62,7 +63,7 @@ global agecat = `"(0/24.999=1 "<25 years")"' ///
 				+ `" (75/100=4 "{&ge}75 years")"'
 
 * Mode of discovery grouping
-global modcat = `"(1 3 4=1 "Symptoms")"' ///
+global modcat = `"(1 3 4=1 "Paroxysmal symptoms")"' ///
 				+ `" (2=2 "Hypertension")"' ///
 				+ `" (20=3 "Adrenal incidentaloma")"' ///
 				+ `" (30 31=4 "Cancer imaging")"' ///
@@ -85,6 +86,19 @@ global biocat = `"(1=1 "NE only")"' ///
 					+ `" (7=5 "Never tested")"' ///
 					+ `" (98=6 "Not found")"' //
 
+* Hypertension
+global htncat = `"(1=1 "Labile hypertension")"' ///
+					+ `" (2 3=2 "Stable hypertension")"' ///
+					+ `" (4 99=3 "No hypertension")"' ///
+					+ `" (98=4 "Not found")"' //
+
+/* Genetic disposition
+gencat: 
+	1: Hereditary PPGL
+	2: Negative genetic testing
+	3: No genetic or clinical diagnosis
+	4: Missing
+Defined in 3_CohortAndVars.do */
 
 /* Tumor location
 tumorcat:
@@ -129,6 +143,7 @@ do 3_ImportRedcap.do
 
 ** Generate study variables and restrict to cohort
 do 3_CohortAndVars.do
+
 
 
 

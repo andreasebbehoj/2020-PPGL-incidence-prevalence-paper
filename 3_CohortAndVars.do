@@ -123,10 +123,13 @@ label define sympcat_ ///
 label value sympcat sympcat_
 label variable sympcat "Symptoms at diagnosis"
 
-
 * Years of symptoms before diagnosis
 gen sympyears = (date_index-date_symp)/365.25
 label var sympyears "Symptom duration in years"
+
+* Hypertension
+recode symp_hyper ${htncat}, gen(htncat) label(htncat_)
+label var htncat "Hypertension at diagnosis"
 
 * Biochemical profile
 recode tumo_bioc ${biocat}, gen(biocat) label(biocat_)
@@ -134,11 +137,16 @@ label var biocat "Biochemical profile"
 
 * Biochemical elevation
 egen biomax = rowmax(tumo_bioc_ne tumo_bioc_e tumo_bioc_uns)
-label var biomax "CA level in fold above normal"
+label var biomax "Fold increase above upper normal range"
 
-* Surgery
-// To be continued..
-
+* Genetic disposition
+recode gen_synd	(1 2 3 4 56 7 8 9 10 11 20 30 39 = 1 "Hereditary PPGL") /// confirmed clinically or genetically
+				(44=2 "Negative genetic tests") /// No known syndrome/mutation (both tested and non-tested)
+				(12345=3 "Never genetically tested") /// empty value to create label
+				(98=4 "Not found") /// 
+				, gen(gencat) label(gencat_)
+recode gencat (2=3) if obta_gene==2 // Recode for those never tested
+label var gencat "Hereditary PPGL"
 
 *** Restrict to PPGL patients
 keep if inlist(1, ppgl_incident, ppgl_prevalent)
