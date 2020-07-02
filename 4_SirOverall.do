@@ -82,14 +82,18 @@ foreach arrow of global arrows {
 	* Combine
 	local scatterarrows =  `"`scatterarrows' `y1' `x' `y2' `x' "`label'""'
 }				
-di `"`scatterarrows'"'
+if !mi("`scatterarrows'") {
+	local scatterarrows = `"(pcarrowi `scatterarrows', lcolor(black) mcolor(black) mlabcolor(black) mlabangle(0) mlabposition(11))"'
+	di `"`scatterarrows'"'
+
+}
 
 
 ** Graph (SIR per year)
 twoway ///
-	(line sir_yAdjuste Year, mcolor(${color1})) /// mean
+	(line sir_yAdjuste Year, lcolor(${color1})) /// mean
 	(rcap sir_yLeft sir_yRight Year, lcolor(${color1})) /// 95% CI
-	(pcarrowi `scatterarrows', lcolor(black) mcolor(black) mlabcolor(black) mlabangle(0) mlabposition(11)) /// Arrows
+	`scatterarrows' /// Arrows, if enabled
 	, legend(off) /// legend
 	xlabel(1977 "1977" 1982 "1982" 1987 "1987" 1992 "1992" 1997 "1997" 2002 "2002" 2007 "2007" 2012 "2012" $lastyear "$lastyear") ///
 	xmtick(1977(1)$lastyear) ///

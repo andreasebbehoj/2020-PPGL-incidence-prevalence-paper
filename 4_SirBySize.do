@@ -55,7 +55,7 @@ qui: su Size
 local legendorder = `r(max)'
 forvalues size = 1(1)`r(max)' {
 		local twoway = "(bar sir Period if Size==`size'" /// bar chart
-					+ `", lcolor(none) fcolor(${color8_`size'})) "' /// Colors
+					+ `", lcolor(none) fcolor(${color`r(max)'_`size'})) "' /// Colors
 					+ `"`twoway'"' // Append
 		local legend = `"`legendorder' "`: label sizecat_ `size''" `legend'"'
 		local legendorder = `legendorder'-1

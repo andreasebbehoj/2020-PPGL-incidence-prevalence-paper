@@ -55,7 +55,7 @@ qui: su ModeOfDiscovery
 local legendorder = `r(max)'
 forvalues mod = 1(1)`r(max)' {
 		local twoway = "(bar sir Period if ModeOfDiscovery==`mod'" /// bar chart
-					+ `", lcolor(none) fcolor(${color8_`mod'})) "' /// Colors
+					+ `", lcolor(none) fcolor(${color`r(max)'_`mod'})) "' /// Colors
 					+ `"`twoway'"' // Append
 		local legend = `"`legendorder' "`: label modcat_ `mod''" `legend'"'
 		local legendorder = `legendorder'-1

@@ -30,14 +30,14 @@ foreach var in mean lb ub {
 qui: su agecat
 local legendorder = `r(max)'
 forvalues age = 1(1)`r(max)' {
-		local twoway = `"(line mean period if agecat==`age', lcolor(${color4_`age'})) "' /// mean
+		local twoway = `"(line mean period if agecat==`age', lcolor(${color`r(max)'_`age'})) "' /// mean
 					+ `"`twoway'"' // Append
 		local legend = `"`legendorder' "`: label agecat_ `age''" `legend'"'
 		local legendorder = `legendorder'-1
 }
 forvalues age = 1(1)`r(max)' {
 		local twoway = 	`"`twoway'"' ///
-					+ `" (rcap lb ub period if agecat==`age', lcolor(${color4_`age'})) "' // 95% CI
+					+ `" (rcap lb ub period if agecat==`age', lcolor(${color`r(max)'_`age'})) "' // 95% CI
 }
 
 * Export
@@ -63,14 +63,14 @@ local legendorder = `r(max)'
 local legend = ""
 local twoway = ""
 forvalues sex = 1(1)`r(max)' {
-		local twoway = `"(line mean period if sex==`sex', lcolor(${color4_`sex'})) "' /// mean
+		local twoway = `"(line mean period if sex==`sex', lcolor(${color`r(max)'_`sex'})) "' /// mean
 					+ `"`twoway'"' // Append
 		local legend = `"`legendorder' "`: label sex_ `sex''" `legend'"'
 		local legendorder = `legendorder'-1
 }
 forvalues sex = 1(1)`r(max)' {
 		local twoway = 	`"`twoway'"' ///
-					+ `" (rcap lb ub period if sex==`sex', lcolor(${color4_`sex'})) "' // 95% CI
+					+ `" (rcap lb ub period if sex==`sex', lcolor(${color`r(max)'_`sex'})) "' // 95% CI
 }
 
 * Export

@@ -23,21 +23,34 @@ grstyle set legend ///
 
 ** Colors
 * Graphs with 1 color
-global color1 = "navy"
+global color1 = "black"
 
-* Graphs with 3 colors
-global color3_1 = "navy"
-global color3_2 = "gs9"
-global color3_3 = "gs12"
+* Graphs with 2 colors
+global color2_1 = "navy"
+global color2_2 = "green"
 
 * Graphs with 4 colors
 global color4_1 = "navy"
-global color4_2 = "maroon"
+global color4_2 = "green"
 global color4_3 = "orange"
 global color4_4 = "gs9"
 
+* Graphs with 5 colors
+global color5_1 = "navy"
+global color5_2 = "green"
+global color5_3 = "orange"
+global color5_4 = "sienna"
+global color5_5 = "gs9"
+
 * Graphs with 8 colors
-colorpalette tfl, n(8) globals(, prefix(color8_) nonames)
+global color8_1 = "navy"
+global color8_2 = "green"
+global color8_3 = "orange"
+global color8_4 = "sienna"
+global color8_5 = "olive_teal"
+global color8_6 = "lavender"
+global color8_7 = "sandb"
+global color8_8 = "gs9"
 
 
 ** Export

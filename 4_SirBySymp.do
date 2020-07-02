@@ -55,7 +55,7 @@ qui: su Symptoms
 local legendorder = `r(max)'
 forvalues symp = 1(1)`r(max)' {
 		local twoway = "(bar sir Period if Symptoms==`symp'" /// bar chart
-					+ `", lcolor(none) fcolor(${color8_`symp'})) "' /// Colors
+					+ `", lcolor(none) fcolor(${color`r(max)'_`symp'})) "' /// Colors
 					+ `"`twoway'"' // Append
 		local legend = `"`legendorder' "`: label sympcat_ `symp''" `legend'"'
 		local legendorder = `legendorder'-1
