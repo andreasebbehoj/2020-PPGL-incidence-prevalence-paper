@@ -70,13 +70,13 @@ global modcat = `"(1 3 4=1 "Paroxysmal symptoms")"' ///
 				+ `" (40 41=5 "Genetic")"' ///
 				+ `" (50=6 "Autopsy")"' ///
 				+ `" (60 61 62 63 64 66=7 "Other")"' ///
-				+ `" (98 99=8 "Unknown")"' //
+				+ `" (98 99=8 "Not found")"' //
 
 * Tumor size (largest diameter)
 global sizecat = `"(0/3.999=1 "<4 cm")"' ///
 					+ `" (4/7.999=2 "4-7.9 cm")"' ///
 					+ `" (8/50=3 "{&ge}8 cm")"' ///
-					+`" (.=4 "Unknown")"'
+					+`" (.=4 "Not found")"'
 
 * Biochemical profile
 global biocat = `"(1=1 "NE only")"' ///
@@ -184,6 +184,11 @@ do 4_SirBySize.do
 
 ** Prevalence
 do 4_Prev.do
+
+
+
+
+
 
 ***** 5) Report
 /*

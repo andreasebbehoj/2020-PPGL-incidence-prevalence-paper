@@ -4,7 +4,7 @@ use data/cohort_alldata.dta, clear
 
 *** Define cohort
 ** Study area
-recode cohort (1 2 5 = 1 "North and Central Region") (3=2 "Remaining DK"), gen(cohort_simple_)
+recode cohort (1 2 5 = 1 "North and Central Region") (3=2 "Remaining Danish regions"), gen(cohort_simple_)
 label var cohort_simple "Study area"
 
 ** Index date and year
@@ -69,14 +69,14 @@ gen tumorcat = 1 if tumo_numb==1 & tumo_loc1==1 // single pheo
 recode tumorcat (.=2) if tumo_numb==1 & inlist(tumo_loc1, 2, 3) // single para (2: abdominal, 3: head/neck)
 recode tumorcat (.=3) if tumo_numb==2 & tumo_loc1==1 & tumo_loc2==1 // bilat pheo
 recode tumorcat (.=4) if tumo_numb==2 & inlist(tumo_loc1, 2, 3) & inlist(tumo_loc2, 2, 3) // multiple para
-recode tumorcat (.=.a) if inlist(tumo_numb, 98, 99) // not found or unspecified
+recode tumorcat (.=5) if inlist(tumo_numb, 98, 99) // not found or unspecified
 label var tumorcat "Tumor location"
 label define tumorcat_ ///
 	1 "Unilateral pheochromocytoma" ///
 	2 "Unilateral paraganglioma" ///
 	3 "Bilateral pheochromocytomas" ///
 	4 "Multiple paragangliomas" ///
-	.a "Missing" ///
+	5 "Not found" ///
 	, replace
 label value tumorcat tumorcat_
 
@@ -118,7 +118,7 @@ label define sympcat_ ///
 	2 "1-2 classic symptoms" ///
 	3 "Other paroxysmal symptoms" ///
 	4 "No paroxysmal symptoms" ///
-	5 "Unknown" ///
+	5 "Not found" ///
 	, replace
 label value sympcat sympcat_
 label variable sympcat "Symptoms at diagnosis"
@@ -142,7 +142,7 @@ label var biomax "Fold increase above upper normal range"
 * Genetic disposition
 recode gen_synd	(1 2 3 4 56 7 8 9 10 11 20 30 39 = 1 "Hereditary PPGL") /// confirmed clinically or genetically
 				(44=2 "Negative genetic tests") /// No known syndrome/mutation (both tested and non-tested)
-				(12345=3 "Never genetically tested") /// empty value to create label
+				(12345=3 "Never tested") /// empty value to create label
 				(98=4 "Not found") /// 
 				, gen(gencat) label(gencat_)
 recode gencat (2=3) if obta_gene==2 // Recode for those never tested
