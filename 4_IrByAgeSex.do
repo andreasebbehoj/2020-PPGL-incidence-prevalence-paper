@@ -26,6 +26,12 @@ foreach var in mean lb ub {
 	qui: replace `var' = `var' * 1000000 // IR Per million
 }
 
+* Jitter x-axis
+qui: replace period = period-0.03 if agecat==1
+qui: replace period = period-0.01 if agecat==2
+qui: replace period = period+0.01 if agecat==3
+qui: replace period = period+0.03 if agecat==4
+
 * Define graphs and legend
 qui: su agecat
 local legendorder = `r(max)'
@@ -56,6 +62,10 @@ use `bysex', clear
 foreach var in mean lb ub {
 	qui: replace `var' = `var' * 1000000 // IR Per million
 }
+
+* Jitter x-axis
+qui: replace period = period-0.01 if sex==1
+qui: replace period = period+0.01 if sex==2
 
 * Define graphs and legend
 qui: su sex
