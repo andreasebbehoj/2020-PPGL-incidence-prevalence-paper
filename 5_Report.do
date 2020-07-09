@@ -94,7 +94,7 @@ putdocx sectionbreak, landscape
 putdocx paragraph, style(Heading2) `fontHeading2'
 putdocx text ("Table `tabno' - Patient and Tumor Characteristics by Year of Diagnosis")
 
-use results/TabPatCharac.dta, clear
+use results/TabPatChar.dta, clear
 putdocx table tbl1 = data("rowname cell_0 cell_1 cell_2 cell_3 cell_4"), width(100%) layout(autofitcontents)
 putdocx table tbl1(., .), ${tablecells} 
 putdocx table tbl1(., 1), ${tablefirstcol}

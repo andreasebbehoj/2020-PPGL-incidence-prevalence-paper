@@ -132,7 +132,7 @@ foreach col of local collist {
 }
 
 * Appending results
-foreach var in cohort_simple sex agecat age modcat sizecat sizemax sympcat sympyears htncat biocat biomax tumorcat gencat {
+foreach var in cohort_simple sex agecat age modcat sympcat sympyears htncat sizecat sizemax tumorcat biocat biomax gencat {
 	qui: append using `results_`var''
 }
 
@@ -149,4 +149,4 @@ foreach var in `r(varlist)' {
 gen row = _n
 
 ** Export 
-save results/TabPatCharac.dta, replace
+save results/TabPatChar.dta, replace
