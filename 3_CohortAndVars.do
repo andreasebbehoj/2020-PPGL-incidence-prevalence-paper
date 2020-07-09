@@ -124,7 +124,7 @@ label value sympcat sympcat_
 label variable sympcat "Symptoms at diagnosis"
 
 * Years of symptoms before diagnosis
-gen sympyears = (date_index-date_symp)/365.25
+gen sympyears = (date_index-date_symp)/365.25 if inlist(sympcat, 1, 2, 3) // Symptom duration for paroxysmal symp
 label var sympyears "Symptom duration in years"
 
 * Hypertension
@@ -151,6 +151,7 @@ label var gencat "Hereditary PPGL"
 *** Restrict to PPGL patients
 keep if inlist(1, ppgl_incident, ppgl_prevalent)
 
+* Count incident/prevalent for report
 count if ppgl_incident==1
 local incitotal=`r(N)'
 count if year_index>${lastyear} // Patients diagnosed after 2015 removed
@@ -181,7 +182,7 @@ putdocx text ("Patient flow")
 putdocx paragraph
 putdocx text ("Total PPGL cohort from 1977-2016 was `incitotal' (Ebbehoj A 2018, Clin Epidemiol). ")
 putdocx text ("We excluded `afterlastyear' patients diagnosed after ${lastyear}. ")
-putdocx text ("Final cohort in this study was `incitotal' incident cases of PPGL and `prevfinal' prevalent cases. "), linebreak
+putdocx text ("Final cohort in this study was `incifinal' incident cases of PPGL and `prevfinal' prevalent cases. "), linebreak
 putdocx save results/TextPatientFlow, replace
 
 ** With PID
