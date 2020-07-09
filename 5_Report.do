@@ -60,13 +60,13 @@ putdocx paragraph, style(Heading2) `fontHeading2'
 putdocx text ("Figure `figno' - Standardized Incidence Rates of PPGL by A) Mode of Discovery, B) Symptoms at Presentation, and C) Tumor Size")
 putdocx paragraph, halign(center)
 putdocx text ("A")
-putdocx image results/FigSirByMod${exportformat}, height(5 in)
+putdocx image results/FigSirByMod${exportformat}, height(2.7 in)
 putdocx paragraph, halign(center)
 putdocx text ("B")
-putdocx image results/FigSirBySymp${exportformat}, height(5 in)
+putdocx image results/FigSirBySymp${exportformat}, height(2.7 in)
 putdocx paragraph, halign(center)
 putdocx text ("C")
-putdocx image results/FigSirBySize${exportformat}, height(5 in)
+putdocx image results/FigSirBySize${exportformat}, height(2.7 in)
 putdocx paragraph
 putdocx text ("Notes: "), bold
 putdocx text  ("Incidence rates in the North and Central Danish regions by A) mode of discovery, B) symptoms, and C) tumor size. Incidence rates are reported in 10-year averages and age-standardized to the European Standard Population 2013.")
