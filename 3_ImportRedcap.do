@@ -18,7 +18,7 @@ shell  `curlpath' 	///
 	--form content=record 	///
 	--form format=csv 		///
 	--form type=flat 		///
-	--form filterLogic="[ppgl]='1' or [algo_9l]='1'" ///
+	--form filterLogic="[ppgl]='1' or [ppgl]='2' or [algo_9l]='1'" ///
 	`apiurl'
 
 
