@@ -164,6 +164,9 @@ do 4_FigTabLayout.do
 ** Baseline
 do 4_TabCharacteristics.do
 
+** MoD details
+do 4_TabModDetails.do
+
 ** SIR overall
 do 4_SirOverall.do
 

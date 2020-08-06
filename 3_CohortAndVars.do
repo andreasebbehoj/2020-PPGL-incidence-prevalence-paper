@@ -202,7 +202,7 @@ save data/cohort_pid.dta, replace
 
 
 ** Without PID
-drop cpr id rec_nr *_comm_* *_comm d_foddato c_status d_status /// Sensitive data
+drop cpr rec_nr *_comm_* *_comm d_foddato c_status d_status /// Sensitive data
 	date_symp date_index date_diag date_recu* date_surg* // Aggregated in code above
 
 save data/cohort_ppgl.dta, replace
