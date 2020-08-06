@@ -2,12 +2,6 @@
 use data/cohort_ppgl.dta, clear
 keep if ppgl_incident==1
 
-/** Text
-putdocx begin
-putdocx paragraph, style(Heading2)
-putdocx text ("Patient Characteristics")
-putdocx paragraph
-*/
 
 ** Define column headers
 label define period10y_ 0 "Total", modify
@@ -28,7 +22,7 @@ foreach col of local collist {
 }
 
 ** Categorical vars
-foreach var in cohort_simple sex agecat modcat sizecat sympcat htncat biocat tumorcat gencat {
+foreach var in cohort_simple sex agecat modcat surgcat sizecat sympcat htncat biocat tumorcat gencat {
 	di "`var'"
 	preserve
 	
@@ -132,7 +126,7 @@ foreach col of local collist {
 }
 
 * Appending results
-foreach var in cohort_simple sex agecat age modcat sympcat sympyears htncat sizecat sizemax tumorcat biocat biomax gencat {
+foreach var in cohort_simple sex agecat age modcat sympcat sympyears htncat surgcat sizecat sizemax tumorcat biocat biomax gencat {
 	qui: append using `results_`var''
 }
 
