@@ -37,7 +37,7 @@ capture: log off
 slist id mod_special mod_comm if mod==3
 capture: log on
 
-replace mod_textdetails = "Diagnosed after pressor-response during pregnancy/birth" if mod==3
+replace mod_textdetails = "Diagnosed after pressor-response during pregnancy or birth" if mod==3
 
 
 ** Pressor-response surgery/anesthesia
@@ -45,7 +45,7 @@ capture: log off
 slist id mod_special mod_comm if mod==4
 capture: log on
 
-replace mod_textdetails = "Diagnosed after pressor-response during surgery/anesthesia unrelated to PPGL or adrenals." if mod==4 & inlist(id, 625, 854, 1507, 3242)
+replace mod_textdetails = "Diagnosed after pressor-response during surgery or anesthesia unrelated to PPGL or adrenals." if mod==4 & inlist(id, 625, 854, 1507, 3242)
 
 replace mod_textdetails = "Diagnosed after pressor-response occurring during the day after minor surgery." if id==1816
 replace mod_textdetails = "Diagnosed after pressor-response during aspiration of a suspected renal cyst, later confirmed to be a pheochromocytoma." if id==975
@@ -56,29 +56,45 @@ capture: log off
 slist id mod_special mod_biopsy mod_preopdiag mod_comm if mod==20 & mod_special==1
 capture: log on
 
-* "Normal" incidentalomas
-qui: count if mod==20 & mod_special!=1 & mod_imagemodality==1
+* Imaging
+qui: count if mod==20 & mod_imagemodality==1
 local no_ct = `r(N)'
-qui: count if mod==20 & mod_special!=1 & mod_imagemodality==2
+qui: count if mod==20 & mod_imagemodality==2
 local no_us = `r(N)'
-qui: count if mod==20 & mod_special!=1 & mod_imagemodality==3
+qui: count if mod==20 & mod_imagemodality==3
 local no_mri = `r(N)'
-qui: count if mod==20 & mod_special!=1 & mod_imagemodality==4
+qui: count if mod==20 & mod_imagemodality==4
 local no_other = `r(N)'
 
-replace mod_textdetails = "Diagnosed after evaluation for adrenal incidentaloma found on CT (n=`no_ct'), US (n=`no_us'), MRI (n=`no_mri'), or other imaging (n=`no_other')" if mod==20 & mod_special!=1
+local text_inci_imaging = "Incidentaloma found on CT (n=`no_ct'), US (n=`no_us'), MRI (n=`no_mri'), or other imaging (n=`no_other')" 
+
+* Incidentalomas with biochemical work-up
+replace mod_textdetails = "Diagnosed after biochemical evaluation of adrenal incidentaloma." if mod==20 & mod_special!=1
 
 * Incidentalomas postOP diagnosed as pheo
 replace mod_textdetails = "Diagnosed after surgical removal of cancer-suspicious adrenal incidentaloma. One patient had normal peri-operative BP and two had very labile BP, one of whom died of bleeding complications immediately after surgery." if mod==20 & mod_special==1 & mod_preopdiag==0
 
 * FNA/Biopsied incidentalomas  (diagnosed before surgery / never operated)
-replace mod_textdetails = "Diagnosed after FNA and/or biopsy of adrenal incidentaloma. Incidentalomas found on CT" if mod==20 & mod_special==1 & inlist(mod_biopsy, 1, 2, 3)
+replace mod_textdetails = "Diagnosed after FNA or biopsy of adrenal incidentaloma. Incidentalomas found on CT" if mod==20 & mod_special==1 & inlist(mod_biopsy, 1, 2, 3)
 
-* Initially silent AI-pheo
+* Case of initially silent AI-pheo
 replace mod_textdetails = "Patient diagnosed with 23 mm adrenal incidentaloma with unenhanced CT attenuation of 30 Hounsfield units. Followed for three years without any symptoms, growth or biochemical evidence of catecholamine-excess. Re-evaluation six years later due to paroxysmal symptoms showed tumor growth to 48 mm and catecholamine-excess." if id==2846
 
 
-** Cancer staging
+** Cancer imaging
+* Imaging
+qui: count if inlist(mod, 30, 31) & mod_imagemodality==1
+local no_ct = `r(N)'
+qui: count if inlist(mod, 30, 31) & mod_imagemodality==2
+local no_us = `r(N)'
+qui: count if inlist(mod, 30, 31) & mod_imagemodality==3
+local no_mri = `r(N)'
+qui: count if inlist(mod, 30, 31) & mod_imagemodality==4
+local no_other = `r(N)'
+
+local text_cancer_imaging = "Tumor found on CT (n=`no_ct'), US (n=`no_us'), MRI (n=`no_mri'), or other imaging (n=`no_other')" 
+
+* Cancer staging
 capture: log off
 slist id mod_special mod_biopsy mod_preopdiag mod_comm if mod==30 
 capture: log on
@@ -89,8 +105,7 @@ replace mod_textdetails = "Diagnosed after FNA of suspected adrenal metastasis."
 
 replace mod_textdetails = "Diagnosed after surgical removal of suspected adrenal metastasis. Two patients were operated without any biochemical work-up and one patient had elevated catecholamines but was operated before test results were seen." if mod==30 & mod_special==1 & mod_preopdiag==0
 
-
-** Cancer FU
+* Cancer FU
 capture: log off
 slist id mod_special mod_biopsy mod_preopdiag mod_comm if mod==31
 capture: log on
@@ -113,7 +128,7 @@ foreach gene of local genes {
 	qui: count if gen_synd==`gene' & mod==40
 	local textgenes = itrim("`textgenes'`label' (n=`r(N)'), ")
 }
-local textgenes = reverse(subinstr(subinstr(reverse("`textgenes'"), ",", "", 1)), ",", "dna ,", 1)
+local textgenes = reverse(subinstr(subinstr(reverse("`textgenes'"), " ,", "", 1)), ",", "dna ,", 1)
 di "`textgenes'"
 
 replace mod_textdetails = "Diagnosed during work-up or regular control for predisposing mutation or syndrome in `textgenes'." if mod==40
@@ -132,7 +147,7 @@ foreach gene of local genes {
 	qui: count if gen_synd==`gene' & mod==41
 	local textgenes = itrim("`textgenes'`label' (n=`r(N)'), ")
 }
-local textgenes = reverse(subinstr(subinstr(reverse("`textgenes'"), ",", "", 1)), ",", "dna ,", 1)
+local textgenes = reverse(subinstr(subinstr(reverse("`textgenes'"), " ,", "", 1)), ",", "dna ,", 1)
 di "`textgenes'"
 
 replace mod_textdetails = "Diagnosed due to family member diagnosed with predisposing mutation or syndrome in `textgenes'." if mod==41
@@ -181,36 +196,59 @@ replace mod_textdetails = "Health records missing from time before diagnosis." i
 
 
 
-*** Export results to table
+*** Format to text
 assert !mi(mod_textdetails)
 
-gen n=1
-collapse (sum) n, by(modcat mod_textdetails)
-gsort +modcat -n
+* Count each category
+statsby, by(modcat mod_textdetails) clear : count 
+bysort modcat (N mod_textdetails): gen obsno=1+_N-_n
+sort modcat obsno
+
+* Calculate total per modcat 
+reshape wide N mod_textdetails, i(modcat) j(obsno) 
+egen N0 = rowtotal(N*)
+gen mod_textdetails0 = ""
+reshape long
+drop if N==.
+
+* Convert to text
+decode modcat, gen(var)
+gen firstcol = var if obsno==0
+gen cell_0 = string(N)
+gen cell_1 = mod_textdetails if obsno!=0
+
+* Headings
+local count = _N + 1
+set obs `count'
+
+replace firstcol = "Mode of Discovery" if _n==_N
+replace cell_0 = "No. of Patients" if _n==_N
+replace cell_1 = "Definitions and Details on PPGL Diagnosis" if _n==_N
+recode modcat (.=0) if _n==_N
 
 
-*** Open excel file
-putexcel clear
-putexcel set results/TabModDetails.xlsx, replace
+*** Add definition of MoD categories
+replace cell_1 = "Patients diagnosed with PPGL after evaluation for paroxysmal symptoms of catecholamine-excess." if modcat==1 & obsno==0
 
-local row = 1
-putexcel A`row'="Mode of Discovery" B`row'="No. of Patients" C`row'="Details on PPGL diagnosis"
+replace cell_1 = "Patients diagnosed with PPGL during evaluation for suspected secondary hypertension (paroxysmal, malignant or treatment resistant). Includes patients diagnosed after a hypertensive crisis or pressor-response during surgery, anesthesia, pregnancy, or birth." if modcat==2 & obsno==0
 
+replace cell_1 = "Patients diagnosed with PPGL after evaluation for an adrenal incidentaloma, defined as a ≥1 cm adrenal mass found on imaging not performed due to suspected adrenal disease. `text_inci_imaging'. Patients diagnosed during work-up for cancer were excluded from this category." if modcat==3 & obsno==0
 
+replace cell_1 = "Patients diagnosed with PPGL after evaluation for an adrenal mass found during cancer staging for active malignancy or follow-up for previous cancer. `text_cancer_imaging'. Patients evaluated for what was thought to be extra-adrenal cancer but turned out to be benign PPGL were excluded from this category." if modcat==4 & obsno==0
 
-levelsof modcat, local(modcats)
-foreach grp of local modcats {
-	local label`grp' : label modcat_ `grp'
-	qui: count if modcat==`grp'
-	local no`grp' = `r(N)'
-	di "`grp' - `label`grp'' N=`no`grp''"
-	tab mod mod_special if modcat==`grp' //& mod_special!=1
-	
-	capture: log off // Hide sensitive notes
-	slist id mod mod_comm if modcat==`grp' & mod_special==1 
-	capture: log on
-}
+replace cell_1 = "Patients diagnosed with PPGL during regular control for a known PPGL-predisposing syndrome or mutation (vHL, NF1, MEN2, SDHx mutations, etc), during evaluation for a possible syndrome-related disease (renal clear cell carcinoma, medullary thyroid carcinoma, schwannoma, etc) or after diagnosis of PPGL or a PPGL-related syndrome or mutation in a family member." if modcat==5 & obsno==0
 
+replace cell_1 = "Patients diagnosed with PPGL post-mortem at autopsy." if modcat==6 & obsno==0
 
+replace cell_1 = "Other modes of discovery." if modcat==7 & obsno==0
 
-putexcel save
+replace cell_1 = "Information on mode of discovery missing or unspecified." if modcat==8 & obsno==0
+
+*** Export to table
+sort modcat obsno
+gen row = _n
+
+keep var row firstcol cell_*
+order var row firstcol cell_*
+
+save results/TabModDetails.dta, replace

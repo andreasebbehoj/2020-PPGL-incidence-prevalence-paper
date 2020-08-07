@@ -63,8 +63,8 @@ global agecat = `"(0/24.999=1 "<25 years")"' ///
 				+ `" (75/100=4 "{&ge}75 years")"'
 
 * Mode of discovery grouping
-global modcat = `"(1 3 4=1 "Paroxysmal symptoms")"' ///
-				+ `" (2=2 "Hypertension")"' ///
+global modcat = `"(1=1 "Paroxysmal symptoms")"' ///
+				+ `" (2 3 4=2 "Hypertension")"' ///
 				+ `" (20=3 "Adrenal incidentaloma")"' ///
 				+ `" (30 31=4 "Cancer imaging")"' ///
 				+ `" (40 41=5 "Genetic")"' ///

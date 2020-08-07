@@ -111,11 +111,31 @@ putdocx text  (`"Patients for whom the relevant health records, radiology report
 *** Supplementary graphs/tables
 local supno = 0
 
-putdocx sectionbreak
+putdocx sectionbreak, landscape
 putdocx paragraph, style(Heading1) `fontHeading1'
 putdocx text ("Supplementary")
 
+** MoD details
+local supno = `supno'+1
+putdocx paragraph, style(Heading2) `fontHeading2'
+putdocx text ("Supplementary `supno' - Details on Mode of Discovery")
+
+use results/TabModDetails.dta, clear
+putdocx table tbl1 = data("firstcol cell_0 cell_1"), layout(autofitcontents)
+putdocx table tbl1(., .), ${tablecells}
+putdocx table tbl1(., 1/3), ${tablefirstcol}
+putdocx table tbl1(1, .), ${tablefirstrow}
+levelsof row if !mi(firstcol) & row!=1
+putdocx table tbl1(`r(levels)', .), ${tablerows}
+
+putdocx paragraph
+putdocx text ("Abbreviations: "), bold
+putdocx text  ("CT, computed tomography; MEN, multiple endocrine neoplasia; MRI, magnetic resonance imaging; NF1, neurofibromatosis type 1; SDH, succinate dehydrogenase; US, ultrasound; vHL, von Hippel-Lindau. ")
+putdocx text ("Notes: "), bold
+putdocx text  ("Adrenal incidentaloma as defined by recent guidelines.(1) ")
+
 ** SIR by year table
+putdocx sectionbreak
 local supno = `supno'+1
 putdocx paragraph, style(Heading2) `fontHeading2'
 putdocx text ("Supplementary `supno' - Age-standardized Incidence Rates per Year")
@@ -140,8 +160,9 @@ putdocx text ("Supplementary `supno' - Age-standardized Incidence Rates in each 
 putdocx paragraph
 putdocx image results/FigSirByMun${exportformat}, height(5 in)
 putdocx paragraph
+
 putdocx text ("Notes: "), bold
-putdocx text  ("Incidence rates by patients' municipality of residence at time of diagnosis. Incidence rates are standardized to European Standard Population 2013 and reported in averages for 1977-$lastyear.")
+putdocx text  ("Average incidence rates 1977-$lastyear by patients' home municipality at date of diagnosis. Incidence rates are standardized to European Standard Population 2013.")
 
 
 *** Save Figures and Tables report
