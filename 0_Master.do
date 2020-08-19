@@ -16,7 +16,7 @@ version 16
 set more off
 clear
 file close _all
-cd "U:\2020-PPGL-incidence-prevalence-paper"
+cd "E:\2020-PPGL-incidence-prevalence-paper"
 capture: mkdir data
 capture: mkdir results
 
@@ -94,30 +94,16 @@ global htncat = `"(1=1 "Labile hypertension")"' ///
 
 /* Genetic disposition
 gencat: 
-	1: Hereditary PPGL
-	2: Negative genetic testing
-	3: No genetic or clinical diagnosis
-	4: Missing
-Defined in 3_CohortAndVars.do */
+	Defined in 3_CohortAndVars.do
 
-/* Tumor location
+* Tumor location
 tumorcat:
-	1: single pheo
-	2: single para
-	3: bilat pheo
-	4: multiple para
-	.a: missing
-Defined in 3_CohortAndVars.do */
+	Defined in 3_CohortAndVars.do
 
-
-/* Symptoms
+* Symptoms
 sympcat:
-	1: all three of classic symptoms
-	2: 1-2 of classic symptoms
-	3: 1 or more other paroxysmal symptom
-	4: no paroxysmal symptoms described
-	.a: Missing
-Defined in 3_CohortAndVars.do */
+	Defined in 3_CohortAndVars.do 
+*/
 
 
 
@@ -169,6 +155,8 @@ do 4_TabModDetails.do
 
 ** SIR overall
 do 4_SirOverall.do
+
+** SIR by year
 
 ** SIR by municipality
 do 4_SirByMunicipality.do
