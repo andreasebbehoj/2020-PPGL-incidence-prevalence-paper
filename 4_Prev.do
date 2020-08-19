@@ -36,7 +36,7 @@ label variable year "Year"
 
 
 *** Calculate prevalence
-merge 1:1 year agecat using data/popDK_age.dta, assert(match using) nogen
+merge 1:1 year agecat using data/popDK_year_age.dta, assert(match using) nogen
 
 ** End of study
 gen dummy=1

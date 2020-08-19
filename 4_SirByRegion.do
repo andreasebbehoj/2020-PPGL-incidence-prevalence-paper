@@ -4,11 +4,11 @@
 ** Cases per year
 use data/cohort_ppgl.dta, clear
 keep if ppgl_incident==1
-keep agecat year_index cohort_simple
+keep agecat period10y cohort_simple
+rename period10y period
 contract _all, freq(N) zero
-rename year_index year
 
-merge 1:1 year area agecat using data/popRegion_age.dta, assert(match using) nogen
+merge 1:1 period cohort_simple agecat using data/popDK_period_age_region.dta, assert(match using) nogen
 
 
 

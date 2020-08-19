@@ -9,7 +9,7 @@ keep agecat sex period10y
 rename period10y period
 contract _all, freq(N) zero
 
-merge 1:1 agecat sex period using data/popDK_ageperiod.dta, assert(match using) nogen
+merge 1:1 agecat sex period using data/popDK_period_age_sex.dta, assert(match using) nogen
 
 
 ** IR by period/age and period/sex

@@ -8,10 +8,10 @@ keep agecat year_index
 contract _all, freq(N) zero
 rename year_index year
 
-merge 1:1 year agecat using data/popDK_age.dta, assert(match using) nogen
+merge 1:1 year agecat using data/popDK_year_age.dta, assert(match using) nogen
 
 
-** Crude IR
+** Overall crude IR
 ci means N, poisson exposure(pop)
 local format = `", 0.01), "%03.2f")"' // 3 significant numbers
 local ir_mean = string(round(`r(mean)'*1000000 `format'

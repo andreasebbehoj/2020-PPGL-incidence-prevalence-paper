@@ -5,12 +5,12 @@
 use data/cohort_ppgl.dta, clear
 keep if ppgl_incident==1
 keep if cohort_simple==1 // Central and Northern Regions only
-keep agecat period10y sympcat
+keep period10y agecat cohort_simple sympcat
 rename period10y period
 contract _all, freq(N) zero
 
-merge m:1 period agecat using data/popRegion_age_period.dta, assert(match using) nogen
-
+merge m:1 period agecat cohort_simple using data/popDK_period_age_region.dta, assert(match using) nogen
+keep if cohort_simple==1 
 
 ** Sir by period and sympcat
 qui: dstdize N pop agecat, by(period sympcat) using(data/popEU_age.dta) format(%12.3g)

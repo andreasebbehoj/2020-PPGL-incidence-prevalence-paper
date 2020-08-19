@@ -8,7 +8,7 @@ keep agecat year_index
 contract _all, freq(N) zero
 rename year_index year
 
-merge 1:1 year agecat using data/popDK_age.dta, assert(match using) nogen
+merge 1:1 year agecat using data/popDK_year_age.dta, assert(match using) nogen
 
 
 ** SIR by year

@@ -1,15 +1,15 @@
 ***** 3_ImportPopDK.do *****
 *** Total population by year
 dstpop, clear ///
-	fyear(1977) tyear($lastyear) /// 
+	year(1977/$lastyear) /// 
 	area(total)
 
-save data/popDK_total.dta, replace
+save data/popDK_year.dta, replace
 
 
 *** Population by year and age group
 dstpop, clear ///
-	fyear(1977) tyear($lastyear) ///
+	year(1977/$lastyear) ///
 	area(total) ///
 	age
 
@@ -21,11 +21,11 @@ drop age pop
 rename poptotal pop
 duplicates drop
 
-save data/popDK_age.dta, replace
+save data/popDK_year_age.dta, replace
 
-*** Population in DK by period, sex and age
+*** Population in DK by period, age, and sex
 dstpop, clear ///
-	fyear(1977) tyear($lastyear) ///
+	year(1977/$lastyear) ///
 	area(total) ///
 	sex ///
 	age
@@ -41,11 +41,11 @@ drop year age pop
 rename poptotal pop
 duplicates drop
 
-save data/popDK_ageperiod.dta, replace
+save data/popDK_period_age_sex.dta, replace
 
-*** Population in DK by municipality and age
+*** Population in DK by age and municipality
 dstpop, clear ///
-	fyear(1977) tyear($lastyear) ///
+	year(1977/$lastyear) ///
 	area(c_kom) ///
 	age
 
@@ -56,24 +56,32 @@ bysort area agecat: egen poptotal=total(pop)
 drop year age pop
 rename poptotal pop
 duplicates drop
-save data/popDK_age_municipality.dta
+save data/popDK_age_municipality.dta, replace
 
-*** Population in Central and Northern Regions by period and age group
+*** Population by year, age, and region
 dstpop, clear ///
-	fyear(1977) tyear($lastyear) ///
+	year(1977/$lastyear) ///
 	area(c_reg) ///
 	age
 
-keep if inlist(area, 81, 82)
-
 recode age $agecat, gen(agecat) label(agecat_)
 label var agecat "Age category"
+
+recode area (81 82 = 1) (83 84 85 = 2), gen(cohort_simple)
+
+bysort year cohort_simple agecat: egen poptotal=total(pop)
+drop age pop area
+rename poptotal pop
+duplicates drop
+save data/popDK_year_age_region.dta, replace
+
+* Population by period, age, and region
 recode year $period10ycat, gen(period) label(period_)
 label var period "Period"
 
-bysort period agecat: egen poptotal=total(pop)
-drop year age pop area
+bysort cohort_simple agecat period: egen poptotal=total(pop)
+drop year pop 
 rename poptotal pop
 duplicates drop
 
-save data/popRegion_age_period.dta, replace
+save data/popDK_period_age_region.dta, replace
