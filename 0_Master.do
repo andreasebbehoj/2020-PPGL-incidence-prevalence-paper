@@ -147,8 +147,11 @@ This section:
 ** Common settings for all figures
 do 4_FigTabLayout.do
 
-** Baseline
-do 4_TabCharacteristics.do
+** Patient Characteristics by period
+do 4_TabCharByPeriod.do
+
+** Patient Characteristics by MoD
+do 4_TabCharByMod.do
 
 ** MoD details
 do 4_TabModDetails.do

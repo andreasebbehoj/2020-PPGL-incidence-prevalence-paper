@@ -1,10 +1,10 @@
-***** 4_TabCharacteristics.do *****
+***** 4_TabCharByPeriod.do *****
 use data/cohort_ppgl.dta, clear
 keep if ppgl_incident==1
 
 
 ** Define column headers
-label define period10y_ 0 "Total", modify
+label define mperiod10y 0 "Total", modify
 local collist = "0 1 2 3 4"
 
 * Total N per column
@@ -143,4 +143,4 @@ foreach var in `r(varlist)' {
 gen row = _n
 
 ** Export 
-save results/TabPatChar.dta, replace
+save results/TabCharByPeriod.dta, replace
