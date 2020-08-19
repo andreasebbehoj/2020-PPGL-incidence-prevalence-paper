@@ -157,6 +157,10 @@ do 4_TabModDetails.do
 do 4_SirOverall.do
 
 ** SIR by year
+do 4_SirByYear.do
+
+** SIR by region
+do 4_SirByRegion.do
 
 ** SIR by municipality
 do 4_SirByMunicipality.do

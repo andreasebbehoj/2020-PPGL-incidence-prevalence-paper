@@ -4,7 +4,7 @@ use data/cohort_alldata.dta, clear
 
 *** Define cohort
 ** Study area
-recode cohort (1 2 5 = 1 "North and Central Region") (3=2 "Remaining Danish regions"), gen(cohort_simple_)
+recode cohort (1 2 5 = 1 "North and Central Region") (3=2 "Remaining Danish regions"), gen(cohort_simple) label(cohort_simple_)
 label var cohort_simple "Study area"
 
 ** Index date and year

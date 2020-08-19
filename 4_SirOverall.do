@@ -28,12 +28,6 @@ local sir_lb = string(round(r(lb_adj)[1,1]*1000000 `format'
 local sir_ub = string(round(r(ub_adj)[1,1]*1000000 `format'
 
 
-** SIR by year
-qui: dstdize N pop agecat, by(year) using(data/popEU_age.dta) format(%12.3g)
-matrix sir_y=  r(Nobs) \ r(crude) \ r(adj) \ r(lb) \ r(ub)
-matrix sir_y=sir_y'
-
-
 ** SIR by period
 recode year $period10ycat, gen(period) label(period_)
 bysort agecat period: egen poptotal=total(pop)
@@ -51,10 +45,6 @@ matrix sir_p=sir_p'
 ** Load
 drop _all
 
-svmat double sir_y, name(matcol)
-egen Year= seq(), f(1977) t($lastyear) b(1)
-label var Year "Year"
-
 svmat double sir_p, name(matcol)
 gen Period = _n if _n<=4
 label values Period period_
@@ -66,57 +56,8 @@ foreach var in `r(varlist)' {
 	qui: replace `var' = `var' * 1000000 // IR Per million
 }
 
-** Add arrows
-local scatterarrows = ""
-foreach arrow of global arrows {
-	di `"`arrow'"'
-	* x-coordinate
-	local x = word("`arrow'", 1)
-	* y-coordinate
-	qui: su sir_yRight if Year==`x'
-	local y2 = `r(max)'+0.3
-	local y1 = `y2'+1.2
-	* label 
-	local label = subinstr(`"`arrow'"', "`x' ", "", 1)
-	di "`label'"
-	* Combine
-	local scatterarrows =  `"`scatterarrows' `y1' `x' `y2' `x' "`label'""'
-}				
-if !mi("`scatterarrows'") {
-	local scatterarrows = `"(pcarrowi `scatterarrows', lcolor(black) mcolor(black) mlabcolor(black) mlabangle(0) mlabposition(11))"'
-	di `"`scatterarrows'"'
-
-}
-
-
-** Graph (SIR per year)
-twoway ///
-	(line sir_yAdjuste Year, lcolor(${color1})) /// mean
-	(rcap sir_yLeft sir_yRight Year, lcolor(${color1})) /// 95% CI
-	`scatterarrows' /// Arrows, if enabled
-	, legend(off) /// legend
-	xlabel(1977 "1977" 1982 "1982" 1987 "1987" 1992 "1992" 1997 "1997" 2002 "2002" 2007 "2007" 2012 "2012" $lastyear "$lastyear") ///
-	xmtick(1977(1)$lastyear) ///
-	ylabel(0(1)10) ///
-	ytitle("Age-standardized IR" "per 1,000,000 years") //
-graph export results/FigSirByYear${exportformat} ${exportoptions}
-
 
 ** Text
-* SIR first to last year
-local format = `", 1), "%01.0f")"' // 1 significant number
-local sirfirst_mean = string(round(sir_yAdjusted[1] `format'
-local sirfirst_lb = string(round(sir_yLeft[1] `format'
-local sirfirst_ub = string(round(sir_yRight[1] `format'
-
-local format = `", 0.1), "%02.1f")"' // 2 significant numbers
-local sirlast_mean = string(round(sir_yAdjusted[_N] `format'
-local sirlast_lb = string(round(sir_yLeft[_N] `format'
-local sirlast_ub = string(round(sir_yRight[_N] `format'
-
-local format = `", 0.1), "%02.1f")"' // 2 significant numbers
-local foldincrease = string(round(sir_yAdjusted[_N]/sir_yAdjusted[1] `format'
-
 * SIR by period
 local format = `", 0.1), "%02.1f")"' // 2 significant numbers
 local sirper1_mean = string(round(sir_pAdjusted[1] `format'
@@ -148,23 +89,12 @@ putdocx paragraph
 putdocx text ("Overall crude IR: `ir_mean' (95%CI `ir_lb'-`ir_ub')"), linebreak
 putdocx text ("Overall SIR: `sir_mean' (95%CI `sir_lb'-`sir_ub')"), linebreak
 
-putdocx text ("SIR increased from `sirfirst_mean' (95%CI `sirfirst_lb'-`sirfirst_ub') in 1977 to `sirlast_mean' (95%CI `sirlast_lb'-`sirlast_ub') in ${lastyear}."), linebreak
-putdocx text ("Fold increase from 1977-${lastyear}: `foldincrease'"), linebreak
-
+putdocx paragraph, style(Heading2)
+putdocx text ("SIR by period")
+putdocx paragraph
 putdocx text ("SIR `perlabel1': `sirper1_mean' (95%CI `sirper1_lb'-`sirper1_ub')"), linebreak
 putdocx text ("SIR `perlabel2': `sirper2_mean' (95%CI `sirper2_lb'-`sirper2_ub')"), linebreak
 putdocx text ("SIR `perlabel3': `sirper3_mean' (95%CI `sirper3_lb'-`sirper3_ub')"), linebreak
 putdocx text ("SIR `perlabel4': `sirper4_mean' (95%CI `sirper4_lb'-`sirper4_ub')"), linebreak
 
 putdocx save results/TextSirOverall, replace
-
-
-** Table (SIR per year)
-ds Year, not
-foreach var in `r(varlist)' {
-	qui: tostring `var', force replace format(%03.2f)
-}
-rename sir_yCrude Crude
-gen SIR = sir_yAdjusted + " (" + sir_yLeft + "-" + sir_yRight + ")"
-
-save results/TabSirByYear.dta, replace

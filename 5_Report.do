@@ -115,7 +115,7 @@ putdocx sectionbreak, landscape
 putdocx paragraph, style(Heading1) `fontHeading1'
 putdocx text ("Supplementary")
 
-** MoD details
+** Tab MoD details
 local supno = `supno'+1
 putdocx paragraph, style(Heading2) `fontHeading2'
 putdocx text ("Supplementary `supno' - Details on Mode of Discovery")
@@ -134,7 +134,7 @@ putdocx text  ("CT, computed tomography; MEN, multiple endocrine neoplasia; MRI,
 putdocx text ("Notes: "), bold
 putdocx text  ("Adrenal incidentaloma as defined by recent guidelines.(1) ")
 
-** SIR by year table
+** Tab SIR by year
 putdocx sectionbreak
 local supno = `supno'+1
 putdocx paragraph, style(Heading2) `fontHeading2'
@@ -152,7 +152,7 @@ putdocx paragraph
 putdocx text ("Notes: "), bold
 putdocx text  ("xxx")
 
-** SIR by municipality map
+** Fig SIR by municipality
 local supno = `supno'+1
 putdocx pagebreak
 putdocx paragraph, style(Heading2) `fontHeading2'
