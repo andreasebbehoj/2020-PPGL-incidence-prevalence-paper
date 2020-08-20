@@ -82,7 +82,7 @@ global sizecat = `"(0/3.999=1 "<4 cm")"' ///
 global biocat = `"(1=1 "NE only")"' ///
 					+ `" (2=2 "E only")"' ///
 					+ `" (3=3 "Both NE and E")"' ///
-					+ `" (4=4 "Unspecified (NE+E measured together)")"' ///
+					+ `" (4=4 "Only total CA available")"' ///
 					+ `" (7=5 "Never tested")"' ///
 					+ `" (98=6 "Not found")"' //
 

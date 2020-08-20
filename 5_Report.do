@@ -88,14 +88,19 @@ putdocx text  ("Prevalence of PPGL patients living in Denmark December 31st each
 *** Tables
 local tabno = 0
 
-** Patient Characteristics
+** PatChar by Period
 local tabno = `tabno'+1
 putdocx sectionbreak, landscape
 putdocx paragraph, style(Heading2) `fontHeading2'
 putdocx text ("Table `tabno' - Patient and Tumor Characteristics by Year of Diagnosis")
 
-use results/TabPatChar.dta, clear
-putdocx table tbl1 = data("rowname cell_0 cell_1 cell_2 cell_3 cell_4"), width(100%) layout(autofitcontents)
+use results/TabCharByPeriod.dta, clear
+
+* Add footnote symbols
+replace rowname =  rowname + " *" if onlyavailable==1 // Clinical var only available in North/Central regions
+
+ds cell_*
+putdocx table tbl1 = data("rowname `r(varlist)'"), width(100%) layout(autofitcontents)
 putdocx table tbl1(., .), ${tablecells} 
 putdocx table tbl1(., 1), ${tablefirstcol}
 putdocx table tbl1(1, .), ${tablefirstrow}
@@ -103,9 +108,10 @@ levelsof row if !mi(firstcol) & mi(seccol)
 putdocx table tbl1(`r(levels)', .), ${tablerows}
 putdocx paragraph
 putdocx text ("Abbreviations: "), bold
-putdocx text  ("E, epinephrine; NE, nor-epinephrine, PPGL, pheochromocytoma and catecholamine-secreting paraganglioma. ")
+putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, pheo, pheochromocytoma; para, paraganglioma; PPGL, pheochromocytoma and catecholamine-secreting paraganglioma. ")
 putdocx text ("Notes: "), bold
-putdocx text  (`"Patients for whom the relevant health records, radiology report, or laboratory report could not be found are recorded as "Not found". Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes."')
+putdocx text  (`"Patients for whom the relevant health records, radiology report, or laboratory report could not be found are recorded as "Not found". Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes. * Data only available for the North and Central Danish Regions. "')
+
 
 
 *** Supplementary graphs/tables
@@ -121,7 +127,8 @@ putdocx paragraph, style(Heading2) `fontHeading2'
 putdocx text ("Supplementary `supno' - Details on Mode of Discovery")
 
 use results/TabModDetails.dta, clear
-putdocx table tbl1 = data("firstcol cell_0 cell_1"), layout(autofitcontents)
+ds cell_*
+putdocx table tbl1 = data("firstcol `r(varlist)'"), layout(autofitcontents)
 putdocx table tbl1(., .), ${tablecells}
 putdocx table tbl1(., 1/3), ${tablefirstcol}
 putdocx table tbl1(1, .), ${tablefirstrow}
@@ -133,6 +140,33 @@ putdocx text ("Abbreviations: "), bold
 putdocx text  ("CT, computed tomography; MEN, multiple endocrine neoplasia; MRI, magnetic resonance imaging; NF1, neurofibromatosis type 1; SDH, succinate dehydrogenase; US, ultrasound; vHL, von Hippel-Lindau. ")
 putdocx text ("Notes: "), bold
 putdocx text  ("Adrenal incidentaloma as defined by recent guidelines.(1) ")
+
+
+** PatChar by Mod
+local supno = `tabno'+1
+putdocx pagebreak
+putdocx paragraph, style(Heading2) `fontHeading2'
+putdocx text ("Supplementary `supno' - Patient and Tumor Characteristics by Mode of Discovery")
+
+use results/TabCharByMod.dta, clear
+
+ds cell_*
+foreach var in `r(varlist)' {
+	replace `var' = subinstr(`var', " (", "_p(", 1) if length(`var')>=13 & !mi(rowname) // add paragraph to wide cells (cells with median and range)
+}
+
+putdocx table tbl1 = data("rowname `r(varlist)'"), width(100%) layout(autofitcontents)
+putdocx table tbl1(., .), ${tablecells} 
+putdocx table tbl1(., 1), ${tablefirstcol}
+putdocx table tbl1(1, .), ${tablefirstrow}
+levelsof row if !mi(firstcol) & mi(seccol)
+putdocx table tbl1(`r(levels)', .), ${tablerows}
+putdocx paragraph
+putdocx text ("Abbreviations: "), bold
+putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, PHEO, pheochromocytoma; PARA, paraganglioma; PPGL, pheochromocytoma and catecholamine-secreting paraganglioma. ")
+putdocx text ("Notes: "), bold
+putdocx text  (`"Mode of discovery was available for $nmodnonmissing of $nmod PPGL patients from the North and Central Danish Regions. Patients for whom the relevant health records or reports could not be found were recorded as "Not found". Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes."')
+
 
 ** Tab SIR by year
 putdocx sectionbreak
@@ -162,7 +196,7 @@ putdocx image results/FigSirByMun${exportformat}, height(5 in)
 putdocx paragraph
 
 putdocx text ("Notes: "), bold
-putdocx text  ("Average incidence rates 1977-$lastyear by patients' home municipality at date of diagnosis. Incidence rates are standardized to European Standard Population 2013.")
+putdocx text  ("Average incidence rates 1977-$lastyear by patients' home municipality at date of diagnosis. Incidence rates are age standardized to the European Standard Population 2013.")
 
 
 *** Save Figures and Tables report

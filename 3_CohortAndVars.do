@@ -72,10 +72,10 @@ recode tumorcat (.=4) if tumo_numb==2 & inlist(tumo_loc1, 2, 3) & inlist(tumo_lo
 recode tumorcat (.=5) if inlist(tumo_numb, 98, 99) // not found or unspecified
 label var tumorcat "Tumor location"
 label define tumorcat_ ///
-	1 "Unilateral pheochromocytoma" ///
-	2 "Unilateral paraganglioma" ///
-	3 "Bilateral pheochromocytomas" ///
-	4 "Multiple paragangliomas" ///
+	1 "Unilateral PHEO" ///
+	2 "Unilateral PARA" ///
+	3 "Bilateral PHEO" ///
+	4 "Multiple PARA" ///
 	5 "Not found" ///
 	, replace
 label value tumorcat tumorcat_

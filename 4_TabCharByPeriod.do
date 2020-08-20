@@ -4,7 +4,7 @@ keep if ppgl_incident==1
 
 
 ** Define column headers
-label define mperiod10y 0 "Total", modify
+label define period10y_ 0 "Total", modify
 local collist = "0 1 2 3 4"
 
 * Total N per column
@@ -53,7 +53,7 @@ foreach var in cohort_simple sex agecat modcat surgcat sizecat sympcat htncat bi
 	
 	* Row names (subgroups)
 	qui: decode `var', gen(seccol)
-	qui: replace seccol = seccol + ", n(%)"
+	qui: replace seccol = seccol + ", n (%)"
 	
 	* Row names (var group)
 	local name : variable label `var'
@@ -62,6 +62,11 @@ foreach var in cohort_simple sex agecat modcat surgcat sizecat sympcat htncat bi
 	qui: gen firstcol = "`name'" if _n==_N
 	
 	qui: gen var = "`var'"
+	
+	* Only available in North and Central regions
+	if inlist("`var'", "cohort_simple", "sex", "agecat")==0 {
+		qui: gen onlyavailable = 1 if !mi(firstcol)
+	}
 	
 	* Sort and order
 	gsort -firstcol +`var'
@@ -143,7 +148,7 @@ replace rowname = "    " + seccol if mi(rowname)
 * Format cells
 ds cell*
 foreach var in `r(varlist)' {
-	replace `var' = "-" if `var'==". (.)"
+	qui: replace `var' = "-" if `var'==". (.)"
 }
 gen row = _n
 

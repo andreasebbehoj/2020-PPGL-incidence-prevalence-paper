@@ -4,8 +4,10 @@ keep if ppgl_incident==1
 keep if cohort_simple==1
 
 ** Missing
-count if modcat==8 
-global nmodmissing = `r(N)'
+count 
+global nmod = `r(N)'
+count if modcat!=8 
+global nmodnonmissing = `r(N)'
 drop if modcat==8
 
 ** Define column headers
@@ -52,7 +54,7 @@ foreach var in sex agecat surgcat sizecat sympcat htncat biocat tumorcat gencat 
 	
 	* Row names (subgroups)
 	qui: decode `var', gen(seccol)
-	qui: replace seccol = seccol + ", n(%)"
+	qui: replace seccol = seccol + ", n (%)"
 	
 	* Row names (var group)
 	local name : variable label `var'
@@ -137,7 +139,7 @@ replace rowname = "    " + seccol if mi(rowname)
 * Format cells
 ds cell*
 foreach var in `r(varlist)' {
-	replace `var' = "-" if `var'==". (.)" | !mi(seccol) & mi(`var')
+	qui: replace `var' = "-" if `var'==". (.)" | !mi(seccol) & mi(`var')
 }
 gen row = _n
 
