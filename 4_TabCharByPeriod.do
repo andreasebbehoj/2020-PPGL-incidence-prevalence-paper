@@ -84,7 +84,12 @@ foreach var in age sizemax biomax sympyears { //
 	local name : variable label `var'
 	
 	* Calculate median and range
-	statsby, by(period10y) clear total: su `var' if cohort_simple==1, detail
+	if "`var'"=="age" {
+		statsby, by(period10y) clear total: su `var', detail
+	}
+	else {  // Only available in North and Central regions
+		statsby, by(period10y) clear total: su `var' if cohort_simple==1, detail
+	}
 	gen cell_ = string(round(p50, 0.1), "%3.1f") /// Median
 							+ " (" /// 
 							+ string(round(min, 0.1), "%3.1f") /// min
