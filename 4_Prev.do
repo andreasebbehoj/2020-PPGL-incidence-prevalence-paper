@@ -20,6 +20,7 @@ forvalues year=1977(1)$lastyear {
 			& d_status > date("31-12-`year'", "DMY") // .. to date of death/emigration 
 }
 
+
 ** Summarize by person
 collapse (max) N*, by(cpr) 
 tempfile prevdata
@@ -29,6 +30,9 @@ save `prevdata', replace
 ** Summarize by year and age cat
 use data/cohort_pid.dta, clear
 merge 1:1 cpr using `prevdata', nogen assert(match)
+
+count if N$lastyear==1 // Count N prevalent at end of study
+local Nprev = `r(N)'
 
 collapse (sum) N*, by(agecat)
 reshape long N, i(agecat) j(year)
@@ -86,5 +90,5 @@ putdocx begin
 putdocx paragraph, style(Heading2)
 putdocx text ("Prevalence")
 putdocx paragraph
-putdocx text ("Prevalence in $lastyear: `prev_mean' (95%CI `prev_lb'-`prev_ub')"), linebreak
+putdocx text ("Prevalence of PPGL patients alive and living in Denmark in $lastyear (n=`Nprev'): `prev_mean' (95%CI `prev_lb'-`prev_ub')"), linebreak
 putdocx save results/TextPrevLastyear, replace
