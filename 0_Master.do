@@ -16,7 +16,6 @@ version 16
 set more off
 clear
 file close _all
-cd "E:\2020-PPGL-incidence-prevalence-paper"
 capture: mkdir data
 capture: mkdir results
 
