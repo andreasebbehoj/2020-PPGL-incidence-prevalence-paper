@@ -67,15 +67,3 @@ putdocx paragraph
 putdocx text ("SIR increased from `sirfirst_mean' (95%CI `sirfirst_lb'-`sirfirst_ub') in 1977 to `sirlast_mean' (95%CI `sirlast_lb'-`sirlast_ub') in ${lastyear}."), linebreak
 putdocx text ("Fold increase from 1977-${lastyear}: `foldincrease'"), linebreak
 
-putdocx save results/TextSirOverall, append
-
-
-** Table (SIR per year)
-ds Year, not
-foreach var in `r(varlist)' {
-	qui: tostring `var', force replace format(%03.2f)
-}
-rename sir_yCrude Crude
-gen SIR = sir_yAdjusted + " (" + sir_yLeft + "-" + sir_yRight + ")"
-
-save results/TabSirByYear.dta, replace

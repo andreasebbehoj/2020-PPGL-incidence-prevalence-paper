@@ -168,28 +168,10 @@ putdocx text ("Notes: "), bold
 putdocx text  (`"Mode of discovery was available for $nmodnonmissing of $nmod PPGL patients from the North and Central Danish Regions. Patients for whom the relevant health records or reports could not be found were recorded as "Not found". Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes."')
 
 
-** Tab SIR by year
-putdocx sectionbreak
-local supno = `supno'+1
-putdocx paragraph, style(Heading2) `fontHeading2'
-putdocx text ("Supplementary `supno' - Age-standardized Incidence Rates per Year")
-
-use results/TabSirByYear.dta, clear
-putdocx table tbl1 = data("Year Crude SIR"), varnames
-putdocx table tbl1(., .), ${tablecells}
-putdocx table tbl1(., 1), ${tablefirstcol}
-putdocx table tbl1(1, .), ${tablefirstrow}
-local lastrow = _N
-putdocx table tbl1(3(2)`lastrow', .), ${tablerows}
-
-putdocx paragraph
-putdocx text ("Notes: "), bold
-putdocx text  ("xxx")
-
 
 ** Fig SIR by region
 local supno = `supno'+1
-putdocx pagebreak
+putdocx sectionbreak
 putdocx paragraph, style(Heading2) `fontHeading2'
 putdocx text ("Supplementary `supno' - Age-standardized Incidence Rates by Region")
 putdocx paragraph
