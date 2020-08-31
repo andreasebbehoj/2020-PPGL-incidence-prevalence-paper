@@ -56,19 +56,19 @@ putdocx text  ("Crude incidence rates of new PPGL patients diagnosed in Denmark 
 ** SIR by MoD, symptoms, and Tumor size
 local figno = `figno'+1
 putdocx pagebreak
-putdocx paragraph, style(Heading2) `fontHeading2'
+putdocx paragraph, style(Heading2) `fontHeading2' spacing(after, 0.1)
 putdocx text ("Figure `figno' - Standardized Incidence Rates of PPGL by A) Mode of Discovery, B) Symptoms at Presentation, and C) Tumor Size")
-putdocx paragraph, halign(center)
-putdocx text ("A")
-putdocx image results/FigSirByMod${exportformat}, height(2.7 in)
-putdocx paragraph, halign(center)
-putdocx text ("B")
-putdocx image results/FigSirBySymp${exportformat}, height(2.7 in)
-putdocx paragraph, halign(center)
-putdocx text ("C")
-putdocx image results/FigSirBySize${exportformat}, height(2.7 in)
-putdocx paragraph
-putdocx text ("Notes: "), bold
+
+putdocx paragraph, halign(center) spacing(after, 0.1) spacing(before, 0.1)
+putdocx text ("A"), linebreak
+putdocx image results/FigSirByMod${exportformat}, height(2.5 in) linebreak
+putdocx text ("B"), linebreak
+putdocx image results/FigSirBySymp${exportformat}, height(2.5 in) linebreak
+putdocx text ("C"), linebreak
+putdocx image results/FigSirBySize${exportformat}, height(2.5 in)
+
+putdocx paragraph, spacing(after, 0)
+putdocx text ("Notes: "), bold 
 putdocx text  ("Incidence rates in the North and Central Danish regions by A) mode of discovery, B) symptoms, and C) tumor size. Incidence rates are reported in 10-year averages and age-standardized to the European Standard Population 2013.")
 
 
