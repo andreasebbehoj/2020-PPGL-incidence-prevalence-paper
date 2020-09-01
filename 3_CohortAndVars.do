@@ -71,15 +71,13 @@ label var sizecat "Tumor size"
 * Tumor location
 gen tumorcat = 1 if tumo_numb==1 & tumo_loc1==1 // single pheo
 recode tumorcat (.=2) if tumo_numb==1 & inlist(tumo_loc1, 2, 3) // single para (2: abdominal, 3: head/neck)
-recode tumorcat (.=3) if tumo_numb==2 & tumo_loc1==1 & tumo_loc2==1 // bilat pheo
-recode tumorcat (.=4) if tumo_numb==2 & inlist(tumo_loc1, 2, 3) & inlist(tumo_loc2, 2, 3) // multiple para
-recode tumorcat (.=5) if inlist(tumo_numb, 98, 99) // not found or unspecified
+recode tumorcat (.=3) if inrange(tumo_numb, 2, 9) // Multifocal PPGL
+recode tumorcat (.=4) if inlist(tumo_numb, 98, 99) // not found or unspecified
 label var tumorcat "Tumor location"
 label define tumorcat_ ///
 	1 "Unilateral PHEO" ///
 	2 "Unilateral PARA" ///
-	3 "Bilateral PHEO" ///
-	4 "Multiple PARA" ///
+	3 "Multiple PPGL" ///
 	4 "Missing" ///
 	, replace
 label value tumorcat tumorcat_
