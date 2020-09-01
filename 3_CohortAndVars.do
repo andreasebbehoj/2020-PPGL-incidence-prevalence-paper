@@ -46,6 +46,10 @@ label var period2cat "Period"
 gen age = (date_index-d_foddato)/365.25
 label var age "Age in years"
 
+* Age at surgery
+gen age_surg = (date_surg-d_foddato)/365.25
+label var age "Age at time of surgery"
+
 * Age categories
 recode age $agecat, gen(agecat) label(agecat_)
 label var agecat "Age at diagnosis"
@@ -158,6 +162,28 @@ recode surgcat (.=3) if inlist(surg_reas, 2, 3, 4, 5) // All non-operated (excep
 
 label var surgcat "PPGL diagnosed before surgery"
 
+* Recurrence
+codebook cour_recu1
+local recugrp2 = "mets"
+local recugrp3 = "prim"
+local recugrp4 = "local"
+
+foreach recu in 2 3 4 { 
+	qui: gen recu_`recugrp`recu'' = 1 if inlist(`recu', cour_recu1, cour_recu2, cour_recu3)
+	label var recu_`recugrp`recu'' "Recurrence: `recugrp`recu''"
+	label define recu_`recugrp`recu''_ 1 "`recugrp`recu''"
+	label value recu_`recugrp`recu'' recu_`recugrp`recu''_
+	* Age at first recurrence
+	qui: gen recu_`recugrp`recu''_age = (date_recu1-d_foddato)/365.25 if cour_recu1==`recu'
+	qui: replace recu_`recugrp`recu''_age = (date_recu2-d_foddato)/365.25 if cour_recu2==`recu' & mi(recu_`recugrp`recu''_age)
+	qui: replace recu_`recugrp`recu''_age = (date_recu3-d_foddato)/365.25 if cour_recu3==`recu' & mi(recu_`recugrp`recu''_age)
+	
+	label var recu_`recugrp`recu''_age "Age at recurrence (`recugrp`recu'')"
+}
+egen recu_any = rowmin(recu_mets recu_prim recu_local)
+label var recu_any "Recurrence: any"
+egen recu_any_age = rowmin(recu_mets_age recu_prim_age recu_local_age)
+label var recu_any_age "Age at recurrence: any"
 
 
 *** Restrict to PPGL patients

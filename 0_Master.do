@@ -151,6 +151,7 @@ do 4_TabCharByPeriod.do
 
 ** Patient Characteristics by MoD
 do 4_TabCharByMod.do
+do 4_TextCharDetails.do // details for text
 
 ** MoD details
 do 4_TabModDetails.do
