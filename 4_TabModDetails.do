@@ -19,7 +19,9 @@ capture: log off
 slist id mod_special mod_comm if mod==1
 capture: log on
 
-replace mod_textdetails = "Diagnosed after evaluation for paroxysmal symptoms caused by catecholamine-excess, including palpitations, headache, diaphoresis, pallor, flushing, chest pain, tremor, and unspecified spells." if mod==1
+replace mod_textdetails = "Classic triad of paroxysmal headache, sweating, and palpitations." if mod==1 & sympcat==1
+replace mod_textdetails = "One to two of classic symptoms." if mod==1 & sympcat==2
+replace mod_textdetails = "Other paroxysmal symptoms." if mod==1 & sympcat==3
 
 
 ** Secondary HTN
@@ -78,7 +80,7 @@ replace mod_textdetails = "Diagnosed after surgical removal of cancer-suspicious
 replace mod_textdetails = "Diagnosed after FNA or biopsy of adrenal incidentaloma. Incidentalomas found on CT" if mod==20 & mod_special==1 & inlist(mod_biopsy, 1, 2, 3)
 
 * Case of initially silent AI-pheo
-replace mod_textdetails = "Patient diagnosed with 23 mm adrenal incidentaloma with unenhanced CT attenuation of 30 Hounsfield units. Followed for three years without any symptoms, growth or biochemical evidence of catecholamine-excess. Re-evaluation six years later due to paroxysmal symptoms showed tumor growth to 48 mm and catecholamine-excess." if id==2846
+replace mod_textdetails = "Patient diagnosed with adrenal incidentaloma. Followed for three years without any symptoms, growth or biochemical evidence of catecholamine-excess. Later re-evaluation due to new paroxysmal symptoms showed tumor growth and catecholamine-excess." if id==2846
 
 
 ** Cancer imaging
@@ -177,7 +179,7 @@ capture: log on
 replace mod_textdetails = "Evaluated for B-symptoms (weight loss, fatigue, unexplained fever, and excessive sweating). One patient was diagnosed with benign paraganglioma (causing activation of brown adipose tissue and excessive sweating), one was patient diagnosed with paraganglioma with central necrosis (causing fever), one patient was diagnosed with metastatic pheochromocytoma, and two patients were operated on suspicion of renal or pancreatic cancer, which turned out to be benign pheochromocytomas." if mod==60
 
 * Abdominal mass
-replace mod_textdetails = "Evaluated for large palpable abdominal mass. Patient was operated on suspicion of unknown cancer, which turned out to be a giant pheochromocytoma (approximate 30 cm). Patient was later diagnosed with multiple metastases." if mod==61
+replace mod_textdetails = "Evaluated for large palpable abdominal mass. Patient was operated on suspicion of unknown cancer, which turned out to be a giant pheochromocytoma (approximate 30 cm). Patient was later diagnosed with multiple PPGL metastases." if mod==61
 
 * Acute abdomen caused by pheo
 replace mod_textdetails = "Evaluated for acute abdominal pain. Abdominal pain was eventually attributed to ruptured pheochromocytoma (n=1), pheochromocytoma with hemorhage and necrosis (n=1), necrotic intestines due to catecholamine storm (n=1), widespread metastatic pheochromocytoma (n=1), and paroxysmal symptoms of catecholamine-excess (n=1)." if mod==62
@@ -228,7 +230,7 @@ recode modcat (.=0) if _n==_N
 
 
 *** Add definition of MoD categories
-replace cell_1 = "Patients diagnosed with PPGL after evaluation for paroxysmal symptoms of catecholamine-excess." if modcat==1 & obsno==0
+replace cell_1 = "Patients diagnosed with PPGL after evaluation for paroxysmal symptoms caused by catecholamine-excess, including palpitations, headache, diaphoresis, pallor, flushing, chest pain, tremor, and unspecified spells." if modcat==1 & obsno==0
 
 replace cell_1 = "Patients diagnosed with PPGL during evaluation for suspected secondary hypertension (paroxysmal, malignant or treatment resistant). Includes patients diagnosed after a hypertensive crisis or pressor-response during surgery, anesthesia, pregnancy, or birth." if modcat==2 & obsno==0
 
