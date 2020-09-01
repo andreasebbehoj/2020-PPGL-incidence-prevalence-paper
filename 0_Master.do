@@ -152,7 +152,7 @@ do 4_FigTabLayout.do
 do 4_TabCharByPeriod.do // by period
 do 4_TabCharByMod.do // by MoD
 do 4_TextCharDetails.do // details for text
-
+do 4_AgeByMod.do // Age histogram overall and by mod
 
 ** MoD details
 do 4_TabModDetails.do

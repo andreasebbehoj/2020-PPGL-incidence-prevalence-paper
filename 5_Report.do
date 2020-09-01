@@ -168,6 +168,24 @@ putdocx text ("Notes: "), bold
 putdocx text  (`"Mode of discovery was available for $nmodnonmissing of $nmod PPGL patients from the North and Central Danish Regions. Patients for whom the relevant health records or reports could not be found were recorded as "Not found". Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes."')
 
 
+** Fig AgeOverall and AgeByMod
+*local supno = `supno'+1
+putdocx sectionbreak
+putdocx paragraph, style(Heading2) `fontHeading2'
+putdocx text ("Supplementary X - Age at PPGL Diagnosis A) in Denmark and B) by Mode of Discovery in North and Central Danish Regions")
+
+putdocx paragraph, halign(center) spacing(after, 0.1) spacing(before, 0.1)
+putdocx text ("A"), linebreak
+putdocx image results/FigAgeOverall${exportformat}, height(5 in) linebreak
+putdocx text ("B"), linebreak
+putdocx image results/FigAgeByMod${exportformat}, height(5 in) linebreak
+putdocx paragraph
+
+putdocx text ("Notes: "), bold
+putdocx text  ("Histogram of age at diagnosis a) for all PPGL patients in Denmark (N=565) and B) by mode of discovery in the North and Central Danish Regions only (n=192).")
+
+
+
 
 ** Fig SIR by region
 local supno = `supno'+1
