@@ -10,24 +10,23 @@ local collist = "0 1 2 3 4"
 * Total N per column
 foreach col of local collist {
 	local label`col' : label period10y_ `col'
-	di " `col' - `label`col''"
-	
 	if `col'==0 {
-		count
+		qui: count
 	}
 	else {
-		count if period10y==`col'
+		qui: count if period10y==`col'
 	}
 	local coltotal_`col' = `r(N)'
+	di " `col' - `label`col'' (n=`coltotal_`col'')"
 }
 
 ** Categorical vars
-foreach var in cohort_simple sex agecat modcat surgcat sizecat sympcat htncat biocat tumorcat gencat {
+foreach var in sex agecat modcat surgcat sizecat sympcat htncat biocat tumorcat gencat {
 	di "`var'"
 	preserve
 	
 	* Count each category
-	if inlist("`var'", "cohort_simple", "sex", "agecat") { // Available for all of DK
+	if inlist("`var'", "sex", "agecat") { // Available for all of DK
 		qui: statsby, by(period10y `var') clear : count
 	}
 	else { // Only available in North and Central regions
@@ -64,7 +63,7 @@ foreach var in cohort_simple sex agecat modcat surgcat sizecat sympcat htncat bi
 	qui: gen var = "`var'"
 	
 	* Only available in North and Central regions
-	if inlist("`var'", "cohort_simple", "sex", "agecat")==0 {
+	if inlist("`var'", "sex", "agecat")==0 {
 		qui: gen onlyavailable = 1 if !mi(firstcol)
 	}
 	
@@ -90,10 +89,10 @@ foreach var in age sizemax biomax sympyears { //
 	
 	* Calculate median and range
 	if "`var'"=="age" {
-		statsby, by(period10y) clear total: su `var', detail
+		qui: statsby, by(period10y) clear total: su `var', detail
 	}
 	else {  // Only available in North and Central regions
-		statsby, by(period10y) clear total: su `var' if cohort_simple==1, detail
+		qui: statsby, by(period10y) clear total: su `var' if cohort_simple==1, detail
 	}
 	gen cell_ = string(round(p50, 0.1), "%3.1f") /// Median
 							+ " (" /// 
@@ -110,7 +109,7 @@ foreach var in age sizemax biomax sympyears { //
 	* Reshape 
 	qui: recode period10y (.=0)
 	keep var var firstcol seccol period10y cell_
-	reshape wide cell_, i(var) j(period10y)
+	qui: reshape wide cell_, i(var) j(period10y)
 	
 	* Order
 	order var firstcol seccol cell_0 cell_*
@@ -125,9 +124,9 @@ foreach var in age sizemax biomax sympyears { //
 ** Combining results
 * Headings and N 
 drop _all
-set obs 2
+qui: set obs 2
 gen var = " "
-gen firstcol = "Patients, n " if _n==2
+qui: gen firstcol = "Patients, n " if _n==2
 gen seccol = " "
 foreach col of local collist {
 	di " `col' - `label`col''"
@@ -136,17 +135,17 @@ foreach col of local collist {
 }
 
 * Appending results
-foreach var in cohort_simple sex agecat age modcat sympcat sympyears htncat surgcat sizecat sizemax tumorcat biocat biomax gencat {
+foreach var in sex agecat age modcat sympcat sympyears htncat surgcat sizecat sizemax tumorcat biocat biomax gencat {
 	qui: append using `results_`var''
 }
 
 * Format first column
-replace seccol = subinstr(seccol, "{&ge}", ustrunescape("\u2265"), 1) // equal-or-above-sign
-gen rowname = firstcol
-replace rowname = "    " + seccol if mi(rowname)
+qui: replace seccol = subinstr(seccol, "{&ge}", ustrunescape("\u2265"), 1) // equal-or-above-sign
+qui: gen rowname = firstcol
+qui: replace rowname = "    " + seccol if mi(rowname)
 
 * Format cells
-ds cell*
+qui: ds cell*
 foreach var in `r(varlist)' {
 	qui: replace `var' = "-" if `var'==". (.)"
 }

@@ -17,19 +17,18 @@ local collist = "0 1 2 3 4 5 6 7"
 * Total N per column
 foreach col of local collist {
 	local label`col' : label modcat_ `col'
-	di " `col' - `label`col''"
-	
 	if `col'==0 {
-		count
+		qui: count
 	}
 	else {
-		count if modcat==`col'
+		qui: count if modcat==`col'
 	}
 	local coltotal_`col' = `r(N)'
+	di " `col' - `label`col'' (n=`coltotal_`col'')"
 }
 
 ** Categorical vars
-foreach var in sex agecat surgcat sizecat sympcat htncat biocat tumorcat gencat {
+foreach var in sex agecat sizecat sympcat htncat biocat tumorcat gencat {
 	di "`var'"
 	preserve
 	
@@ -85,7 +84,7 @@ foreach var in age sizemax biomax sympyears { //
 	local name : variable label `var'
 	
 	* Calculate median and range
-	statsby, by(modcat) clear total: su `var', detail
+	qui: statsby, by(modcat) clear total: su `var', detail
 	gen cell_ = string(round(p50, 0.1), "%3.1f") /// Median
 							+ " (" /// 
 							+ string(round(min, 0.1), "%3.1f") /// min
@@ -101,7 +100,7 @@ foreach var in age sizemax biomax sympyears { //
 	* Reshape 
 	qui: recode modcat (.=0)
 	keep var var firstcol seccol modcat cell_
-	reshape wide cell_, i(var) j(modcat)
+	qui: reshape wide cell_, i(var) j(modcat)
 	
 	* Order
 	order var firstcol seccol cell_0 cell_*
@@ -116,9 +115,9 @@ foreach var in age sizemax biomax sympyears { //
 ** Combining results
 * Headings and N 
 drop _all
-set obs 2
+qui: set obs 2
 gen var = " "
-gen firstcol = "Patients, n " if _n==2
+qui: gen firstcol = "Patients, n " if _n==2
 gen seccol = " "
 foreach col of local collist {
 	di " `col' - `label`col''"
@@ -127,17 +126,17 @@ foreach col of local collist {
 }
 
 * Appending results
-foreach var in sex agecat age sympcat sympyears htncat surgcat sizecat sizemax tumorcat biocat biomax gencat {
+foreach var in sex agecat age sympcat sympyears htncat sizecat sizemax tumorcat biocat biomax gencat {
 	qui: append using `results_`var''
 }
 
 * Format first column
-replace seccol = subinstr(seccol, "{&ge}", ustrunescape("\u2265"), 1) // equal-or-above-sign
-gen rowname = firstcol
-replace rowname = "    " + seccol if mi(rowname)
+qui: replace seccol = subinstr(seccol, "{&ge}", ustrunescape("\u2265"), 1) // equal-or-above-sign
+qui: gen rowname = firstcol
+qui: replace rowname = "    " + seccol if mi(rowname)
 
 * Format cells
-ds cell*
+qui: ds cell*
 foreach var in `r(varlist)' {
 	qui: replace `var' = "-" if `var'==". (.)" | !mi(seccol) & mi(`var')
 }
