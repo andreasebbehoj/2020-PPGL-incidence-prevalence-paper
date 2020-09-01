@@ -27,6 +27,7 @@ ssc install palettes, replace
 ssc install colrspace, replace
 ssc install spmap, replace
 ssc install shp2dta, replace
+ssc install asdoc, replace
 */
 
 
@@ -69,13 +70,13 @@ global modcat = `"(1=1 "Paroxysmal symptoms")"' ///
 				+ `" (40 41=5 "Genetic")"' ///
 				+ `" (50=6 "Autopsy")"' ///
 				+ `" (60 61 62 63 64 66=7 "Other")"' ///
-				+ `" (98 99=8 "Not found")"' //
+				+ `" (98 99=8 "Missing")"' //
 
 * Tumor size (largest diameter)
 global sizecat = `"(0/3.999=1 "<4 cm")"' ///
 					+ `" (4/7.999=2 "4-7.9 cm")"' ///
 					+ `" (8/50=3 "{&ge}8 cm")"' ///
-					+`" (.=4 "Not found")"'
+					+`" (.=4 "Missing")"'
 
 * Biochemical profile
 global biocat = `"(1=1 "NE only")"' ///
@@ -83,13 +84,13 @@ global biocat = `"(1=1 "NE only")"' ///
 					+ `" (3=3 "Both NE and E")"' ///
 					+ `" (4=4 "Only total CA available")"' ///
 					+ `" (7=5 "Never tested")"' ///
-					+ `" (98=6 "Not found")"' //
+					+ `" (98=6 "Missing")"' //
 
 * Hypertension
 global htncat = `"(1=1 "Labile hypertension")"' ///
 					+ `" (2 3=2 "Stable hypertension")"' ///
 					+ `" (4 99=3 "No hypertension")"' ///
-					+ `" (98=4 "Not found")"' //
+					+ `" (98=4 "Missing")"' //
 
 /* Genetic disposition
 gencat: 
@@ -146,44 +147,36 @@ This section:
 ** Common settings for all figures
 do 4_FigTabLayout.do
 
-** Patient Characteristics by period
-do 4_TabCharByPeriod.do
 
-** Patient Characteristics by MoD
-do 4_TabCharByMod.do
+** Patient Characteristics 
+do 4_TabCharByPeriod.do // by period
+do 4_TabCharByMod.do // by MoD
 do 4_TextCharDetails.do // details for text
+
 
 ** MoD details
 do 4_TabModDetails.do
 
-** SIR overall
-do 4_SirOverall.do
 
-** SIR by year
-do 4_SirByYear.do
+** Standardized incidence rates
+do 4_SirOverall.do // average and details for text
 
-** SIR by region
-do 4_SirByRegion.do
+do 4_SirByYear.do // graph by year
+do 4_SirByRegion.do // graph by region and period 
 
-** SIR by municipality
-do 4_SirByMunicipality.do
+do 4_SirByMod.do // graph by mode of discovery and period
+do 4_SirBySymp.do // graph by symptoms and period
+do 4_SirBySize.do // graph by size and period
 
-** IR by age and sex
-do 4_IrByAgeSex.do
+do 4_SirByMunicipality.do // heatmap of Denmark by municipality
 
-** SIR by MoD
-do 4_SirByMod.do
 
-** SIR by symptoms
-do 4_SirBySymp.do
+** Crude incidence rates
+do 4_IrByAgeSex.do // graph by age/sex and period
 
-** SIR by tumor size
-do 4_SirBySize.do
 
 ** Prevalence
-do 4_Prev.do
-
-
+do 4_Prev.do // graph by year and details for text
 
 
 

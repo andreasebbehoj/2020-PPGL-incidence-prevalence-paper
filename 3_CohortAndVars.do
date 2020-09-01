@@ -80,7 +80,7 @@ label define tumorcat_ ///
 	2 "Unilateral PARA" ///
 	3 "Bilateral PHEO" ///
 	4 "Multiple PARA" ///
-	5 "Not found" ///
+	4 "Missing" ///
 	, replace
 label value tumorcat tumorcat_
 
@@ -122,7 +122,7 @@ label define sympcat_ ///
 	2 "1-2 classic symptoms" ///
 	3 "Other paroxysmal symptoms" ///
 	4 "No paroxysmal symptoms" ///
-	5 "Not found" ///
+	5 "Missing" ///
 	, replace
 label value sympcat sympcat_
 label variable sympcat "Symptoms at diagnosis"
@@ -147,7 +147,7 @@ label var biomax "Fold increase above upper normal range"
 recode gen_synd	(1 2 3 4 56 7 8 9 10 11 20 30 39 = 1 "Hereditary PPGL") /// confirmed clinically or genetically
 				(44=2 "Negative genetic tests") /// No known syndrome/mutation (both tested and non-tested)
 				(12345=3 "Never tested") /// empty value to create label
-				(98=4 "Not found") /// 
+				(98=4 "Missing") /// 
 				, gen(gencat) label(gencat_)
 recode gencat (2=3) if obta_gene==2 // Recode for those never tested
 label var gencat "Hereditary PPGL"
@@ -156,7 +156,7 @@ label var gencat "Hereditary PPGL"
 recode mod_preopdiag 	(1=1 "Yes") ///
 						(0=2 "No") ///
 						(12345=3 "Never operated") ///
-						(98=4 "Not found") ///
+						(98=4 "Missing") ///
 						, gen(surgcat) label(surgcat_)
 recode surgcat (.=3) if inlist(surg_reas, 2, 3, 4, 5) // All non-operated (except those diagnosed at autopsy)
 

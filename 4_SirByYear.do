@@ -67,3 +67,4 @@ putdocx paragraph
 putdocx text ("SIR increased from `sirfirst_mean' (95%CI `sirfirst_lb'-`sirfirst_ub') in 1977 to `sirlast_mean' (95%CI `sirlast_lb'-`sirlast_ub') in ${lastyear}."), linebreak
 putdocx text ("Fold increase from 1977-${lastyear}: `foldincrease'"), linebreak
 
+putdocx save results/TextSirOverall, append
