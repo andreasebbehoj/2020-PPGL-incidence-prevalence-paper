@@ -30,7 +30,7 @@ qui: erase `outfile'
 
 qui: ds
 local varorder = "`r(varlist)'"
-qui: do 3_RedcapCodebook.do, nostop // Redcap Stata export format tool, updated 27-05-2020
+qui: do 2_RedcapCodebook.do, nostop // Redcap Stata export format tool, updated 27-05-2020
 order `varorder'
 
 

@@ -39,9 +39,9 @@ This section:
 - Define final PPGL cohort and generate study variables for later analyses
 */
 
-do 3_ImportRedcap.do
+do 2_ImportRedcap.do
 
-do 3_CohortAndVars.do
+do 2_CohortAndVars.do
 
 
 
