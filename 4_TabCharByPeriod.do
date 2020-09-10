@@ -1,7 +1,7 @@
 ***** 4_TabCharByPeriod.do *****
 use data/cohort_ppgl.dta, clear
 keep if ppgl_incident==1
-
+global footnote_TabCharByPeriod_miss = ""
 
 ** Define column headers
 label define period10y_ 0 "Total", modify
@@ -30,6 +30,20 @@ foreach var in sex agecat modcat surgcat sizecat sympcat htncat biocat tumorcat 
 		qui: statsby, by(period10y `var') clear : count
 	}
 	else { // Only available in North and Central regions
+		
+		* Count missing footnote
+		qui: levelsof `var' if cohort_simple==1 & mi(`var'), missing clean local(missing)
+		if !mi("`missing'") {
+			local varname : var label `var'
+			global footnote_TabCharByPeriod_miss = "$footnote_TabCharByPeriod_miss" + "`varname' ("
+			foreach cat of local missing {
+				local catname : label `var'_ `cat'
+				qui: count if `var'==`cat' & cohort_simple==1
+				local missno = `r(N)'
+				global footnote_TabCharByPeriod_miss = "$footnote_TabCharByPeriod_miss" + "`missno' `catname', "
+			}
+		global footnote_TabCharByPeriod_miss = "$footnote_TabCharByPeriod_miss" + "), "
+		}
 		qui: statsby, by(period10y `var') clear : count if cohort_simple==1
 	}
 	
@@ -152,4 +166,7 @@ foreach var in `r(varlist)' {
 gen row = _n
 
 ** Export 
+global footnote_TabCharByPeriod_miss = subinstr("$footnote_TabCharByPeriod_miss", ", )", ")", .)
+di "Reasons for missing data: $footnote_TabCharByPeriod_miss"
+
 save results/TabCharByPeriod.dta, replace

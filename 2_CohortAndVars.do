@@ -172,9 +172,9 @@ recode tumo_bioc ///
 	(1=1 "NE only") ///
 	(2=2 "E only") ///
 	(3=3 "Both NE and E") ///
-	(4=4 "Only total CA available") ///
-	(7=5 "Never tested") ///
-	(98=6 "Missing") ///
+	(4=.a "had only total catecholamines measured") ///
+	(7=.b "were never tested") ///
+	(98=.c "had missing records") ///
 	, gen(biocat) label(biocat_)
 label var biocat "Biochemical profile"
 

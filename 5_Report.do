@@ -110,7 +110,7 @@ putdocx paragraph
 putdocx text ("Abbreviations: "), bold
 putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, pheo, pheochromocytoma; para, paraganglioma; PPGL, pheochromocytoma and catecholamine-secreting paraganglioma. ")
 putdocx text ("Notes: "), bold
-putdocx text  (`"Patients for whom the relevant health records, radiology report, or laboratory report could not be found are recorded as "Not found". Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes. * Data only available for the North and Central Danish Regions. "')
+putdocx text  (`"Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes. * Data only available for the North and Central Danish Regions. Reasons for missing clinical data: $footnote_TabCharByPeriod_miss."')
 
 
 
@@ -165,7 +165,7 @@ putdocx paragraph
 putdocx text ("Abbreviations: "), bold
 putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, PHEO, pheochromocytoma; PARA, paraganglioma; PPGL, pheochromocytoma and catecholamine-secreting paraganglioma. ")
 putdocx text ("Notes: "), bold
-putdocx text  (`"Mode of discovery was available for $nmodnonmissing of $nmod PPGL patients from the North and Central Danish Regions. Patients for whom the relevant health records or reports could not be found were recorded as "Not found". Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes."')
+putdocx text  (`"Mode of discovery was available for $nmodnonmissing of $nmod PPGL patients from the North and Central Danish Regions. Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes. Reasons for missing clinical data: $footnote_TabCharByMod_miss."')
 
 
 ** Fig AgeOverall and AgeByMod

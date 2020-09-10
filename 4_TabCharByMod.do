@@ -2,6 +2,7 @@
 use data/cohort_ppgl.dta, clear
 keep if ppgl_incident==1
 keep if cohort_simple==1
+global footnote_TabCharByMod_miss = ""
 
 ** Missing
 count 
@@ -31,6 +32,20 @@ foreach col of local collist {
 foreach var in sex agecat sizecat sympcat htncat biocat tumorcat gencat {
 	di "`var'"
 	preserve
+	
+	* Count missing footnote
+	qui: levelsof `var' if mi(`var'), missing clean local(missing)
+	if !mi("`missing'") {
+			local varname : var label `var'
+			global footnote_TabCharByMod_miss = "$footnote_TabCharByMod_miss" + "`varname' ("
+			foreach cat of local missing {
+				local catname : label `var'_ `cat'
+				qui: count if `var'==`cat'
+				local missno = `r(N)'
+				global footnote_TabCharByMod_miss = "$footnote_TabCharByMod_miss" + "`missno' `catname', "
+			}
+		global footnote_TabCharByMod_miss = "$footnote_TabCharByMod_miss" + "), "
+		}
 	
 	* Count each category
 	qui: statsby, by(modcat `var') clear : count
@@ -143,4 +158,7 @@ foreach var in `r(varlist)' {
 gen row = _n
 
 ** Export 
+global footnote_TabCharByMod_miss = subinstr("$footnote_TabCharByMod_miss", ", )", ")", .)
+di "Reasons for missing data: $footnote_TabCharByMod_miss"
+
 save results/TabCharByMod.dta, replace
