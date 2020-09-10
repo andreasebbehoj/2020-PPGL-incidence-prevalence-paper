@@ -6,12 +6,11 @@ merge 1:1 id using data/cohort_pid, assert(match) nolabel nogen noreport ///
 keep if ppgl_incident==1
 keep if cohort_simple==1
 
-tab modcat
-
 
 *** Generate descriptive text 
 	// This section is partially excluded from log to hide sensitive data
 gen mod_textdetails = ""
+tab modcat, mi
 label list mod_
 
 ** Symptoms

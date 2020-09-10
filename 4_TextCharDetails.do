@@ -2,13 +2,18 @@
 use data/cohort_ppgl.dta, clear
 
 keep if ppgl_incident==1 & cohort_simple==1
-qui: count
-local Ntotal = `r(N)'
 
 
 *** Report
 putdocx clear
 putdocx begin
+
+* Count for table foot notes 
+count if !mi(modcat)
+global Nmod = `r(N)'
+
+count if mi(modcat)
+global Nmodmiss = `r(N)'
 
 
 ** Reasons for no surgery
@@ -29,11 +34,13 @@ foreach grp in `r(levels)' {
 ** Diagnosis before surgery
 count if modcat!=6 & !mi(modcat)
 local Nsurgtotal = `r(N)'
+count if modcat==6
+local Nautopsy = `r(N)'
 
 putdocx paragraph, style(Heading2)
 putdocx text ("Diagnosis before surgery")
 putdocx paragraph
-putdocx text ("Out of `Nsurgtotal' patients who were operated (`Ntotal' minus autopsies), the number of patients diagnosed with PPGL before resection of PPGL was:")
+putdocx text ("Out of `Nsurgtotal' patients who were operated ($Ncrnr patients minus `Nautopsy' diagnosed at autopsy and $Nmodmiss with missing records before diagnosis), the number of patients diagnosed with PPGL before resection of PPGL was:")
 putdocx paragraph, indent(left, 0.5) spacing(line, 0.2)
 
 local var = "surgcat"
@@ -54,7 +61,7 @@ putdocx text ("Metastases and recurrence")
 * Mets at time of diagnosis
 count if tumo_meta==1 
 local Nmets = `r(N)'
-local Pmets = string(round(100*`Nmets'/`Ntotal', 0.1), "%3.1f")
+local Pmets = string(round(100*`Nmets'/$Ncrnr, 0.1), "%3.1f")
 putdocx paragraph
 putdocx text ("`Nmets' (`Pmets'%) had confirmed metastases at time of diagnosis")
 
@@ -71,7 +78,7 @@ foreach grp in `r(levels)' {
 	local grplabel : label `var'_ `grp'
 	qui: count if `var'==`grp'
 	local Nrecur = `r(N)'
-	local Precur = string(round(100*`Nrecur'/`Ntotal', 0.1), "%3.1f")
+	local Precur = string(round(100*`Nrecur'/$Ncrnr, 0.1), "%3.1f")
 	putdocx text ("`Nrecur' (`Precur'%) `grplabel'"), linebreak
 }
 

@@ -82,7 +82,7 @@ recode mod ///
 	(40 41=5 "Genetic") ///
 	(50=6 "Autopsy") ///
 	(60/69=7 "Other") ///
-	(98 99=8 "Missing") ///
+	(98 99=.a "had missing records") ///
 	, gen(modcat) label(modcat_)
 label var modcat "Mode of discovery"
 
@@ -92,7 +92,7 @@ recode sizemax ///
 	(0/3.999=1 "<4 cm") ///
 	(4/7.999=2 "4-7.9 cm") ///
 	(8/50=3 "{&ge}8 cm") ///
-	(.=4 "Missing") ///
+	(.=.a "had missing records") ///
 	, gen(sizecat) label(sizecat_)
 label var sizemax "Size in cm"
 label var sizecat "Tumor size"
@@ -101,13 +101,13 @@ label var sizecat "Tumor size"
 gen tumorcat = 1 if tumo_numb==1 & tumo_loc1==1 // single pheo
 recode tumorcat (.=2) if tumo_numb==1 & inlist(tumo_loc1, 2, 3) // single para (2: abdominal, 3: head/neck)
 recode tumorcat (.=3) if inrange(tumo_numb, 2, 9) // Multifocal PPGL
-recode tumorcat (.=4) if inlist(tumo_numb, 98, 99) // not found or unspecified
+recode tumorcat (.=.a) if inlist(tumo_numb, 98, 99) // not found or unspecified
 label var tumorcat "Tumor location"
 label define tumorcat_ ///
 	1 "Unilateral PHEO" ///
 	2 "Unilateral PARA" ///
 	3 "Multiple PPGL" ///
-	4 "Missing" ///
+	.a "had missing records" ///
 	, replace
 label value tumorcat tumorcat_
 
@@ -140,7 +140,7 @@ foreach symp in /// no paroxysmal symp
 	qui: recode sympcat (.=4) if inlist(`symp', 2, 3, 4, 99)
 }
 
-recode sympcat (.=5) if inlist(98, /// health records not found
+recode sympcat (.=.a) if inlist(98, /// health records not found
 	symp_palp, symp_head, symp_sweat, symp_light, symp_white, symp_flush, ///
 	symp_sync, symp_naus, symp_chest, symp_abdo, symp_tremor, symp_dysp, symp_atta)
 
@@ -149,7 +149,7 @@ label define sympcat_ ///
 	2 "1-2 classic symptoms" ///
 	3 "Other paroxysmal symptoms" ///
 	4 "No paroxysmal symptoms" ///
-	5 "Missing" ///
+	.a "had missing records" ///
 	, replace
 label value sympcat sympcat_
 label variable sympcat "Symptoms at diagnosis"
@@ -163,7 +163,7 @@ recode symp_hyper ///
 	(1=1 "Labile hypertension") ///
 	(2 3=2 "Stable hypertension") ///
 	(4 99=3 "No hypertension") ///
-	(98=4 "Missing") ///
+	(98=.a "had missing records") ///
 	, gen(htncat) label(htncat_)
 label var htncat "Hypertension at diagnosis"
 
@@ -186,7 +186,7 @@ label var biomax "Fold increase above upper normal range"
 recode gen_synd	(1 2 3 4 56 7 8 9 10 11 20 30 39 = 1 "Hereditary PPGL") /// confirmed clinically or genetically
 				(44=2 "Negative genetic tests") /// No known syndrome/mutation (both tested and non-tested)
 				(12345=3 "Never tested") /// empty value to create label
-				(98=4 "Missing") /// 
+				(98=.a "had missing records") /// 
 				, gen(gencat) label(gencat_)
 recode gencat (2=3) if obta_gene==2 // Recode for those never tested
 label var gencat "Hereditary PPGL"
@@ -194,11 +194,12 @@ label var gencat "Hereditary PPGL"
 * PreOP diag
 recode mod_preopdiag 	(1=1 "Yes") ///
 						(0=2 "No") ///
-						(12345=3 "Never operated") ///
-						(98=4 "Missing") ///
+						(12345=.a "were diagnosed at autopsy") ///
+						(12345=.b "were never operated for other reasons") ///
+						(98=.c "had missing records") ///
 						, gen(surgcat) label(surgcat_)
-recode surgcat (.=3) if inlist(surg_reas, 2, 3, 4, 5) // All non-operated (except those diagnosed at autopsy)
-
+recode surgcat (.=.a) if surg_reas==1 // Diagnosed at autopsy
+recode surgcat (.=.b) if inlist(surg_reas, 2, 3, 4, 5) // All non-operated (except those diagnosed at autopsy)
 label var surgcat "PPGL diagnosed before surgery"
 
 * Recurrence
@@ -240,6 +241,9 @@ count if ppgl_incident==1
 local incifinal=`r(N)'
 count if ppgl_prevalent==1
 local prevfinal=`r(N)'
+
+count if cohort_simple==1 & ppgl_incident==1 // with clinical data
+global Ncrnr = `r(N)'
 
 *** Remove superfluous variables
 drop tumo_numb tumo_loc* tumo_size* tumo_late* tumo_bioc symp_* /// Aggregated in code above
