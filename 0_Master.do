@@ -12,23 +12,13 @@ The do-file is split in four sections:
 
 
 ***** 1) STATA SETUP
-version 16
-set more off
-clear
-file close _all
-capture: mkdir data
-capture: mkdir results
-
-/*** Install necessary packages
-net install github, from("https://haghish.github.io/github/")
-github install andreasebbehoj/dstpop
-ssc install grstyle, replace
-ssc install palettes, replace
-ssc install colrspace, replace
-ssc install spmap, replace
-ssc install shp2dta, replace
-ssc install asdoc, replace
+/*
+This section:
+- Clear memory
+- Install necessary Stata program
+- Define custom programs
 */
+do 1_Setup.do
 
 
 

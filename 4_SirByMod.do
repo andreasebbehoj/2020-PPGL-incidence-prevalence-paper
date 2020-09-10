@@ -5,6 +5,7 @@
 use data/cohort_ppgl.dta, clear
 keep if ppgl_incident==1
 keep if cohort_simple==1 // Central and Northern Regions only
+conv_missing, var(modcat) combmiss("Missing")
 keep agecat cohort_simple period10y modcat
 rename period10y period
 contract _all, freq(N) zero

@@ -3,6 +3,8 @@
 *** Calculations
 use data/cohort_ppgl.dta, clear
 keep if ppgl_incident==1
+conv_missing, var(modcat) combmiss("Missing")
+
 
 assert age<100
 egen float age10y = cut(age), at(0(10)100) 
