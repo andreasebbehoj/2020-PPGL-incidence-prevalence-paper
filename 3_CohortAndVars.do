@@ -3,6 +3,24 @@ use data/cohort_alldata.dta, clear
 
 
 *** Define cohort
+** Define important criteria
+* End of study period
+global lastyear = 2015
+
+
+* Study period (10-year intervals)
+global period10ycat = 	`"(1977/1986=1 "1977-1986")"' ///
+						+ `" (1987/1996=2 "1987-1996")"' ///
+						+ `" (1997/2006=3 "1997-2006")"' ///
+						+ `" (2007/${lastyear}=4 "2007-${lastyear}")"' //
+
+* Age categories
+global agecat = `"(0/24.999=1 "<25 years")"' ///
+				+ `" (25/49.999=2 "25-49 years")"' ///
+				+ `" (50/74.999=3 "50-74 years")"' ///
+				+ `" (75/100=4 "{&ge}75 years")"'
+
+
 ** Study area
 recode cohort (1 2 5 = 1 "North and Central Region") (3=2 "Remaining Danish regions"), gen(cohort_simple) label(cohort_simple_)
 label var cohort_simple "Study area"
@@ -38,33 +56,44 @@ recode ppgl_incident (.=0)
 recode year_index $period10ycat, gen(period10y) label(period10y_)
 label var period10y "Period"
 
-* Study period (first 3 periods vs last period)
-recode year_index $period2cat, gen(period2cat) label(period2cat_)
-label var period2cat "Period"
-
 * Age at diagnosis
 gen age = (date_index-d_foddato)/365.25
 label var age "Age in years"
-
-* Age at surgery
-gen age_surg = (date_surg-d_foddato)/365.25
-label var age "Age at time of surgery"
 
 * Age categories
 recode age $agecat, gen(agecat) label(agecat_)
 label var agecat "Age at diagnosis"
 
+* Age at surgery
+gen age_surg = (date_surg-d_foddato)/365.25
+label var age "Age at time of surgery"
+
 * Sex
 recode sex (0=2)
 label define sex_ 1 "Male" 2 "Female" 0 "", modify
 
-* Mode of discovery groups
-recode mod $modcat, gen(modcat) label(modcat_)
+* Mode of discovery categories
+label list mod_
+recode mod ///
+	(1=1 "Paroxysmal symptoms") ///
+	(2 3 4=2 "Hypertension") ///
+	(20=3 "Adrenal incidentaloma") ///
+	(30 31=4 "Cancer imaging") ///
+	(40 41=5 "Genetic") ///
+	(50=6 "Autopsy") ///
+	(60/69=7 "Other") ///
+	(98 99=8 "Missing") ///
+	, gen(modcat) label(modcat_)
 label var modcat "Mode of discovery"
 
 * Tumor size
 egen sizemax = rowmax(tumo_size*)
-recode sizemax $sizecat, gen(sizecat) label(sizecat_)
+recode sizemax ///
+	(0/3.999=1 "<4 cm") ///
+	(4/7.999=2 "4-7.9 cm") ///
+	(8/50=3 "{&ge}8 cm") ///
+	(.=4 "Missing") ///
+	, gen(sizecat) label(sizecat_)
 label var sizemax "Size in cm"
 label var sizecat "Tumor size"
 
@@ -82,8 +111,8 @@ label define tumorcat_ ///
 	, replace
 label value tumorcat tumorcat_
 
-
-/* Paroxystic symptoms
+* Paroxystic symptoms
+/*
 Data recorded on
 - Classic symptoms: paroxysmal headache, sweating and palpitations
 - Other symptoms: flushing, whitening, nausea, abdominal pain, dyspnea, syncope, lightheadedness, chest pain, tremor, or unspecified "attacks"
@@ -91,10 +120,10 @@ Data recorded on
 symp_x:
 	1: Present and paroxysmal
 	2: Present but not paroxysmal
-	3: Present, unspecied if paroxysmal or not (treated as not paroxysmal)
+	3: Present, unspecied if paroxysmal or not (consider not paroxysmal)
 	4: Not present,
 	98: Health records missing
-	99: Unspecified in records if present (treated as not present)
+	99: Unspecified in records if present (consider not present)
 */
 gen sympcat = 1 if /// classic triad
 	symp_head==1 & symp_sweat==1 & symp_palp==1
@@ -130,11 +159,23 @@ gen sympyears = (date_index-date_symp)/365.25 if inlist(sympcat, 1, 2, 3) // Sym
 label var sympyears "Symptom duration in years"
 
 * Hypertension
-recode symp_hyper ${htncat}, gen(htncat) label(htncat_)
+recode symp_hyper ///
+	(1=1 "Labile hypertension") ///
+	(2 3=2 "Stable hypertension") ///
+	(4 99=3 "No hypertension") ///
+	(98=4 "Missing") ///
+	, gen(htncat) label(htncat_)
 label var htncat "Hypertension at diagnosis"
 
 * Biochemical profile
-recode tumo_bioc ${biocat}, gen(biocat) label(biocat_)
+recode tumo_bioc ///
+	(1=1 "NE only") ///
+	(2=2 "E only") ///
+	(3=3 "Both NE and E") ///
+	(4=4 "Only total CA available") ///
+	(7=5 "Never tested") ///
+	(98=6 "Missing") ///
+	, gen(biocat) label(biocat_)
 label var biocat "Biochemical profile"
 
 * Biochemical elevation

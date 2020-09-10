@@ -4,8 +4,8 @@ This do file runs the analysis for the paper on Incidence and Prevalence of PPGL
 
 The do-file is split in four sections:
 1) Stata setup
-2) Define study variables
-3) Import and prepare data
+2) Import patient data and define study variables
+3) Import and prepare other data (population data)
 4) Analysis
 5) Combine report
 */
@@ -32,105 +32,29 @@ ssc install asdoc, replace
 
 
 
-***** 2) DEFINE STUDY VARIABLES
-* End of study period
-global lastyear = 2015
-
-/* Arrows with diagnostic changes in study period
-global arrows =  `""1996 National coverage of Pathology Registry" "' ///
-				+ `""2002 AI guideline (NIH)" "' ///
-				+ `""2007 Fast-track cancer diagnosis introduced in Denmark" "' ///
-				+ `""2009 AI guideline (AACE) and p-Met introduced in Denmark" "' ///
-				+ `""2011 AI guideline (AME)" "' ///
-				+ `""2012 AI guideline (Danish)" "' ///
-				+ `""2014 PPGL guidelines (Danish and ECE)" "' //
+***** 2) PREPARE PATIENT DATA
+/*
+This section:
+- Import clinical data on PPGL patients from a REDCap database
+- Define final PPGL cohort and generate study variables for later analyses
 */
 
-* Study period (10-year intervals)
-global period10ycat = 	`"(1977/1986=1 "1977-1986")"' ///
-						+ `" (1987/1996=2 "1987-1996")"' ///
-						+ `" (1997/2006=3 "1997-2006")"' ///
-						+ `" (2007/${lastyear}=4 "2007-${lastyear}")"' //
+do 3_ImportRedcap.do
 
-* Study period (first 3 periods vs last period)
-global period2cat =		`"(1977/2006=1 "1977-2006")"' ///
-						+ `" (2007/${lastyear}=2 "2007-${lastyear}")"' //
-
-* Age categories
-global agecat = `"(0/24.999=1 "<25 years")"' ///
-				+ `" (25/49.999=2 "25-49 years")"' ///
-				+ `" (50/74.999=3 "50-74 years")"' ///
-				+ `" (75/100=4 "{&ge}75 years")"'
-
-* Mode of discovery grouping
-global modcat = `"(1=1 "Paroxysmal symptoms")"' ///
-				+ `" (2 3 4=2 "Hypertension")"' ///
-				+ `" (20=3 "Adrenal incidentaloma")"' ///
-				+ `" (30 31=4 "Cancer imaging")"' ///
-				+ `" (40 41=5 "Genetic")"' ///
-				+ `" (50=6 "Autopsy")"' ///
-				+ `" (60 61 62 63 64 66=7 "Other")"' ///
-				+ `" (98 99=8 "Missing")"' //
-
-* Tumor size (largest diameter)
-global sizecat = `"(0/3.999=1 "<4 cm")"' ///
-					+ `" (4/7.999=2 "4-7.9 cm")"' ///
-					+ `" (8/50=3 "{&ge}8 cm")"' ///
-					+`" (.=4 "Missing")"'
-
-* Biochemical profile
-global biocat = `"(1=1 "NE only")"' ///
-					+ `" (2=2 "E only")"' ///
-					+ `" (3=3 "Both NE and E")"' ///
-					+ `" (4=4 "Only total CA available")"' ///
-					+ `" (7=5 "Never tested")"' ///
-					+ `" (98=6 "Missing")"' //
-
-* Hypertension
-global htncat = `"(1=1 "Labile hypertension")"' ///
-					+ `" (2 3=2 "Stable hypertension")"' ///
-					+ `" (4 99=3 "No hypertension")"' ///
-					+ `" (98=4 "Missing")"' //
-
-/* Genetic disposition
-gencat: 
-	Defined in 3_CohortAndVars.do
-
-* Tumor location
-tumorcat:
-	Defined in 3_CohortAndVars.do
-
-* Symptoms
-sympcat:
-	Defined in 3_CohortAndVars.do 
-*/
+do 3_CohortAndVars.do
 
 
 
-
-
-***** 3) IMPORT AND PREPARE DATA
+***** 3) PREPARE OTHER DATA
 /*
 This section:
 - Import data on Danish population from Statistics Denmark
 - Define European Standard population
-- Import clinical data on PPGL patients from a REDCap database
-- Generate study variables and restrict to final PPGL cohort
 */
 
-** Danish population
 do 3_ImportPopDK.do
 
-** EU standard population
 do 3_ImportPopEU.do
-
-** Import PPGL patients from ReDCap
-do 3_ImportRedcap.do
-
-** Generate study variables and restrict to cohort
-do 3_CohortAndVars.do
-
-
 
 
 
