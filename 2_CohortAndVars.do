@@ -137,7 +137,7 @@ recode sympcat (.=3) if /// other paroxysmal symp
 foreach symp in /// no paroxysmal symp
 	symp_palp symp_head symp_sweat symp_light symp_white symp_flush ///
 	symp_sync symp_naus symp_chest symp_abdo symp_tremor symp_dysp symp_atta {
-	qui: recode sympcat (.=4) if inlist(`symp', 2, 4, 99)
+	qui: recode sympcat (.=4) if inlist(`symp', 2, 3, 4, 99)
 }
 
 recode sympcat (.=5) if inlist(98, /// health records not found
