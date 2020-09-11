@@ -32,7 +32,24 @@ twoway (histogram age10y, discrete frequency fcolor($color1) lcolor(none)) ///
 graph export results/FigAgeOverall${exportformat} ${exportoptions}
 
 
+** Age histogram by sex (all of DK)
+preserve
+keep age10y sex
+contract _all, freq(N) zero
+bysort age10y (sex): gen cumu = sum(N)
+
+twoway ///
+	(bar cumu age10y if sex==2, lcolor(none) fcolor(${color2_2})) /// women
+	(bar cumu age10y if sex==1, lcolor(none) fcolor(${color2_1})) /// men
+	, legend(on col(1) colfirst order(1 "Women" 2 "Men") ) ///
+	/// xlabel(`labeltext') ///
+	ylabel(0(10)130) ///
+	ytitle("N") //
+graph export results/FigAgeBySex${exportformat} ${exportoptions}
+
+
 ** Age histogram by modcat (CRNR only)
+restore
 keep if cohort_simple==1
 tab age10y
 keep age10y modcat
@@ -43,6 +60,8 @@ bysort age10y (modcat): gen cumu = sum(N)
 * Define graphs and legend
 qui: su modcat
 local legendorder = `r(max)'
+local twoway = ""
+local legend = ""
 forvalues mod = 1(1)`r(max)' {
 		local twoway = "(bar cumu age10y if modcat==`mod'" /// bar chart
 					+ `", lcolor(none) fcolor(${color`r(max)'_`mod'})) "' /// Colors

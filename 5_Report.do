@@ -168,21 +168,23 @@ putdocx text ("Notes: "), bold
 putdocx text  (`"Mode of discovery was available for $Nmod of $Ncrnr PPGL patients from the North and Central Danish Regions ($Nmodmiss had missing records). Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes. Reasons for missing clinical data: $footnote_TabCharByMod_miss."')
 
 
-** Fig AgeOverall and AgeByMod
-*local supno = `supno'+1
+** Fig Histogram AgeOverall, AgeBySex and AgeByMod
+local supno = `supno'+1
 putdocx sectionbreak
 putdocx paragraph, style(Heading2) `fontHeading2'
-putdocx text ("Supplementary X - Age at PPGL Diagnosis A) in Denmark and B) by Mode of Discovery in North and Central Danish Regions")
+putdocx text ("Supplementary `supno' - Age at PPGL Diagnosis A) in total, B) by Sex, and B) by Mode of Discovery")
 
 putdocx paragraph, halign(center) spacing(after, 0.1) spacing(before, 0.1)
 putdocx text ("A"), linebreak
-putdocx image results/FigAgeOverall${exportformat}, height(5 in) linebreak
+putdocx image results/FigAgeOverall${exportformat}, height(2.5 in) linebreak
 putdocx text ("B"), linebreak
-putdocx image results/FigAgeByMod${exportformat}, height(5 in) linebreak
+putdocx image results/FigAgeBySex${exportformat}, height(2.5 in) linebreak
+putdocx text ("C"), linebreak
+putdocx image results/FigAgeByMod${exportformat}, height(2.5 in) linebreak
 putdocx paragraph
 
 putdocx text ("Notes: "), bold
-putdocx text  ("Histogram of age at diagnosis a) for all PPGL patients in Denmark (N=565) and B) by mode of discovery in the North and Central Danish Regions only (n=192).")
+putdocx text  ("Histogram of age at diagnosis for PPGL patients. Figure A and B include all patients diagnosed with PPGL in Denmark (n=$Ninci) and figure C include only patients from North and Central Danish Regions (n=$Ncrnr).")
 
 
 
@@ -200,7 +202,7 @@ putdocx text ("Notes: "), bold
 putdocx text  ("Incidence rates of PPGL in North and Central Region, where PPGL diagnosis was confirmed in medical records, compared to the remaining three Danish regions, where the PPGL diagnsosis was validated algorithm. Incidence rates are reported in 10-year averages and age standardized to the European Standard Population 2013.")
 
 
-** Fig SIR by municipality
+/** Fig SIR by municipality
 local supno = `supno'+1
 putdocx pagebreak
 putdocx paragraph, style(Heading2) `fontHeading2'
@@ -210,7 +212,7 @@ putdocx image results/FigSirByMun${exportformat}, height(5 in)
 putdocx paragraph
 
 putdocx text ("Notes: "), bold
-putdocx text  ("Average incidence rates 1977-$lastyear by patients' home municipality at date of diagnosis. Incidence rates are age standardized to the European Standard Population 2013.")
+putdocx text  ("Average incidence rates 1977-$lastyear by patients' home municipality at date of diagnosis. Incidence rates are age standardized to the European Standard Population 2013.")*/
 
 
 *** Save Figures and Tables report
