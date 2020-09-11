@@ -173,6 +173,7 @@ recode tumo_bioc ///
 	(2=2 "E only") ///
 	(3=3 "Both NE and E") ///
 	(4=.a "had only total catecholamines measured") ///
+	(5=4 "Non-functioning") ///
 	(7=.b "were never tested") ///
 	(98=.c "had missing records") ///
 	, gen(biocat) label(biocat_)

@@ -61,7 +61,7 @@ label define tumo_late2_ 1 "Left" 2 "Right" 4 "Central" 98 "Not found" 99 "Unspe
 label define tumo_late3_ 1 "Left" 2 "Right" 4 "Central" 98 "Not found" 99 "Unspecified"
 label define tumo_late4_ 1 "Left" 2 "Right" 4 "Central" 98 "Not found" 99 "Unspecified"
 label define tumo_late5_ 1 "Left" 2 "Right" 4 "Central" 98 "Not found" 99 "Unspecified"
-label define tumo_bioc_ 1 "NE only" 2 "E only" 3 "Both NE and E" 4 "NE+E UNS" 7 "Not tested" 98 "Not found" 99 "Unspecified"
+label define tumo_bioc_ 1 "NE only" 2 "E only" 3 "Both NE and E" 4 "NE+E UNS" 5 "Non-functioning" 7 "Not tested" 98 "Not found" 99 "Unspecified" 
 label define tumo_meta_ 1 "Mets confirmed" 2 "Local invasion confirmed" 3 "No mets or invasion" 98 "Not found" 99 "Unspecified"
 label define tumor_data_complete_ 0 "Incomplete" 1 "Unverified" 2 "Complete"
 label define mod_ 1 "Symptoms" 2 "Secondary HTN" 3 "Pressor-response during birth/pregnancy" 4 "Pressor-response during surgery/anesthesia" 20 "Adrenal incidentaloma" 30 "Cancer staging" 31 "Cancer FU" 40 "Syndrome evaluation or control" 41 "Eval due to familial disposition" 50 "Autopsy" 60 "Other (B-symptoms)" 61 "Other (Palpable abdominal mass)" 62 "Other (Acute abdomen)" 63 "Other (Ectopic ACTH)" 64 "Other (abdominal para incidentaloma)" 65 "Other (H/N para incidentaloma)" 66 "Other (heart failure)" 69 "Other (specify in comments)" 98 "Not found" 99 "Unspecified"
@@ -70,7 +70,6 @@ label define mod_imagemodality_ 1 "CT" 2 "US" 3 "MRI" 4 "Other"
 label define mod_cancer_ 1 "Bladder Cancer" 2 "Breast Cancer" 3 "Colon and Rectal Cancer" 4 "Endometrial Cancer" 5 "Kidney Cancer" 6 "Leukemia" 7 "Liver Cancer" 8 "Lung Cancer" 9 "Melanoma" 10 "Non-Hodgkin Lymphoma" 11 "Pancreatic Cancer" 12 "Prostate Cancer" 13 "Thyroid Cancer" 14 "Ovarian cancer" 15 "Testis cancer" 70 "Other" 71 "Unknown origin" 98 "Not found" 99 "Unspecified"
 label define mod_special_ 0 "No" 1 "Yes" 98 "Not found" 99 "Unspecified"
 label define mod_biopsy_ 0 "No" 1 "FNA" 2 "Biopsy" 3 "Both" 98 "Not found" 99 "Unspecified"
-label define mod_preopdiag_ 0 "No" 1 "Yes" 7 "Never operated" 98 "Not found" 99 "Unspecified"
 label define symp_asymp_ 1 "Yes" 2 "No" 98 "Not found" 99 "Unspecified"
 label define symp_atta_ 1 "Yes - related to attacks" 2 "Yes - not related to attacks" 3 "Yes - unspecified if related" 4 "No" 98 "Not found" 99 "Unspecified"
 label define symp_hyper_ 1 "Yes - related to attacks" 2 "Yes - not related to attacks" 3 "Yes - unspecified if related" 4 "No" 98 "Not found" 99 "Unspecified"
@@ -94,6 +93,7 @@ label define surg_reason_ 1 "Diagnosis at autopsy" 2 "Not technically possible" 
 label define surg_type_ 1 "Unilateral adrenalectomy" 2 "Bilateral adrenalectomy" 3 "Cortical-sparring surgery" 4 "Removal of single paraganglioma" 5 "Removal of multiple paraganglioma" 7 "Not operated" 98 "Not found" 99 "Unspecified"
 label define surg_tech_ 1 "Laparoscopic OP performed" 2 "Lap planned but converted to open" 3 "Open OP performed" 7 "Not operated" 98 "Not found" 99 "Unspecified"
 label define surg_medalpha_ 1 "Phenozybenzamine" 2 "Other alpha blocker" 6 "No alpha blocker" 7 "Not operated" 98 "Not found" 99 "Unspecified"
+label define mod_preopdiag_ 0 "No" 1 "Yes" 98 "Not found" 99 "Unspecified" 
 label define treat_any_ 0 "No" 1 "Yes" 98 "Not found" 99 "Unspecified"
 label define treat_mibg_ 0 "No" 1 "Yes" 98 "Not found" 99 "Unspecified"
 label define treat_dotatoc_ 0 "No" 1 "Yes" 98 "Not found" 99 "Unspecified"
@@ -289,7 +289,6 @@ label values mod_imagemodality mod_imagemodality_
 label values mod_cancer mod_cancer_
 label values mod_special mod_special_
 label values mod_biopsy mod_biopsy_
-label values mod_preopdiag mod_preopdiag_
 label values symp_asymp symp_asymp_
 label values symp_atta symp_atta_
 label values symp_hyper symp_hyper_
@@ -313,6 +312,7 @@ label values surg_reason surg_reason_
 label values surg_type surg_type_
 label values surg_tech surg_tech_
 label values surg_medalpha surg_medalpha_
+label values mod_preopdiag mod_preopdiag_
 label values treat_any treat_any_
 label values treat_mibg treat_mibg_
 label values treat_dotatoc treat_dotatoc_
@@ -653,7 +653,6 @@ label variable mod_indication "Indication for imaging?"
 label variable mod_cancer "Cancer type?"
 label variable mod_special "Any special circumstances on MoD?"
 label variable mod_biopsy "Biopsy or FNA before lab tests?"
-label variable mod_preopdiag "Diagnosed before surgery?"
 label variable mod_comm "Comments on mode of discovery"
 label variable symp_asymp "Asymptomatic?"
 label variable date_symp "Date of first patient-reported symptom(s) "
@@ -681,6 +680,7 @@ label variable surg_reason "Reason for no radical surgery"
 label variable surg_type "Tumor(s) removed?"
 label variable surg_tech "Surgical technique used?"
 label variable surg_medalpha "Alpha blocade pre-OP?"
+label variable mod_preopdiag "Diagnosed before surgery?"
 label variable surg_comm "Comments on surgery"
 label variable treat_any "Received any non-surgical PPGL treatment"
 label variable treat_mibg "Treated with MIBG"
@@ -830,6 +830,6 @@ label variable gen_mut_kommentarer "Kommentarer til genetisk mutationsanalyse"
 label variable gen_report "Genetisk prøvesvar"
 label variable genetik_sara_complete "Complete?"
 
-order id cpr sex d_foddato include_reg include_kom allfirstdate allfirstdate_lpr allfirstdate_pato allfirstdate_dar cohort exclude from_lpr from_pato from_dar allhighrisk_lpr allhighrisk_pato allhighrisk_dar all_lpr_25529 all_lpr_dd350a all_lpr_de275 all_lpr_dr825a all_lpr_zm87000 all_lpr_zm87001 all_lpr_zm87003 all_lpr_zm87004 all_lpr_zm87006 all_lpr_zm87007 all_lpr_zm87009 all_pato_m87000 all_pato_m87001 all_pato_m87003 all_pato_m87004 all_pato_m87006 all_pato_m87007 all_pato_m87009 all_pato_m8700x all_pato_s29470 all_dar_2552 all_dar_d350 all_dar_e275 all_dar_r825 inclusion_data_complete vali_comm_found1 vali_comm_found2 vali_comm_found3 vali_comm_found4 vali_source vali_lab vali_comm_lab vali_radio vali_comm_radio vali_path vali_comm_path vali_clin vali_comm_clin vali_eval vali_experts vali_exclude vali_comm_conclusion ppgl date_diag obta_lab obta_radi obta_path obta_gene obta_recu validation_of_ppgl_complete tumo_numb tumo_loc1 tumo_loc2 tumo_loc3 tumo_loc4 tumo_loc5 tumo_comm_loc tumo_late1 tumo_late2 tumo_late3 tumo_late4 tumo_late5 tumo_size1 tumo_size2 tumo_size3 tumo_size4 tumo_size5 tumo_bioc tumo_bioc_ne tumo_bioc_e tumo_bioc_uns tumo_comm_bioc tumo_meta tumor_data_complete mod mod_cod mod_comm_cod mod_imagemodality mod_indication mod_cancer mod_special mod_biopsy mod_preopdiag mod_comm symp_asymp date_symp symp_atta symp_hyper symp_palp symp_head symp_sweat symp_light symp_white symp_flush symp_sync symp_naus symp_chest symp_abdo symp_tremor symp_dysp symp_other symp_comm_other symp_weight symptoms_and_mod_complete surg_resec date_surg surg_reason surg_type surg_tech surg_medalpha surg_comm treat_any treat_mibg treat_dotatoc treat_chemo treat_radio treat_local treat_comm cour_recu1 date_recu1 date_recusurg1 cour_recu2 date_recu2 date_recusurg2 cour_recu3 date_recu3 date_recusurg3 cour_comm op_and_recurrence_complete gen_synd gen_comm_synd genetics_complete ext_algosample algo_1a_lpr algo_1a_pat algo_1a_dar algo_1a_all algo_1b_lpr algo_1b_pat algo_1b_dar algo_1b_all algo_1c_25529 algo_1c_dd350a algo_1c_dr825a algo_1c_de275 algo_1c_zm8700 algo_1c_2552 algo_1c_d350 algo_1c_e275 algo_1c_r825 algo_1c_m8700total algo_1c_s29470 algo_2a algo_2b algo_2c_any1 algo_2c_pheo1 algo_2c_noref1 algo_2c_adiag1 algo_2c_endoany1 algo_2c_endomea1 algo_2c_any2 algo_2c_pheo2 algo_2c_noref2 algo_2c_adiag2 algo_2c_endoany2 algo_2c_endomea2 algo_2c_any3 algo_2c_pheo3 algo_2c_noref3 algo_2c_adiag3 algo_2c_endoany3 algo_2c_endomea3 algo_2d1 algo_2d2 algo_2d3 algo_2e algo_2f algo_2g algo_4a algo_4b algo_9a algo_9b algo_9c algo_9d algo_9e algo_9f algo_9g algo_9h algo_9i algo_9j algo_9k algo_9l algo_9m algo_9n algo_9o algo_9p algo_9q algo_9r algo_9x algorithm_complete c_status d_status_hen_start date_surg_lpr date_surg_pato date_surg_est regeval_surg regeval_comm_surg registry_evaluation_complete pato_done rec_nr pato_diagnose datediagnosispato pato_ki67_done pato_ki67 immuno_s100 immuno_syn immuno_chromo immuno_vim immuno_vip immuno_nse immuno_cd56 immuno_acth immuno_noradr_adren immuno_neurofilament immuno_somatostatin immuno_cytokeratin immuno_andre immuno_comments pato_pass2_nest pato_pass2_necrosis pato_pass2_highcel pato_pass2_monotony pato_pass2_spindling pato_pass2_mitosicfig pato_pass2_atypic pato_pass2_adipose pato_pass1_vasc pato_pass1_caps pato_pass1_nuclpleo pato_pass1_nuclhyperchrom pato_passscore patologi_sara_complete gen_performed gen_mut_vhl gen_mut_nf1 gen_mut_sdha gen_mut_sdhaf2 gen_mut_sdhb gen_mut_sdhc gen_mut_sdhd gen_mut_them127 gen_mut_max gen_mut_ret_men2a gen_mut_ret_men2b gen_mut_anden gen_mut_kommentarer gen_report genetik_sara_complete
+order id cpr sex d_foddato include_reg include_kom allfirstdate allfirstdate_lpr allfirstdate_pato allfirstdate_dar cohort exclude from_lpr from_pato from_dar allhighrisk_lpr allhighrisk_pato allhighrisk_dar all_lpr_25529 all_lpr_dd350a all_lpr_de275 all_lpr_dr825a all_lpr_zm87000 all_lpr_zm87001 all_lpr_zm87003 all_lpr_zm87004 all_lpr_zm87006 all_lpr_zm87007 all_lpr_zm87009 all_pato_m87000 all_pato_m87001 all_pato_m87003 all_pato_m87004 all_pato_m87006 all_pato_m87007 all_pato_m87009 all_pato_m8700x all_pato_s29470 all_dar_2552 all_dar_d350 all_dar_e275 all_dar_r825 inclusion_data_complete vali_comm_found1 vali_comm_found2 vali_comm_found3 vali_comm_found4 vali_source vali_lab vali_comm_lab vali_radio vali_comm_radio vali_path vali_comm_path vali_clin vali_comm_clin vali_eval vali_experts vali_exclude vali_comm_conclusion ppgl date_diag obta_lab obta_radi obta_path obta_gene obta_recu validation_of_ppgl_complete tumo_numb tumo_loc1 tumo_loc2 tumo_loc3 tumo_loc4 tumo_loc5 tumo_comm_loc tumo_late1 tumo_late2 tumo_late3 tumo_late4 tumo_late5 tumo_size1 tumo_size2 tumo_size3 tumo_size4 tumo_size5 tumo_bioc tumo_bioc_ne tumo_bioc_e tumo_bioc_uns tumo_comm_bioc tumo_meta tumor_data_complete mod mod_cod mod_comm_cod mod_imagemodality mod_indication mod_cancer mod_special mod_biopsy mod_comm symp_asymp date_symp symp_atta symp_hyper symp_palp symp_head symp_sweat symp_light symp_white symp_flush symp_sync symp_naus symp_chest symp_abdo symp_tremor symp_dysp symp_other symp_comm_other symp_weight symptoms_and_mod_complete surg_resec date_surg surg_reason surg_type surg_tech surg_medalpha mod_preopdiag surg_comm treat_any treat_mibg treat_dotatoc treat_chemo treat_radio treat_local treat_comm cour_recu1 date_recu1 date_recusurg1 cour_recu2 date_recu2 date_recusurg2 cour_recu3 date_recu3 date_recusurg3 cour_comm op_and_recurrence_complete gen_synd gen_comm_synd genetics_complete ext_algosample algo_1a_lpr algo_1a_pat algo_1a_dar algo_1a_all algo_1b_lpr algo_1b_pat algo_1b_dar algo_1b_all algo_1c_25529 algo_1c_dd350a algo_1c_dr825a algo_1c_de275 algo_1c_zm8700 algo_1c_2552 algo_1c_d350 algo_1c_e275 algo_1c_r825 algo_1c_m8700total algo_1c_s29470 algo_2a algo_2b algo_2c_any1 algo_2c_pheo1 algo_2c_noref1 algo_2c_adiag1 algo_2c_endoany1 algo_2c_endomea1 algo_2c_any2 algo_2c_pheo2 algo_2c_noref2 algo_2c_adiag2 algo_2c_endoany2 algo_2c_endomea2 algo_2c_any3 algo_2c_pheo3 algo_2c_noref3 algo_2c_adiag3 algo_2c_endoany3 algo_2c_endomea3 algo_2d1 algo_2d2 algo_2d3 algo_2e algo_2f algo_2g algo_4a algo_4b algo_9a algo_9b algo_9c algo_9d algo_9e algo_9f algo_9g algo_9h algo_9i algo_9j algo_9k algo_9l algo_9m algo_9n algo_9o algo_9p algo_9q algo_9r algo_9x algorithm_complete c_status d_status_hen_start date_surg_lpr date_surg_pato date_surg_est regeval_surg regeval_comm_surg registry_evaluation_complete pato_done rec_nr pato_diagnose datediagnosispato pato_ki67_done pato_ki67 immuno_s100 immuno_syn immuno_chromo immuno_vim immuno_vip immuno_nse immuno_cd56 immuno_acth immuno_noradr_adren immuno_neurofilament immuno_somatostatin immuno_cytokeratin immuno_andre immuno_comments pato_pass2_nest pato_pass2_necrosis pato_pass2_highcel pato_pass2_monotony pato_pass2_spindling pato_pass2_mitosicfig pato_pass2_atypic pato_pass2_adipose pato_pass1_vasc pato_pass1_caps pato_pass1_nuclpleo pato_pass1_nuclhyperchrom pato_passscore patologi_sara_complete gen_performed gen_mut_vhl gen_mut_nf1 gen_mut_sdha gen_mut_sdhaf2 gen_mut_sdhb gen_mut_sdhc gen_mut_sdhd gen_mut_them127 gen_mut_max gen_mut_ret_men2a gen_mut_ret_men2b gen_mut_anden gen_mut_kommentarer gen_report genetik_sara_complete 
 set more off
 describe
