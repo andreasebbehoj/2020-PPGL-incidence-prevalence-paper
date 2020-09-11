@@ -238,9 +238,9 @@ local afterlastyear=`r(N)'
 drop if year_index>${lastyear}
 
 count if ppgl_incident==1
-local incifinal=`r(N)'
+global Ninci=`r(N)'
 count if ppgl_prevalent==1
-local prevfinal=`r(N)'
+local Nprev=`r(N)'
 
 count if cohort_simple==1 & ppgl_incident==1 // with clinical data
 global Ncrnr = `r(N)'
@@ -263,7 +263,7 @@ putdocx text ("Patient flow")
 putdocx paragraph
 putdocx text ("Total PPGL cohort from 1977-2016 was `incitotal' (Ebbehoj A 2018, Clin Epidemiol). ")
 putdocx text ("We excluded `afterlastyear' patients diagnosed after ${lastyear}. ")
-putdocx text ("Final cohort in this study was `incifinal' incident cases of PPGL and `prevfinal' prevalent cases. "), linebreak
+putdocx text ("Final cohort in this study was $Ninci incident cases of PPGL and $Nprev prevalent cases. "), linebreak
 putdocx save results/TextPatientFlow, replace
 
 ** With PID

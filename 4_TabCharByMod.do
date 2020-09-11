@@ -5,8 +5,6 @@ keep if cohort_simple==1
 global footnote_TabCharByMod_miss = ""
 
 ** Missing
-count if !mi(modcat)
-global nmod = `r(N)'
 drop if mi(modcat)
 
 ** Define column headers
