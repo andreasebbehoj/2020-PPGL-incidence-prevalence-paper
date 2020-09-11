@@ -77,10 +77,10 @@ label list mod_
 recode mod ///
 	(1=1 "Paroxysmal symptoms") ///
 	(2 3 4=2 "Hypertension") ///
-	(20=3 "Adrenal incidentaloma") ///
-	(30 31=4 "Cancer imaging") ///
-	(40 41=5 "Genetic") ///
-	(50=6 "Autopsy") ///
+	(50=3 "Autopsy") ///
+	(40 41=4 "Genetic") ///
+	(20=5 "Adrenal incidentaloma") ///
+	(30 31=6 "Cancer imaging") ///
 	(60/69=7 "Other") ///
 	(98 99=.a "had missing records") ///
 	, gen(modcat) label(modcat_)

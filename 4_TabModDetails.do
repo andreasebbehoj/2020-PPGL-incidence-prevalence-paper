@@ -233,17 +233,16 @@ replace cell_1 = "Patients diagnosed with PPGL after evaluation for paroxysmal s
 
 replace cell_1 = "Patients diagnosed with PPGL during evaluation for suspected secondary hypertension (paroxysmal, malignant or treatment resistant). Includes patients diagnosed after a hypertensive crisis or pressor-response during surgery, anesthesia, pregnancy, or birth." if modcat==2 & obsno==0
 
-replace cell_1 = "Patients diagnosed with PPGL after evaluation for an adrenal incidentaloma, defined as a ≥1 cm adrenal mass found on imaging not performed due to suspected adrenal disease. `text_inci_imaging'. Patients diagnosed during work-up for cancer were excluded from this category." if modcat==3 & obsno==0
+replace cell_1 = "Patients diagnosed with PPGL post-mortem at autopsy." if modcat==3 & obsno==0
 
-replace cell_1 = "Patients diagnosed with PPGL after evaluation for an adrenal mass found during cancer staging for active malignancy or follow-up for previous cancer. `text_cancer_imaging'. Patients evaluated for what was thought to be extra-adrenal cancer but turned out to be benign PPGL were excluded from this category." if modcat==4 & obsno==0
+replace cell_1 = "Patients diagnosed with PPGL during regular control for a known PPGL-predisposing syndrome or mutation (vHL, NF1, MEN2, SDHx mutations, etc), during evaluation for a possible syndrome-related disease (renal clear cell carcinoma, medullary thyroid carcinoma, schwannoma, etc) or after diagnosis of PPGL or a PPGL-related syndrome or mutation in a family member." if modcat==4 & obsno==0
 
-replace cell_1 = "Patients diagnosed with PPGL during regular control for a known PPGL-predisposing syndrome or mutation (vHL, NF1, MEN2, SDHx mutations, etc), during evaluation for a possible syndrome-related disease (renal clear cell carcinoma, medullary thyroid carcinoma, schwannoma, etc) or after diagnosis of PPGL or a PPGL-related syndrome or mutation in a family member." if modcat==5 & obsno==0
+replace cell_1 = "Patients diagnosed with PPGL after evaluation for an adrenal incidentaloma, defined as a ≥1 cm adrenal mass found on imaging not performed due to suspected adrenal disease. `text_inci_imaging'. Patients diagnosed during work-up for cancer were excluded from this category." if modcat==5 & obsno==0
 
-replace cell_1 = "Patients diagnosed with PPGL post-mortem at autopsy." if modcat==6 & obsno==0
+replace cell_1 = "Patients diagnosed with PPGL after evaluation for an adrenal mass found during cancer staging for active malignancy or follow-up for previous cancer. `text_cancer_imaging'. Patients evaluated for what was thought to be extra-adrenal cancer but turned out to be benign PPGL were excluded from this category." if modcat==6 & obsno==0
 
 replace cell_1 = "Other modes of discovery." if modcat==7 & obsno==0
 
-replace cell_1 = "Information on mode of discovery missing or unspecified." if modcat==8 & obsno==0
 
 *** Export to table
 sort modcat obsno

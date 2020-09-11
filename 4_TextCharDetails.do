@@ -32,9 +32,9 @@ foreach grp in `r(levels)' {
 
 
 ** Diagnosis before surgery
-count if modcat!=6 & !mi(modcat)
+count if modcat!=3 & !mi(modcat)
 local Nsurgtotal = `r(N)'
-count if modcat==6
+count if modcat==3
 local Nautopsy = `r(N)'
 
 putdocx paragraph, style(Heading2)
