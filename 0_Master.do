@@ -81,8 +81,6 @@ do 4_SirByMod.do // graph by mode of discovery and period
 do 4_SirBySymp.do // graph by symptoms and period
 do 4_SirBySize.do // graph by size and period
 
-do 4_SirByMunicipality.do // heatmap of Denmark by municipality
-
 
 ** Crude incidence rates
 do 4_IrByAgeSex.do // graph by age/sex and period

@@ -202,19 +202,6 @@ putdocx text ("Notes: "), bold
 putdocx text  ("Incidence rates of PPGL in North and Central Region, where PPGL diagnosis was confirmed in medical records, compared to the remaining three Danish regions, where the PPGL diagnsosis was validated algorithm. Incidence rates are reported in 10-year averages and age standardized to the European Standard Population 2013.")
 
 
-/** Fig SIR by municipality
-local supno = `supno'+1
-putdocx pagebreak
-putdocx paragraph, style(Heading2) `fontHeading2'
-putdocx text ("Supplementary `supno' - Age-standardized Incidence Rates in each Municipality")
-putdocx paragraph
-putdocx image results/FigSirByMun${exportformat}, height(5 in)
-putdocx paragraph
-
-putdocx text ("Notes: "), bold
-putdocx text  ("Average incidence rates 1977-$lastyear by patients' home municipality at date of diagnosis. Incidence rates are age standardized to the European Standard Population 2013.")*/
-
-
 *** Save Figures and Tables report
 putdocx save results/FigTablesCombined, replace
 

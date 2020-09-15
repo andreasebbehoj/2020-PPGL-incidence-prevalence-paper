@@ -43,21 +43,6 @@ duplicates drop
 
 save data/popDK_period_age_sex.dta, replace
 
-*** Population in DK by age and municipality
-dstpop, clear ///
-	year(1977/$lastyear) ///
-	area(c_kom) ///
-	age
-
-recode age $agecat, gen(agecat) label(agecat_)
-label var agecat "Age category"
-
-bysort area agecat: egen poptotal=total(pop)
-drop year age pop
-rename poptotal pop
-duplicates drop
-save data/popDK_age_municipality.dta, replace
-
 *** Population by year, age, and region
 dstpop, clear ///
 	year(1977/$lastyear) ///

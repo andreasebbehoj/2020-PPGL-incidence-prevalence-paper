@@ -17,8 +17,6 @@ github install andreasebbehoj/dstpop
 ssc install grstyle, replace
 ssc install palettes, replace
 ssc install colrspace, replace
-ssc install spmap, replace
-ssc install shp2dta, replace
 ssc install asdoc, replace
 */
 
