@@ -23,11 +23,11 @@ grstyle set legend ///
 
 ** Colors
 * Graphs with 1 color
-global color1 = "black"
+global color1 = "gs6"
 
 * Graphs with 2 colors
-global color2_1 = "navy"
-global color2_2 = "green"
+global color2_1 = "gs6"
+global color2_2 = "gs9"
 
 * Graphs with 4 colors
 global color4_1 = "navy"

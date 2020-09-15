@@ -17,9 +17,10 @@ This section:
 - Clear memory
 - Install necessary Stata program
 - Define custom programs
+- Defines common settings for figures and tables
 */
 do 1_Setup.do
-
+do 1_FigTabLayout.do
 
 
 ***** 2) PREPARE PATIENT DATA
@@ -51,15 +52,11 @@ do 3_ImportPopEU.do
 ***** 4) Analysis
 /*
 This section:
-- Defines common settings for figures and tables
 - Makes calculations for text
 - Export tables
 - Export graphs
 - Generate supplementary results
 */
-
-** Common settings for all figures
-do 4_FigTabLayout.do
 
 
 ** Patient Characteristics 
