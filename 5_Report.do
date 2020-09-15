@@ -108,7 +108,7 @@ levelsof row if !mi(firstcol) & mi(seccol)
 putdocx table tbl1(`r(levels)', .), ${tablerows}
 putdocx paragraph
 putdocx text ("Abbreviations: "), bold
-putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, pheo, pheochromocytoma; para, paraganglioma; PPGL, pheochromocytoma and catecholamine-secreting paraganglioma. ")
+putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, PHEO, pheochromocytoma; PARA, paraganglioma; PPGL, pheochromocytoma and catecholamine-secreting paraganglioma. ")
 putdocx text ("Notes: "), bold
 putdocx text  (`"Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes. * Clinical data was only available for the North and Central Danish Regions (n=$Ncrnr). Reasons for missing clinical data: $footnote_TabCharByPeriod_miss."')
 
