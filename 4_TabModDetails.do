@@ -159,14 +159,18 @@ capture: log off
 slist id mod_special mod_comm_cod mod_comm if mod==50
 capture: log on
 
-qui: count if mod==50 & mod_cod==1
+* Normal autopsy cases 
+qui: count if mod==50 & mod_cod==1 & inlist(id, 621)==0 // primary CoD 
 local no_codprim = `r(N)'
-qui: count if mod==50 & mod_cod==2
+qui: count if mod==50 & mod_cod==2 & inlist(id, 621)==0 // possible contributing CoD
 local no_codcont = `r(N)'
-qui: count if mod==50 & mod_cod==3
+qui: count if mod==50 & mod_cod==3 & inlist(id, 621)==0 //  incidental/insignificant
 local no_codinci = `r(N)'
 
-replace mod_textdetails = "Diagnosed at autopsy with PPGL considered to be the primary cause of death (n=`no_codprim'), a contributing cause of death (n=`no_codcont'), or a incidental or insignificant finding (n=`no_codinci')." if mod==50
+replace mod_textdetails = "Diagnosed at autopsy with PPGL considered to be the primary cause of death (n=`no_codprim'), a potentially contributing cause of death (n=`no_codcont'), or a incidental or insignificant finding (n=`no_codinci')." if mod==50 & inlist(id, 621)==0 
+
+* Special autopsy case
+replace mod_textdetails = "Diagnosed with incidentaloma 7 years before death. Catecholamine levels was twofold elevated above normal reference. A FNA of the adrenal tumor was inconclusive. Pheochromocytoma was suspected but patient was never followed-up on. Pheochromocytoma was later diagnosed at autopsy. Heart failure due lung disease was considered the primary cause of death and pheochromocytoma was considered a possible contributing cause of death." if mod==50 & id==621
 
 
 ** Other
