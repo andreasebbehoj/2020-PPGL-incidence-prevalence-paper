@@ -158,6 +158,17 @@ label variable sympcat "Symptoms at diagnosis"
 gen sympyears = (date_index-date_symp)/365.25 if inlist(sympcat, 1, 2, 3) // Symptom duration for paroxysmal symp
 label var sympyears "Symptom duration in years"
 
+recode sympyears ///
+	(0/0.99999=1 "<1 year") ///
+	(1/4.99999=2 "1-4.9 years") ///
+	(5/max=3 "{&ge}5years") ///
+	(12345=.a "had no paroxysmal symptoms") ///
+	(12345=.b "had missing records") ///
+	, gen(sympycat) label(sympycat_)
+label var sympycat "Symptom duration"
+recode sympycat (.=.a) if sympcat==4
+recode sympycat (.=.b) if cohort_simple==1 & (sympcat==.a | mi(date_symp))
+
 * Hypertension
 recode symp_hyper ///
 	(1=1 "Labile hypertension") ///
