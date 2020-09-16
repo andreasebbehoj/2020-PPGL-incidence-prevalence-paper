@@ -1,6 +1,7 @@
 ***** 4_AgeByMod.do *****
 
 *** Calculations
+** Cases per age category
 use data/cohort_ppgl.dta, clear
 keep if ppgl_incident==1
 conv_missing, var(modcat) combmiss("Missing")
@@ -17,65 +18,53 @@ forvalues agegrp = 0(10)99.9 {
 	local to = string(`agegrp'+9.9, "%2.1f")
 	local labeltext = `"`labeltext' `i' "`from'-`to'" "'
 	
-	recode age10y (`agegrp'=`i')
+	qui: recode age10y (`agegrp'=`i')
 	
 	local i = `i'+1
 }
 
 label define age10y_ `labeltext'
 label value age10y age10y_
-di `"`labeltext'"'
+tab age10y, mi
 
-** Age histogram (all of DK)
-twoway (histogram age10y, discrete frequency fcolor($color1) lcolor(none)) ///
-		, xlabel(`labeltext', labels) ylabel(0(30)150) ytitle("N")
+*** Graph
+** Overall
+graph bar (count), over(age10y) ///
+	bar(1, $bar1) ///
+	legend(on order(1 "Total")) ///
+	ytitle("N") ylabel(0(25)125) ///
+	b1title(Age at diagnosis) // x-axis
 graph export results/FigAgeOverall${exportformat} ${exportoptions}
 
-
-** Age histogram by sex (all of DK)
-preserve
-keep age10y sex
-contract _all, freq(N) zero
-bysort age10y (sex): gen cumu = sum(N)
-
-twoway ///
-	(bar cumu age10y if sex==2, lcolor(none) fcolor(${color2_2})) /// women
-	(bar cumu age10y if sex==1, lcolor(none) fcolor(${color2_1})) /// men
-	, legend(on col(1) colfirst order(1 "Women" 2 "Men") ) ///
-	/// xlabel(`labeltext') ///
-	ylabel(0(10)130) ///
-	ytitle("N") //
+** By sex
+graph bar (count),  over(sex) over(age10y) stack asyvars ///
+	bar(1, $bar1) bar(2, $bar2)  ///
+	legend(order(2 1)) /// reverse legend order
+	ytitle("N") ylabel(0(25)125) ///
+	b1title(Age at diagnosis) // x-axis
 graph export results/FigAgeBySex${exportformat} ${exportoptions}
 
-
-** Age histogram by modcat (CRNR only)
-restore
-keep if cohort_simple==1
-tab age10y
-keep age10y modcat
-contract _all, freq(N) zero
-bysort age10y (modcat): gen cumu = sum(N)
-
-
-* Define graphs and legend
+** By modcat
+* Reverse legend order
+local legendorder = ""
 qui: su modcat
-local legendorder = `r(max)'
-local twoway = ""
-local legend = ""
 forvalues mod = 1(1)`r(max)' {
-		local twoway = "(bar cumu age10y if modcat==`mod'" /// bar chart
-					+ `", lcolor(none) fcolor(${color`r(max)'_`mod'})) "' /// Colors
-					+ `"`twoway'"' // Append
-		local legend = `"`legendorder' "`: label modcat_ `mod''" `legend'"'
-		local legendorder = `legendorder'-1
+		local legendorder = `"`mod' `legendorder'"'
 }
+di "`legendorder'"
 
-* Export
-di `"`twoway'"' _n(2) `"`legend'"' _n(2) `"`xlabel'"'
-twoway `twoway', ///
-	legend(on col(2) colfirst order(`legend') ) ///
-	xlabel(`labeltext') ///
-	ylabel(0(10)50) ///
-	ytitle("N") //
+* Bar appearance
+local bar = ""
+qui: su modcat
+forvalues x = `r(min)'(1)`r(max)' {
+    local barlayout = `"`barlayout' bar(`x', ${bar`r(max)'_`x'})"'
+}
+di `"`barlayout'"'
+
+* Graph
+graph bar (count) if cohort_simple==1,  over(modcat) over(age10y) stack asyvars ///
+	`barlayout'  ///
+	legend(order(`legendorder')) /// reverse legend order
+	ytitle("N") ylabel(0(10)50) ///
+	b1title(Age at diagnosis) // x-axis
 graph export results/FigAgeByMod${exportformat} ${exportoptions}
-

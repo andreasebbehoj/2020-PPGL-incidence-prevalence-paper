@@ -30,37 +30,36 @@ global line3 = `"lpattern("_") lcolor(gs8)"'
 global line4 = `"lpattern("-") lcolor(gs11)"'
 
 
-
-** Colors
-* Graphs with 1 color
-global color1 = "gs6"
-
-* Graphs with 2 colors
-global color2_1 = "gs6"
-global color2_2 = "gs9"
+** Bar graphs (colors and outline pattern)
+* Graphs with 1-2 colors
+global bar1 = `"fcolor(gs6) lcolor(gs6)"'
+global bar2 = `"fcolor(gs12) lcolor(gs12)"'
 
 * Graphs with 4 colors
-global color4_1 = "navy"
-global color4_2 = "green"
-global color4_3 = "orange"
-global color4_4 = "gs9"
+colorpalette HCL grays, n(4) nograph local(, prefix(c))
+global bar4_1 = `" fcolor(`c1') lcolor(`c1') lalign(inside)"'
+global bar4_2 = `" fcolor(`c2') lcolor(`c2') lalign(inside)"'
+global bar4_3 = `" fcolor(`c3') lcolor(`c3') lalign(inside)"'
+global bar4_4 = `" fcolor(white) lcolor(black) lalign(inside)"'
 
 * Graphs with 5 colors
-global color5_1 = "navy"
-global color5_2 = "green"
-global color5_3 = "orange"
-global color5_4 = "sienna"
-global color5_5 = "gs9"
+colorpalette HCL grays, n(5) nograph local(, prefix(c))
+global bar5_1 = `" color(`c1') lcolor(`c1') lalign(inside)"'
+global bar5_2 = `" color(`c2') lcolor(`c2') lalign(inside)"'
+global bar5_3 = `" color(`c3') lcolor(`c3') lalign(inside)"'
+global bar5_4 = `" color(`c4') lcolor(`c4') lalign(inside)"'
+global bar5_5 = `" color(white) lcolor(black) lpattern(solid) lalign(inside)"'
 
 * Graphs with 8 colors
-global color8_1 = "navy"
-global color8_2 = "green"
-global color8_3 = "orange"
-global color8_4 = "sienna"
-global color8_5 = "olive_teal"
-global color8_6 = "lavender"
-global color8_7 = "sandb"
-global color8_8 = "gs9"
+colorpalette HCL grays, n(8) nograph local(, prefix(c))
+global bar8_1 = `" fcolor(`c1') lcolor(white) lpattern("vshortdash") lwidth(1) lalign(inside)"'
+global bar8_2 = `" fcolor(`c3') lcolor(none)"'
+global bar8_3 = `" fcolor(`c5') lcolor(none)"'
+global bar8_4 = `" fcolor(`c7') lcolor(black) lalign(inside) lwidth(0.4) lpattern(dot)"'
+global bar8_5 = `" fcolor(`c2') lcolor(none)"'
+global bar8_6 = `" fcolor(`c4') lcolor(black) lalign(inside) lwidth(0.2) lpattern("-")"'
+global bar8_7 = `" fcolor(`c6') lcolor(none)"'
+global bar8_8 = `" fcolor(white) lcolor(black) lpattern(solid) lalign(inside)"'
 
 
 ** Export

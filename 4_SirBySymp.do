@@ -19,12 +19,11 @@ qui: dstdize N pop agecat, by(period sympcat) using(data/popEU_age.dta) format(%
 matrix sir=  r(Nobs) \ r(crude) \ r(adj) \ r(lb) \ r(ub)
 matrix sir=sir'
 
-*** Export
 ** Save labels
 levelsof period, local(periods)
 levelsof sympcat, local(sympcats)
 
-** Load
+** Load results
 drop _all
 svmat double sir, name(matcol)
 
@@ -48,32 +47,28 @@ foreach per of local periods {
 label values Period period_
 label values Symptoms sympcat_
 
-** Graph (SIR by sympcat and period)
-bysort Period (Symptoms): gen sir = sum(sirAdjusted) if sirAdjusted!=0 // Cumulative value for stacked bars
-
-* Define graphs and legend
+*** Graph
+** Reverse legend order
+local legend = ""
 qui: su Symptoms
-local legendorder = `r(max)'
-forvalues symp = 1(1)`r(max)' {
-		local twoway = "(bar sir Period if Symptoms==`symp'" /// bar chart
-					+ `", lcolor(none) fcolor(${color`r(max)'_`symp'})) "' /// Colors
-					+ `"`twoway'"' // Append
-		local legend = `"`legendorder' "`: label sympcat_ `symp''" `legend'"'
-		local legendorder = `legendorder'-1
+forvalues x = `r(max)'(-1)`r(min)' {
+    local legend = "`legend' `x'"
 }
+di "`legend'"
 
-* Define x axis label
-qui: levelsof Period
-foreach per in `r(levels)' {
-    di `"``xlabel''"'
-	local xlabel = `"`xlabel' `per' "`: label period_ `per''" "'
+** Bar appearance
+local bar = ""
+qui: su Symptoms
+forvalues x = `r(min)'(1)`r(max)' {
+    local barlayout = `"`barlayout' bar(`x', ${bar`r(max)'_`x'})"'
 }
+di `"`barlayout'"'
 
-* Export
-di `"`twoway'"' _n(2) `"`legend'"' _n(2) `"`xlabel'"'
-twoway `twoway', ///
-	legend(on col(1) order(`legend') ) ///
-	xlabel(`xlabel') ///
-	ylabel(0(1)5) ///
-	ytitle("Age-standardized IR" "per 1,000,000 years") //
+** Graph 
+graph bar (first) sirAdjusted, over(Symptoms) over(Period) ///
+	asyvars stack ///
+	legend(order(`legend')) /// reverse legend order
+	`barlayout' ///
+	ytitle("Age-standardized IR" "per 1,000,000 years") ///
+	ylabel(0/5)
 graph export results/FigSirBySymp${exportformat} ${exportoptions}

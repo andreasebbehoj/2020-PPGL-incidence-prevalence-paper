@@ -19,12 +19,11 @@ qui: dstdize N pop agecat, by(period modcat) using(data/popEU_age.dta) format(%1
 matrix sir=  r(Nobs) \ r(crude) \ r(adj) \ r(lb) \ r(ub)
 matrix sir=sir'
 
-*** Export
 ** Save labels
 levelsof period, local(periods)
 levelsof modcat, local(modcats)
 
-** Load
+** Load results
 drop _all
 svmat double sir, name(matcol)
 
@@ -48,32 +47,28 @@ foreach per of local periods {
 label values Period period_
 label values ModeOfDiscovery modcat_
 
-** Graph (SIR by modcat and period)
-bysort Period (ModeOfDiscovery): gen sir = sum(sirAdjusted) if sirAdjusted!=0 // Cumulative value for stacked bars
-
-* Define graphs and legend
+*** Graph 
+** Reverse legend order
+local legend = ""
 qui: su ModeOfDiscovery
-local legendorder = `r(max)'
-forvalues mod = 1(1)`r(max)' {
-		local twoway = "(bar sir Period if ModeOfDiscovery==`mod'" /// bar chart
-					+ `", lcolor(none) fcolor(${color`r(max)'_`mod'})) "' /// Colors
-					+ `"`twoway'"' // Append
-		local legend = `"`legendorder' "`: label modcat_ `mod''" `legend'"'
-		local legendorder = `legendorder'-1
+forvalues x = `r(max)'(-1)`r(min)' {
+    local legend = "`legend' `x'"
 }
+di "`legend'"
 
-* Define x axis label
-qui: levelsof Period
-foreach per in `r(levels)' {
-    di `"``xlabel''"'
-	local xlabel = `"`xlabel' `per' "`: label period_ `per''" "'
+** Bar appearance
+local bar = ""
+qui: su ModeOfDiscovery
+forvalues x = `r(min)'(1)`r(max)' {
+    local barlayout = `"`barlayout' bar(`x', ${bar`r(max)'_`x'})"'
 }
+di `"`barlayout'"'
 
-* Export
-di `"`twoway'"' _n(2) `"`legend'"' _n(2) `"`xlabel'"'
-twoway `twoway', ///
-	legend(on col(2) colfirst order(`legend') ) ///
-	xlabel(`xlabel') ///
-	ylabel(0(1)5) ///
-	ytitle("Age-standardized IR" "per 1,000,000 years") //
+** Graph 
+graph bar (first) sirAdjusted, over(ModeOfDiscovery) over(Period) ///
+	asyvars stack ///
+	legend(order(`legend')) /// reverse legend order
+	`barlayout' ///
+	ytitle("Age-standardized IR" "per 1,000,000 years") ///
+	ylabel(0/5)
 graph export results/FigSirByMod${exportformat} ${exportoptions}
