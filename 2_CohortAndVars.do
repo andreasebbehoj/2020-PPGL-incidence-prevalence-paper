@@ -82,7 +82,7 @@ recode mod ///
 	(20=5 "Adrenal incidentaloma") ///
 	(30 31=6 "Cancer imaging") ///
 	(60/69=7 "Other") ///
-	(98 99=.a "had missing records") ///
+	(98 99=.a "Missing records") ///
 	, gen(modcat) label(modcat_)
 label var modcat "Mode of discovery"
 
@@ -92,7 +92,7 @@ recode sizemax ///
 	(0/3.999=1 "<4 cm") ///
 	(4/7.999=2 "4-7.9 cm") ///
 	(8/50=3 "{&ge}8 cm") ///
-	(.=.a "had missing records") ///
+	(.=.a "Missing records") ///
 	, gen(sizecat) label(sizecat_)
 label var sizemax "Size in cm"
 label var sizecat "Tumor size"
@@ -149,7 +149,7 @@ label define sympcat_ ///
 	2 "1-2 classic symptoms" ///
 	3 "Other paroxysmal symptoms" ///
 	4 "No paroxysmal symptoms" ///
-	.a "had missing records" ///
+	.a "Missing records" ///
 	, replace
 label value sympcat sympcat_
 label variable sympcat "Symptoms at diagnosis"

@@ -110,7 +110,8 @@ putdocx paragraph
 putdocx text ("Abbreviations: "), bold
 putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, PHEO, pheochromocytoma; PARA, paraganglioma; PPGL, pheochromocytoma and catecholamine-secreting paraganglioma. ")
 putdocx text ("Notes: "), bold
-putdocx text  (`"Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes. * Clinical data was only available for the North and Central Danish Regions (n=$Ncrnr). Reasons for missing clinical data: $footnote_TabCharByPeriod_miss."')
+local text = subinstr(`"${footnote_TabCharByPeriod_miss}"', "Missing records", "had missing records", .)
+putdocx text  (`"Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes. * Clinical data was only available for the North and Central Danish Regions (n=$Ncrnr). Reasons for missing clinical data: `text'."')
 
 
 
@@ -165,7 +166,8 @@ putdocx paragraph
 putdocx text ("Abbreviations: "), bold
 putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, PHEO, pheochromocytoma; PARA, paraganglioma; PPGL, pheochromocytoma and catecholamine-secreting paraganglioma. ")
 putdocx text ("Notes: "), bold
-putdocx text  (`"Mode of discovery was available for $Nmod of $Ncrnr PPGL patients from the North and Central Danish Regions ($Nmodmiss had missing records). Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes. Reasons for missing clinical data: $footnote_TabCharByMod_miss."')
+local text = subinstr(`"${footnote_TabCharByMod_miss}"', "Missing records", "had missing records", .)
+putdocx text  (`"Mode of discovery was available for $Nmod of $Ncrnr PPGL patients from the North and Central Danish Regions ($Nmodmiss had missing records). Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes. Reasons for missing clinical data: `text'."')
 
 
 ** Fig Histogram AgeOverall, AgeBySex and AgeByMod
