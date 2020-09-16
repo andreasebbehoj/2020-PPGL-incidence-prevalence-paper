@@ -75,8 +75,8 @@ foreach var in `r(varlist)' {
 
 ** Graph (prev by year)
 twoway ///
-	(line prev_yAdjuste Year, lcolor(${color1})) /// mean
-	(rcap prev_yLeft prev_yRight Year, lcolor(${color1})) /// 95% CI
+	(line prev_yAdjuste Year, $line1) /// mean
+	(rcap prev_yLeft prev_yRight Year, $line1) /// 95% CI
 	, legend(off) /// legend
 	xlabel(1977 "1977" 1982 "1982" 1987 "1987" 1992 "1992" 1997 "1997" 2002 "2002" 2007 "2007" 2012 "2012" $lastyear "$lastyear") ///
 	xmtick(1977(1)$lastyear) ///

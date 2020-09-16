@@ -44,14 +44,14 @@ local legendorder = `r(max)'
 local legend = ""
 local twoway = ""
 forvalues cohort_simple = `r(max)'(-1)1 {
-		local twoway = `"(line sir_pAdjusted period if cohort_simple==`cohort_simple', lcolor(${color`r(max)'_`cohort_simple'})) "' /// mean
+		local twoway = `"(line sir_pAdjusted period if cohort_simple==`cohort_simple', ${line`cohort_simple'}) "' /// mean
 					+ `"`twoway'"' // Append
 		local legend = `"`legendorder' "`: label cohort_simple_ `cohort_simple''" `legend'"'
 		local legendorder = `legendorder'-1
 }
 forvalues cohort_simple = `r(max)'(-1)1 {
 		local twoway = 	`"`twoway'"' ///
-					+ `" (rcap sir_pLeft sir_pRight period if cohort_simple==`cohort_simple', lcolor(${color`r(max)'_`cohort_simple'})) "' // 95% CI
+					+ `" (rcap sir_pLeft sir_pRight period if cohort_simple==`cohort_simple', ${line`cohort_simple'}) "' // 95% CI
 }
 
 * Export
