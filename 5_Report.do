@@ -143,9 +143,29 @@ putdocx text ("Notes: "), bold
 putdocx text  ("Details on mode of discovery were avaiable for $Nmod out of $Ncrnr patients diagnosed in North and Central Danish ($Nmodmiss had missing records). Adrenal incidentaloma as defined by recent guidelines.(1) ")
 
 
+
+** Fig Histogram AgeOverall, AgeBySex and AgeByMod
+local supno = `supno'+1
+putdocx sectionbreak
+putdocx paragraph, style(Heading2) `fontHeading2'
+putdocx text ("Supplementary `supno' - Age at PPGL Diagnosis A) in total, B) by Sex, and B) by Mode of Discovery")
+
+putdocx paragraph, halign(center) spacing(after, 0.1) spacing(before, 0.1)
+putdocx text ("A"), linebreak
+putdocx image results/FigAgeOverall${exportformat}, height(2.5 in) linebreak
+putdocx text ("B"), linebreak
+putdocx image results/FigAgeBySex${exportformat}, height(2.5 in) linebreak
+putdocx text ("C"), linebreak
+putdocx image results/FigAgeByMod${exportformat}, height(2.5 in) linebreak
+putdocx paragraph
+
+putdocx text ("Notes: "), bold
+putdocx text  ("Histogram of age at diagnosis for PPGL patients. Figure A and B include all patients diagnosed with PPGL in Denmark (n=$Ninci) and figure C include only patients from North and Central Danish Regions (n=$Ncrnr).")
+
+
 ** PatChar by Mod
-local supno = `tabno'+1
-putdocx pagebreak
+local supno = `supno'+1
+putdocx sectionbreak, landscape
 putdocx paragraph, style(Heading2) `fontHeading2'
 putdocx text ("Supplementary `supno' - Patient and Tumor Characteristics by Mode of Discovery")
 
@@ -168,26 +188,6 @@ putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, PHEO, p
 putdocx text ("Notes: "), bold
 local text = subinstr(`"${footnote_TabCharByMod_miss}"', "Missing records", "had missing records", .)
 putdocx text  (`"Mode of discovery was available for $Nmod of $Ncrnr PPGL patients from the North and Central Danish Regions ($Nmodmiss had missing records). Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes. Reasons for missing clinical data: `text'."')
-
-
-** Fig Histogram AgeOverall, AgeBySex and AgeByMod
-local supno = `supno'+1
-putdocx sectionbreak
-putdocx paragraph, style(Heading2) `fontHeading2'
-putdocx text ("Supplementary `supno' - Age at PPGL Diagnosis A) in total, B) by Sex, and B) by Mode of Discovery")
-
-putdocx paragraph, halign(center) spacing(after, 0.1) spacing(before, 0.1)
-putdocx text ("A"), linebreak
-putdocx image results/FigAgeOverall${exportformat}, height(2.5 in) linebreak
-putdocx text ("B"), linebreak
-putdocx image results/FigAgeBySex${exportformat}, height(2.5 in) linebreak
-putdocx text ("C"), linebreak
-putdocx image results/FigAgeByMod${exportformat}, height(2.5 in) linebreak
-putdocx paragraph
-
-putdocx text ("Notes: "), bold
-putdocx text  ("Histogram of age at diagnosis for PPGL patients. Figure A and B include all patients diagnosed with PPGL in Denmark (n=$Ninci) and figure C include only patients from North and Central Danish Regions (n=$Ncrnr).")
-
 
 
 
