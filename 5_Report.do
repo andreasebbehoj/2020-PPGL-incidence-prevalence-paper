@@ -115,6 +115,34 @@ putdocx text  (`"Tumor size refers to the largest tumor diameter. Hereditary PPG
 
 
 
+** Prev By Sex and Age
+local tabno = `tabno'+1
+putdocx sectionbreak
+putdocx paragraph, style(Heading2) `fontHeading2'
+putdocx text ("Table `tabno' - Prevalence of PPGL per 1,000,000 persons at $lastyear by Sex and Age")
+
+use results/TabPrevBySexAge.dta, clear
+
+* Add footnote symbols
+replace rowname =  rowname + " *" if inlist(grp, 0, -1, .)==0 // Age-specific (crude)
+replace rowname =  rowname + " #" if grp==0 // Age-adjusted
+
+ds cell_*
+putdocx table tbl1 = data("rowname `r(varlist)'"), width(100%) layout(autofitwindow)
+putdocx table tbl1(., .), ${tablecells} 
+putdocx table tbl1(., 1), ${tablefirstcol}
+putdocx table tbl1(1, .), ${tablefirstrow}
+local x = _N
+putdocx table tbl1(`x', .), ${tabletotalrow}
+
+putdocx paragraph
+putdocx text ("Abbreviations: "), bold
+putdocx text  ("PPGL, pheochromocytoma and catecholamine-secreting paraganglioma. ")
+putdocx text ("Notes: "), bold
+putdocx text  (`"Prevalence of PPGL per 1,000,000 persons in Denmark at Dec 31 $lastyear (n=$Nprev) by sex and age. Patients were considered prevalent from diagnosis until death or emigration. Patient age refers to their age at Dec 31 $lastyear and not age at diagnosis. * Age-specific (i.e. crude) prevalence. # Age-standardized to the European Standard Population 2013."')
+
+
+
 *** Supplementary graphs/tables
 local supno = 0
 

@@ -131,3 +131,63 @@ putdocx text ("Prevalence")
 putdocx paragraph
 putdocx text ("Prevalence of PPGL patients alive and living in Denmark in $lastyear (n=${Nprev}): `prev'"), linebreak
 putdocx save results/TextPrevLastyear, replace
+
+
+
+*** Table (prevalence at end of study)
+* Total, age-standardized 
+qui: frame table: replace cell_0="`prev'" if grp==0
+
+
+* By sex, age-standardized
+use `prevdata', clear
+keep if year==$lastyear
+gen dummy=1
+
+foreach sex in 1 2 {
+	qui: dstdize N pop agecat if sex==`sex', by(dummy) using(data/popEU_age.dta) format(%12.3g)
+	matrix prev=  r(adj) \ r(lb) \ r(ub)
+	local prev = string(round(prev[1,1]*1000000, 0.1), "%3.1f") /// estimate
+								+ " (" /// 
+								+ string(round(prev[2,1]*1000000, 0.1), "%3.1f") /// lower
+								+ "-" ///
+								+ string(round(prev[3,1]*1000000, 0.1), "%3.1f") /// upper
+								+ ")"
+	qui: frame table: replace cell_`sex'="`prev'" if grp==0
+	di "Total, sex `sex'" _col(20) "`prev'"
+}
+
+* Total, age-specific (crude)
+qui: levelsof agecat, local(agecats) clean
+foreach row in `agecats' {
+	qui: ci means N if agecat==`row', poisson exposure(pop)
+	local prev = string(round(`r(mean)'*1000000, 0.1), "%3.1f") /// estimate
+							+ " (" /// 
+							+ string(round(`r(lb)'*1000000, 0.1), "%3.1f") /// lower
+							+ "-" ///
+							+ string(round(`r(ub)'*1000000, 0.1), "%3.1f") /// upper
+							+ ")"
+	qui: frame table: replace cell_0="`prev'" if grp==`row'
+	di "Agecat `row', all:" _col(20) "`prev'"
+}
+
+* By sex, age-specific (crude)	
+list, clean
+qui: levelsof agecat, local(agecats) clean
+foreach row in `agecats' {
+	di "Agecat `row'"
+	foreach sex in 1 2 {
+		qui: ci means N if agecat==`row' & sex==`sex', poisson exposure(pop)
+		local prev = string(round(`r(mean)'*1000000, 0.1), "%3.1f") /// estimate
+							+ " (" /// 
+							+ string(round(`r(lb)'*1000000, 0.1), "%3.1f") /// lower
+							+ "-" ///
+							+ string(round(`r(ub)'*1000000, 0.1), "%3.1f") /// upper
+							+ ")"
+		qui: frame table: replace cell_`sex'="`prev'" if grp==`row'
+		di _col(5) "sex `sex':" _col(20) "`prev'"	
+	}
+}
+
+frame table: save results/TabPrevBySexAge.dta, replace
+capture: frame drop table

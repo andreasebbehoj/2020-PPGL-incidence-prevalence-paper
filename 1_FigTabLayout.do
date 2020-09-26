@@ -71,5 +71,6 @@ global exportoptions = ", replace width(1200)"
 ***** Tables
 global tablecells =  `"border(all, nil) halign(center) valign(center)"'
 global tablefirstrow = `"border(bottom, single) bold shading(191 191 191)"' // First row bold, underlined and dark gray
+global tabletotalrow = `"border(bottom, single, black, 1) border(top, single, black, 1) "' // Bottom total row, black lines top and bottom
 global tablerows = `"shading(217 217 217)"' // Remaining subheaders light grey
 global tablefirstcol = `"halign(left)"'
