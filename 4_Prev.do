@@ -1,14 +1,47 @@
 ***** 4_Prev.do *****
+/* 
+This do file:
+- Counts N prevalent each year by sex and agecat
+- Makes a figure with age-standardized prevalence each year
+- Makes a table of prevalence at end of study by sex with age-specific (crude) prevalences and total (age-standardized) prevalences
+*/
 
 
-*** Years prevalent 
+***** Prepare data
 use data/cohort_pid.dta, clear
-keep cpr date_index c_status d_status_hen_start
 
-** Import history of residences (registry data)
+*** Generate empty data frame for results for table
+capture: frames drop table
+frame create table
+frame table {
+	set obs 1
+	gen grp = .
+	gen rowname = ""
+	gen cell_0 = "Total"
+	gen cell_1 = "Men"
+	gen cell_2 = "Women"   
+}
+local x = 1
+qui: levelsof agecat, local(agecats) clean
+foreach row in -1 `agecats' 0 {
+    local rowname : label agecat_ `row'
+	di "`rowname'"
+	local x = `x'+1
+	qui: frame table: set obs `x'
+	qui: frame table: replace rowname="    `rowname'" if _n==_N
+	qui: frame table: replace grp=`row' if _n==_N
+}
+qui: frame table: replace rowname="Total" if grp==0
+qui: frame table: replace rowname="Age" if grp==-1
+qui: frame table: replace rowname = subinstr(rowname, "{&ge}", ustrunescape("\u2265"), 1) // equal-or-above-sign
+
+*** Determine prevalent patients per year (from diagnosis to death/emigration)
+keep cpr d_foddato date_index c_status d_status_hen_start
+
+* Import history of residences (registry data)
 merge 1:m cpr using regdata/PlaceOfResidence.dta, keep(match) assert(match using) nogen
 
-** Evaluate if index date match address in Denmark
+* Evaluate if index date match address in Denmark
 forvalues year=1977(1)$lastyear {
 	qui: gen N`year' = 1 if /// Prevalent year of diagnosis
 			year(date_index)==`year' ///
@@ -18,62 +51,61 @@ forvalues year=1977(1)$lastyear {
 			date_index <= date("31-12-`year'", "DMY") /// Prevalent from diagnosis..
 			& inrange(date("31-12-`year'", "DMY"), dk_adresse_start, dk_adresse_slut) /// .. while address is in DK..
 			& d_status > date("31-12-`year'", "DMY") // .. to date of death/emigration 
+	* Determine patient age each year
+	qui: gen age`year' = floor((date("31-12-`year'", "DMY")-d_foddato)/365)
+	qui: recode age`year' $agecat if N`year'==1, gen(agecat`year') label(agecat`year'_)
 }
 
+* Summarize prevalence by person
+collapse (max) agecat* N* , by(cpr) 
+tempfile personprev
+save `personprev', replace
 
-** Summarize by person
-collapse (max) N*, by(cpr) 
+use data/cohort_pid.dta, clear
+keep cpr sex
+merge 1:1 cpr using `personprev', nogen assert(match)
+
+
+* Summarize prevalence for each year
+reshape long agecat N, i(cpr) j(year)
+label value agecat agecat_
+drop if N==.
+drop cpr N
+contract year sex agecat, freq(N) zero
+
+* Add population
+merge 1:1 year agecat sex using data/popDK_year_age_sex.dta, assert(match using) nogen
+
 tempfile prevdata
 save `prevdata', replace
 
 
-** Summarize by year and age cat
-use data/cohort_pid.dta, clear
-merge 1:1 cpr using `prevdata', nogen assert(match)
+***** Calculate prevalence
+use `prevdata', clear
 
-count if N$lastyear==1 // Count N prevalent at end of study
-local Nprev = `r(N)'
-
-collapse (sum) N*, by(agecat)
-reshape long N, i(agecat) j(year)
-label variable year "Year"
+*** N prevalent at end of study (report)
+qui: su N if year==$lastyear
+global Nprev = `r(sum)'
 
 
-*** Calculate prevalence
-merge 1:1 year agecat using data/popDK_year_age.dta, assert(match using) nogen
-
-** End of study
-gen dummy=1
-dstdize N pop agecat if year==$lastyear, by(dummy) using(data/popEU_age.dta) format(%12.3g)
-
-local format = `", 0.1), "%03.1f")"' // 3 significant numbers
-local prev_mean = string(round(r(adj)[1,1]*1000000 `format'
-local prev_lb = string(round(r(lb_adj)[1,1]*1000000 `format'
-local prev_ub = string(round(r(ub_adj)[1,1]*1000000 `format'
-
-
-** By year
+*** Prevalence by year (figure and report)
 dstdize N pop agecat, by(year) using(data/popEU_age.dta) format(%12.3g)
 matrix prev_y=  r(Nobs) \ r(crude) \ r(adj) \ r(lb) \ r(ub)
 matrix prev_y=prev_y'
 
-
-
-*** Export results
-** Load
+* Load results
 drop _all
 svmat double prev_y, name(matcol)
 egen Year= seq(), f(1977) t($lastyear) b(1)
 label var Year "Year"
 
-* Change to SIR per million
+* Change to prevalence per million
 ds *Crude *Adjusted *Left *Right
 foreach var in `r(varlist)' {
 	qui: replace `var' = `var' * 1000000 // IR Per million
 }
 
-
-** Graph (prev by year)
+* Graph (prevalence by year)
 twoway ///
 	(line prev_yAdjuste Year, $line1) /// mean
 	(rcap prev_yLeft prev_yRight Year, $line1) /// 95% CI
@@ -85,10 +117,17 @@ twoway ///
 graph export results/FigPrevByYear${exportformat} ${exportoptions}
 
 
-** Text
+* Text (prevalence at end of study)
+local prev = string(round(prev_yAdjusted[_N], 0.1), "%3.1f") /// estimate
+							+ " (" /// 
+							+ string(round(prev_yLeft[_N], 0.1), "%3.1f") /// lower
+							+ "-" ///
+							+ string(round(prev_yRight[_N], 0.1), "%3.1f") /// upper
+							+ ")"
+
 putdocx begin
 putdocx paragraph, style(Heading2)
 putdocx text ("Prevalence")
 putdocx paragraph
-putdocx text ("Prevalence of PPGL patients alive and living in Denmark in $lastyear (n=`Nprev'): `prev_mean' (95%CI `prev_lb'-`prev_ub')"), linebreak
+putdocx text ("Prevalence of PPGL patients alive and living in Denmark in $lastyear (n=${Nprev}): `prev'"), linebreak
 putdocx save results/TextPrevLastyear, replace

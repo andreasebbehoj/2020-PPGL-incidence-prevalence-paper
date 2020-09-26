@@ -23,21 +23,28 @@ duplicates drop
 
 save data/popDK_year_age.dta, replace
 
-*** Population in DK by period, age, and sex
+*** Population in DK by year/period, age, and sex
 dstpop, clear ///
 	year(1977/$lastyear) ///
 	area(total) ///
 	sex ///
 	age
 
+* By year
 recode age $agecat, gen(agecat) label(agecat_)
 label var agecat "Age category"
+bysort year agecat sex: egen poptotal=total(pop)
+drop age pop
+rename poptotal pop
+duplicates drop
+save data/popDK_year_age_sex.dta, replace
 
+* By period
 recode year $period10ycat, gen(period) label(period_)
 label var period "Period"
 
 bysort period agecat sex: egen poptotal=total(pop)
-drop year age pop
+drop year pop
 rename poptotal pop
 duplicates drop
 
