@@ -145,8 +145,8 @@ recode sympcat (.=.a) if inlist(98, /// health records not found
 	symp_sync, symp_naus, symp_chest, symp_abdo, symp_tremor, symp_dysp, symp_atta)
 
 label define sympcat_ ///
-	1 "Classic triad" ///
-	2 "1-2 classic symptoms" ///
+	1 "Classical triad" ///
+	2 "1-2 classical symptoms" ///
 	3 "Other paroxysmal symptoms" ///
 	4 "No paroxysmal symptoms" ///
 	.a "Missing records" ///

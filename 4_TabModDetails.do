@@ -18,8 +18,8 @@ capture: log off
 slist id mod_special mod_comm if mod==1
 capture: log on
 
-replace mod_textdetails = "Classic triad of paroxysmal headache, sweating, and palpitations." if mod==1 & sympcat==1
-replace mod_textdetails = "One to two of classic symptoms." if mod==1 & sympcat==2
+replace mod_textdetails = "Classical triad of paroxysmal headache, sweating, and palpitations." if mod==1 & sympcat==1
+replace mod_textdetails = "One to two classical symptoms." if mod==1 & sympcat==2
 replace mod_textdetails = "Other paroxysmal symptoms." if mod==1 & sympcat==3
 
 
