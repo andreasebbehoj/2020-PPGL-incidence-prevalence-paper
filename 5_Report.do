@@ -15,10 +15,11 @@ putdocx pagenumber, bold
 putdocx text (" of ")
 putdocx pagenumber, totalpages bold
 
-
-*** Settings for headings
+* Settings for headings
 local fontHeading1 = `"font("Times new roman", 15, black)"'
 local fontHeading2 = `"font("Times new roman", 13, black)"'
+
+
 
 *** Figures
 local figno = 0
@@ -36,6 +37,7 @@ putdocx paragraph
 putdocx text ("Notes: "), bold
 putdocx text  ("Incidence rates of new PPGL patients diagnosed in Denmark each year. Incidence rates are age-standardized to the European Standard Population 2013.")
 
+
 ** IR by age and sex
 local figno = `figno'+1
 putdocx pagebreak
@@ -50,7 +52,6 @@ putdocx image results/FigIrBySex${exportformat}, height(5 in)
 putdocx paragraph
 putdocx text ("Notes: "), bold
 putdocx text  ("Crude incidence rates of new PPGL patients diagnosed in Denmark by A) age at diagnosis and B) sex.")
-
 
 
 ** SIR by MoD, symptoms, and Tumor size
@@ -88,6 +89,7 @@ putdocx text  ("Prevalence of PPGL patients living in Denmark December 31st each
 *** Tables
 local tabno = 0
 
+
 ** PatChar by Period
 local tabno = `tabno'+1
 putdocx sectionbreak, landscape
@@ -112,7 +114,6 @@ putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, PHEO, p
 putdocx text ("Notes: "), bold
 local text = subinstr(`"${footnote_TabCharByPeriod_miss}"', "Missing records", "had missing records", .)
 putdocx text  (`"Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes. * Clinical data was only available for the North and Central Danish Regions (n=$Ncrnr). Reasons for missing clinical data: `text'."')
-
 
 
 ** Prev By Sex and Age
@@ -143,15 +144,24 @@ putdocx text  (`"Prevalence of PPGL per 1,000,000 persons in Denmark at Dec 31 $
 
 
 
-*** Supplementary graphs/tables
+*** Supplementary
 local supno = 0
 
 putdocx sectionbreak, landscape
 putdocx paragraph, style(Heading1) `fontHeading1'
 putdocx text ("Supplementary")
 
+
+** RECORD checklist (header only, table is manually copy/pasted)
+local supno = `supno'+1
+putdocx paragraph, style(Heading2) `fontHeading2'
+putdocx text ("Supplementary `supno' - RECORD Checklist")
+putdocx paragraph
+
+
 ** Tab MoD details
 local supno = `supno'+1
+putdocx sectionbreak, landscape
 putdocx paragraph, style(Heading2) `fontHeading2'
 putdocx text ("Supplementary `supno' - Details on Mode of Discovery")
 
@@ -169,7 +179,6 @@ putdocx text ("Abbreviations: "), bold
 putdocx text  ("CT, computed tomography; MEN, multiple endocrine neoplasia; MRI, magnetic resonance imaging; NF1, neurofibromatosis type 1; SDH, succinate dehydrogenase; US, ultrasound; vHL, von Hippel-Lindau. ")
 putdocx text ("Notes: "), bold
 putdocx text  ("Details on mode of discovery were avaiable for $Nmod out of $Ncrnr patients diagnosed in North and Central Danish ($Nmodmiss had missing records). Adrenal incidentaloma as defined by recent guidelines.(1) ")
-
 
 
 ** Fig Histogram AgeOverall, AgeBySex and AgeByMod
@@ -218,7 +227,6 @@ local text = subinstr(`"${footnote_TabCharByMod_miss}"', "Missing records", "had
 putdocx text  (`"Mode of discovery was available for $Nmod of $Ncrnr PPGL patients from the North and Central Danish Regions ($Nmodmiss had missing records). Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes. Reasons for missing clinical data: `text'."')
 
 
-
 ** Fig SIR by region
 local supno = `supno'+1
 putdocx sectionbreak
@@ -232,8 +240,10 @@ putdocx text ("Notes: "), bold
 putdocx text  ("Incidence rates of PPGL in North and Central Region, where PPGL diagnosis was confirmed in medical records, compared to the remaining three Danish regions, where the PPGL diagnsosis was validated algorithm. Incidence rates are reported in 10-year averages and age standardized to the European Standard Population 2013.")
 
 
+
 *** Save Figures and Tables report
 putdocx save results/FigTablesCombined, replace
+
 
 
 *** Combine and save text report
