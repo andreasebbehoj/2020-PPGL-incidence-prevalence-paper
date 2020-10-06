@@ -45,17 +45,15 @@ graph export results/FigSirByYear${exportformat} ${exportoptions}
 
 ** Text
 * SIR first to last year
-local format = `", 1), "%01.0f")"' // 1 significant number
+local format = `", 0.1), "%02.1f")"' // 2 significant numbers
 local sirfirst_mean = string(round(sir_yAdjusted[1] `format'
 local sirfirst_lb = string(round(sir_yLeft[1] `format'
 local sirfirst_ub = string(round(sir_yRight[1] `format'
 
-local format = `", 0.1), "%02.1f")"' // 2 significant numbers
 local sirlast_mean = string(round(sir_yAdjusted[_N] `format'
 local sirlast_lb = string(round(sir_yLeft[_N] `format'
 local sirlast_ub = string(round(sir_yRight[_N] `format'
 
-local format = `", 0.1), "%02.1f")"' // 2 significant numbers
 local foldincrease = string(round(sir_yAdjusted[_N]/sir_yAdjusted[1] `format'
 
 
