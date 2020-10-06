@@ -214,6 +214,14 @@ recode surgcat (.=.a) if surg_reas==1 // Diagnosed at autopsy
 recode surgcat (.=.b) if inlist(surg_reas, 2, 3, 4, 5) // All non-operated (except those diagnosed at autopsy)
 label var surgcat "PPGL diagnosed before surgery"
 
+* PeriOP death
+gen survdays=d_status-date_surg if c_status==90 // days from surgery to death
+gen surg_perimort = 1 if survdays<30 & inlist(surgcat, 1, 2)
+recode surg_perimort (.=0) if inlist(surgcat, 1, 2)
+label var surg_perimort "Peri-surgical mortality (<30 days)"
+label define surg_perimort_ 1 "Yes" 0 "No"
+label values surg_perimort surg_perimort_
+
 * Recurrence
 codebook cour_recu1
 local recugrp2 = "mets"

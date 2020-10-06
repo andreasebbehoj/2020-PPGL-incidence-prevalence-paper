@@ -32,26 +32,43 @@ foreach grp in `r(levels)' {
 
 
 ** Diagnosis before surgery
-count if modcat!=3 & !mi(modcat)
-local Nsurgtotal = `r(N)'
-count if modcat==3
+count if modcat!=3 & !mi(modcat) // not autopsied
+local Ndiagalive = `r(N)'
+count if modcat==3 // autopsied
 local Nautopsy = `r(N)'
+
+count if surg_resec==1 & modcat!=3 & !mi(modcat) // Underwent surgery
+local Nsurgery = `r(N)'
+count if surg_resec==7 & modcat!=3 & !mi(modcat) // No surgery
+local Nnosurgery = `r(N)'
+
+count if surgcat==1 // Diagnosed before surgery
+local Npreopdiag = `r(N)'
+
+count if surgcat==2  // Diagnosed after surgery
+local Npostopdiag = `r(N)'
+local Ppostopdiag = string(round(100*`Npostopdiag'/`Nsurgery', 0.1), "%3.1f")
 
 putdocx paragraph, style(Heading2)
 putdocx text ("Diagnosis before surgery")
 putdocx paragraph
-putdocx text ("Out of `Nsurgtotal' patients who were operated ($Ncrnr patients minus `Nautopsy' diagnosed at autopsy and $Nmodmiss with missing records before diagnosis), the number of patients diagnosed with PPGL before resection of PPGL was:")
-putdocx paragraph, indent(left, 0.5) spacing(line, 0.2)
+putdocx text ("Out of `Ndiagalive' patients who were diagnosed while alive ($Ncrnr patients minus `Nautopsy' diagnosed at autopsy and $Nmodmiss with missing records before diagnosis), `Nsurgery' were operated and `Nnosurgery' were not. Of the `Nsurgery' undergoing surgery, `Npreopdiag' were diagnosed before surgery and `Npostopdiag' (`Ppostopdiag'%) were diagnosed with PPGL AFTER resection of PPGL.")
 
-local var = "surgcat"
-qui: levelsof `var'
-foreach grp in `r(levels)' {
-	local grplabel : label `var'_ `grp'
-	qui: count if `var'==`grp'
-	local Nrecur = `r(N)'
-	local Precur = string(round(100*`Nrecur'/`Nsurgtotal', 0.1), "%3.1f")
-	putdocx text ("`Nrecur' (`Precur'%) `grplabel'"), linebreak
-}
+
+** Perisurgical mortality
+tab surgcat surg_perimort, mi
+count if surg_perimort==1 & surgcat==1
+local Npreopdiagmort = `r(N)'
+local Ppreopdiagmort = string(round(100*`Npreopdiagmort'/`Npreopdiag', 0.1), "%3.1f")
+
+count if surg_perimort==1 & surgcat==2
+local Npostopdiagmort = `r(N)'
+local Ppostopdiagmort = string(round(100*`Npostopdiagmort'/`Npostopdiag', 0.1), "%3.1f")
+
+putdocx paragraph, style(Heading2)
+putdocx text ("Peri-operative mortality")
+putdocx paragraph
+putdocx text ("Of `Npreopdiag' diagnosed before surgery, `Npreopdiagmort' (`Ppreopdiagmort' %) died up within 30 days of surgery. Of `Npostopdiag' NOT diagnosed before surgery, `Npostopdiagmort' (`Ppostopdiagmort' %) died up within 30 days of surgery. ")
 
 
 ** Mets and recurrence 
