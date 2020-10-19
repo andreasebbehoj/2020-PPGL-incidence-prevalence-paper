@@ -24,11 +24,10 @@ grstyle set legend ///
 ** Line graphs (size, colors and patterns)
 grstyle set linewidth 3pt: p // line width (line and rcap)
 
-global line1 = `"lpattern(solid) lcolor(gs2)"'
-global line2 = `"lpattern(vshortdash) lcolor(gs5)"'
-global line3 = `"lpattern("_") lcolor(gs8)"'
-global line4 = `"lpattern("-") lcolor(gs11)"'
-
+global line1 = `"lpattern(solid) lcolor(black)"'
+global line2 = `"lpattern(vshortdash) lcolor(black)"'
+global line3 = `"lpattern("_") lcolor(black)"'
+global line4 = `"lpattern("-") lcolor(black)"'
 
 ** Bar graphs (colors and outline pattern)
 * Graphs with 1-2 colors
