@@ -4,12 +4,24 @@ keep if ppgl_incident==1
 keep if cohort_simple==1
 global footnote_TabCharByMod_miss = ""
 
-** Missing
-drop if mi(modcat)
+* Count missing modcat for footnote
+qui: levelsof modcat if mi(modcat), missing clean local(missing)
+if !mi("`missing'") {
+		local varname : var label modcat
+		global footnote_TabCharByMod_miss = "$footnote_TabCharByMod_miss" + "`varname' ("
+		foreach cat of local missing {
+			local catname : label modcat_ `cat'
+			qui: count if modcat==`cat'
+			local missno = `r(N)'
+			global footnote_TabCharByMod_miss = "$footnote_TabCharByMod_miss" + "`missno' `catname', "
+		}
+	global footnote_TabCharByMod_miss = "$footnote_TabCharByMod_miss" + "), "
+	}
+conv_missing, var(modcat) combmiss("Missing")
 
 ** Define column headers
 label define modcat_ 0 "Total", modify
-local collist = "0 1 2 3 4 5 6 7"
+local collist = "0 1 2 3 4 5 6 7" // Missing modcat not included
 
 * Total N per column
 foreach col of local collist {
