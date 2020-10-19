@@ -153,8 +153,22 @@ foreach var in `r(varlist)' {
 }
 gen row = _n
 
-** Export 
-global footnote_TabCharByMod_miss = subinstr("$footnote_TabCharByMod_miss", ", )", ")", .)
-di "Reasons for missing data: $footnote_TabCharByMod_miss"
 
+*** Export 
 save results/TabCharByMod.dta, replace
+
+
+*** Formatting footnote 
+di "Reasons for missing data (not formatted): $footnote_TabCharByMod_miss"
+
+* Reword "Missing records"
+global footnote_TabCharByMod_miss = subinstr(`"${footnote_TabCharByMod_miss}"', "Missing records", "had missing records", .)
+
+* Remove last comma in each parentheses and end of sentence
+global footnote_TabCharByMod_miss = subinstr("$footnote_TabCharByMod_miss", ", )", ")", .) 
+global footnote_TabCharByMod_miss = substr("$footnote_TabCharByMod_miss", 1, strrpos("$footnote_TabCharByMod_miss", ", ")-1)
+
+* Remove capital letters (except PPGL)
+global footnote_TabCharByMod_miss = subinstr(lower("$footnote_TabCharByMod_miss"), "ppgl", "PPGL", .)
+
+di "Reasons for missing data (formatted): $footnote_TabCharByMod_miss"

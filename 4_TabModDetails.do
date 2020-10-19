@@ -167,10 +167,10 @@ local no_codcont = `r(N)'
 qui: count if mod==50 & mod_cod==3 & inlist(id, 621)==0 //  incidental/insignificant
 local no_codinci = `r(N)'
 
-replace mod_textdetails = "Diagnosed at autopsy with PPGL considered to be the primary cause of death (n=`no_codprim'), a potentially contributing cause of death (n=`no_codcont'), or a incidental or insignificant finding (n=`no_codinci')." if mod==50 & inlist(id, 621)==0 
+replace mod_textdetails = "Diagnosed at autopsy with PPGL considered to be the primary cause of death (n=`no_codprim'), a potentially contributing cause of death (n=`no_codcont'), or an incidental or insignificant finding (n=`no_codinci')." if mod==50 & inlist(id, 621)==0 
 
 * Special autopsy case
-replace mod_textdetails = "Diagnosed with incidentaloma 7 years before death. Catecholamine levels was twofold elevated above normal reference. A FNA of the adrenal tumor was inconclusive. Pheochromocytoma was suspected but patient was never followed-up on. Pheochromocytoma was later diagnosed at autopsy. Heart failure due lung disease was considered the primary cause of death and pheochromocytoma was considered a possible contributing cause of death." if mod==50 & id==621
+replace mod_textdetails = "Diagnosed with adrenal incidentaloma 7 years before death. Catecholamine levels was twofold elevated above normal reference. A FNA of the adrenal tumor was inconclusive. Pheochromocytoma was suspected but patient was never followed-up on. Pheochromocytoma was later diagnosed at autopsy. Heart failure due lung disease was considered the primary cause of death and pheochromocytoma was considered a potentially contributing cause of death." if mod==50 & id==621
 
 
 ** Other
@@ -185,7 +185,7 @@ replace mod_textdetails = "Evaluated for B-symptoms (weight loss, fatigue, unexp
 replace mod_textdetails = "Evaluated for large palpable abdominal mass. Patient was operated on suspicion of unknown cancer, which turned out to be a giant pheochromocytoma (approximate 30 cm). Patient was later diagnosed with multiple PPGL metastases." if mod==61
 
 * Acute abdomen caused by pheo
-replace mod_textdetails = "Evaluated for acute abdominal pain. Abdominal pain was eventually attributed to ruptured pheochromocytoma (n=1), pheochromocytoma with hemorhage and necrosis (n=1), necrotic intestines due to catecholamine storm (n=1), widespread metastatic pheochromocytoma (n=1), and paroxysmal symptoms of catecholamine-excess (n=1)." if mod==62
+replace mod_textdetails = "Evaluated for acute abdominal pain. Abdominal pain was eventually attributed to ruptured pheochromocytoma (n=1), pheochromocytoma with hemorrhage and necrosis (n=1), necrotic intestines due to catecholamine storm (n=1), widespread metastatic pheochromocytoma (n=1), and paroxysmal symptoms of catecholamine-excess (n=1)." if mod==62
 
 * Ectopic ACTH
 replace mod_textdetails = "Evaluated for symptoms of cortisol-excess and diagnosed with ACTH-producing pheochromocytoma." if mod==63

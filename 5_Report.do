@@ -35,7 +35,7 @@ putdocx paragraph, halign(center)
 putdocx image results/FigSirByYear${exportformat}, height(5 in)
 putdocx paragraph
 putdocx text ("Notes: "), bold
-putdocx text  ("Incidence rates of new PPGL patients diagnosed in Denmark each year. Incidence rates are age-standardized to the European Standard Population 2013.")
+putdocx text  ("Annual incidence rates of PPGL patients diagnosed in Denmark. Incidence rates are age-standardized to the European Standard Population 2013.")
 
 
 ** IR by age and sex
@@ -70,7 +70,7 @@ putdocx image results/FigSirBySize${exportformat}, height(2.5 in)
 
 putdocx paragraph, spacing(after, 0)
 putdocx text ("Notes: "), bold 
-putdocx text  ("Incidence rates in the North and Central Danish regions by A) mode of discovery, B) symptoms, and C) tumor size. Incidence rates are reported in 10-year averages and age-standardized to the European Standard Population 2013.")
+putdocx text  ("Incidence rates in the North and Central Danish regions by A) mode of discovery, B) symptoms, and C) tumor size. Incidence rates are reported in 10-year averages and age-standardized to the European Standard Population 2013. Mode of discovery and symptoms at presentation are defined in methods with details in Supplementary 2. Tumor size refers to the largest tumor diameter.")
 
 
 ** Prevalence
@@ -82,7 +82,7 @@ putdocx paragraph, halign(center)
 putdocx image results/FigPrevByYear${exportformat}, height(5 in)
 putdocx paragraph
 putdocx text ("Notes: "), bold
-putdocx text  ("Prevalence of PPGL patients living in Denmark December 31st each year. Patients are considered prevalent from date of diagnosis until death or emigration. Prevalences are age-standardized to the European Standard Population 2013. Most PPGL patients diagnosed before 1977 were likely missed, which explain the low prevalence in the beginning of the study period")
+putdocx text  ("Prevalence of PPGL patients living in Denmark December 31st each year. Patients are considered prevalent from date of diagnosis until death or emigration. Prevalences are age-standardized to the European Standard Population 2013. Most PPGL patients diagnosed before 1977 were likely missed, which explain the low prevalence in the beginning of the study period.")
 
 
 
@@ -109,11 +109,12 @@ putdocx table tbl1(1, .), ${tablefirstrow}
 levelsof row if !mi(firstcol) & mi(seccol)
 putdocx table tbl1(`r(levels)', .), ${tablerows}
 putdocx paragraph
-putdocx text ("Abbreviations: "), bold
-putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, PHEO, pheochromocytoma; PARA, paraganglioma; PPGL, pheochromocytoma and catecholamine-secreting paraganglioma. ")
+putdocx text ("Abbreviations and symbols: "), bold
+putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, PHEO, pheochromocytoma; PARA, paraganglioma; PPGL, pheochromocytoma and catecholamine-secreting paraganglioma; * Clinical data was only available for the North and Central Danish Regions (n=$Ncrnr)."), linebreak
 putdocx text ("Notes: "), bold
-local text = subinstr(`"${footnote_TabCharByPeriod_miss}"', "Missing records", "had missing records", .)
-putdocx text  (`"Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes. * Clinical data was only available for the North and Central Danish Regions (n=$Ncrnr). Reasons for missing clinical data: `text'."')
+putdocx text  (`"Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes. "'), linebreak
+putdocx text  (`"Reasons for missing clinical data: ${footnote_TabCharByPeriod_miss}."')
+
 
 
 ** Prev By Sex and Age
@@ -137,10 +138,10 @@ local x = _N
 putdocx table tbl1(`x', .), ${tabletotalrow}
 
 putdocx paragraph
-putdocx text ("Abbreviations: "), bold
-putdocx text  ("PPGL, pheochromocytoma and catecholamine-secreting paraganglioma. ")
+putdocx text ("Abbreviations and symbols: "), bold
+putdocx text  ("PPGL, pheochromocytoma and catecholamine-secreting paraganglioma; * Age-specific (i.e. crude) prevalence; # Age-standardized to the European Standard Population 2013."), linebreak
 putdocx text ("Notes: "), bold
-putdocx text  (`"Prevalence of PPGL per 1,000,000 persons in Denmark at Dec 31 $lastyear (n=$Nprev) by sex and age. Patients were considered prevalent from diagnosis until death or emigration. Patient age refers to their age at Dec 31 $lastyear and not age at diagnosis. * Age-specific (i.e. crude) prevalence. # Age-standardized to the European Standard Population 2013."')
+putdocx text  (`"Prevalence of PPGL per 1,000,000 persons in Denmark at Dec 31 $lastyear (n=$Nprev) by sex and age. Patients were considered prevalent from diagnosis until death or emigration. Patient age refers to their age at Dec 31 $lastyear and not age at diagnosis."')
 
 
 
@@ -176,9 +177,9 @@ putdocx table tbl1(`r(levels)', .), ${tablerows}
 
 putdocx paragraph
 putdocx text ("Abbreviations: "), bold
-putdocx text  ("CT, computed tomography; MEN, multiple endocrine neoplasia; MRI, magnetic resonance imaging; NF1, neurofibromatosis type 1; SDH, succinate dehydrogenase; US, ultrasound; vHL, von Hippel-Lindau. ")
+putdocx text  ("CT, computed tomography; MEN, multiple endocrine neoplasia; MRI, magnetic resonance imaging; NF1, neurofibromatosis type 1; SDH, succinate dehydrogenase; US, ultrasound; vHL, von Hippel-Lindau."), linebreak
 putdocx text ("Notes: "), bold
-putdocx text  ("Details on mode of discovery were avaiable for $Nmod out of $Ncrnr patients diagnosed in North and Central Danish ($Nmodmiss had missing records). Adrenal incidentaloma as defined by recent guidelines.(1) ")
+putdocx text  ("Details on mode of discovery were available for $Nmod out of $Ncrnr patients diagnosed in North and Central Danish ($Nmodmiss had missing records). Adrenal incidentaloma as defined by recent guidelines (Fassnacht M, Arlt W, Bancos I, Dralle H, Newell-Price J, Sahdev A, et al. Management of adrenal incidentalomas: European Society of Endocrinology Clinical Practice Guideline in collaboration with the European Network for the Study of Adrenal Tumors. Eur J Endocrinol. 2016 Aug 1;175(2):G1–34.).")
 
 
 ** Fig Histogram AgeOverall, AgeBySex and AgeByMod
@@ -197,7 +198,7 @@ putdocx image results/FigAgeByMod${exportformat}, height(2.5 in) linebreak
 putdocx paragraph
 
 putdocx text ("Notes: "), bold
-putdocx text  ("Histogram of age at diagnosis for PPGL patients. Figure A and B include all patients diagnosed with PPGL in Denmark (n=$Ninci) and figure C include only patients from North and Central Danish Regions (n=$Ncrnr).")
+putdocx text  ("Histogram of age at diagnosis for PPGL patients. Figure A and B include all patients diagnosed with PPGL in Denmark (n=$Ninci) and figure C include only patients from North and Central Danish Regions (n=$Ncrnr). Mode of discovery is defined in methods with details in Supplementary 2.")
 
 
 ** PatChar by Mod
@@ -221,10 +222,10 @@ levelsof row if !mi(firstcol) & mi(seccol)
 putdocx table tbl1(`r(levels)', .), ${tablerows}
 putdocx paragraph
 putdocx text ("Abbreviations: "), bold
-putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, PHEO, pheochromocytoma; PARA, paraganglioma; PPGL, pheochromocytoma and catecholamine-secreting paraganglioma. ")
+putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, PHEO, pheochromocytoma; PARA, paraganglioma; PPGL, pheochromocytoma and catecholamine-secreting paraganglioma. "), linebreak
 putdocx text ("Notes: "), bold
-local text = subinstr(`"${footnote_TabCharByMod_miss}"', "Missing records", "had missing records", .)
-putdocx text  (`"Mode of discovery was available for $Nmod of $Ncrnr PPGL patients from the North and Central Danish Regions ($Nmodmiss had missing records). Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes. Reasons for missing clinical data: `text'."')
+putdocx text  (`"Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes."'), linebreak
+putdocx text  (`"Reasons for missing clinical data: ${footnote_TabCharByMod_miss}."')
 
 
 ** Fig SIR by region
@@ -237,7 +238,7 @@ putdocx image results/FigSirByRegion${exportformat}, height(5 in)
 putdocx paragraph
 
 putdocx text ("Notes: "), bold
-putdocx text  ("Incidence rates of PPGL in North and Central Region, where PPGL diagnosis was confirmed in medical records, compared to the remaining three Danish regions, where the PPGL diagnsosis was validated algorithm. Incidence rates are reported in 10-year averages and age standardized to the European Standard Population 2013.")
+putdocx text  ("Incidence rates of PPGL in North and Central Region, where PPGL diagnosis was confirmed in medical records, compared to the remaining three Danish regions, where the PPGL diagnosis was validated algorithm. Incidence rates are reported in 10-year averages and age standardized to the European Standard Population 2013.")
 
 
 
