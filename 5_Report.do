@@ -69,8 +69,8 @@ putdocx text ("C"), linebreak
 putdocx image results/FigSirBySize${exportformat}, height(2.5 in)
 
 putdocx paragraph, spacing(after, 0)
-putdocx text ("Notes: "), bold 
-putdocx text  ("Incidence rates in the North and Central Danish regions by A) mode of discovery, B) symptoms, and C) tumor size. Incidence rates are reported in 10-year averages and age-standardized to the European Standard Population 2013. Mode of discovery and symptoms at presentation are defined in methods with details in Supplementary 2. Tumor size refers to the largest tumor diameter.")
+putdocx text ("Notes: "), bold
+putdocx text  ("Incidence rates in the North and Central Danish regions by A) mode of discovery, B) symptoms, and C) tumor size. Incidence rates are reported in 10-year means and age-standardized to the European Standard Population 2013. Mode of discovery and symptoms at presentation are defined in methods with details in Supplementary 2. Tumor size refers to the largest tumor diameter.")
 
 
 ** Prevalence
