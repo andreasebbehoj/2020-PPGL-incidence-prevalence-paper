@@ -203,6 +203,11 @@ recode gen_synd	(1 2 3 4 56 7 8 9 10 11 20 30 39 = 1 "Hereditary PPGL") /// conf
 recode gencat (2=3) if obta_gene==2 // Recode for those never tested
 label var gencat "Hereditary PPGL"
 
+* Reason for no surgery
+label list surg_reason_
+label define surg_reason_ 1 "diagnosis at autopsy" 2 "radical surgery not being technically possible" 3 "patient comorbidity" 4 "patient rejecting surgery" 5 "and patient died during work-up or before surgery", modify
+
+
 * PreOP diag
 recode mod_preopdiag 	(1=1 "Yes") ///
 						(0=2 "No") ///

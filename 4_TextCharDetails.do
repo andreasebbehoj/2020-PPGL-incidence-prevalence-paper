@@ -75,6 +75,8 @@ local Pnosurgery = string(round(100*`Nnosurgery'/`Ndiagalive', 0.1), "%3.1f")
 putdocx text ("`Nnosurgery' (`Pnosurgery'%) of `Ndiagalive' patients were never operated due to:")
 putdocx paragraph, indent(left, 0.5) spacing(line, 0.2)
 
+global footnote_reasonnosurg = ""
+
 local var = "surg_reason"
 qui: levelsof `var'
 
@@ -82,7 +84,9 @@ foreach grp in `r(levels)' {
 	local grplabel : label `var'_ `grp'
 	qui: count if `var'==`grp'
 	putdocx text ("`r(N)' `grplabel'"), linebreak
+	global footnote_reasonnosurg = lower("$footnote_reasonnosurg `grplabel' (n=`r(N)'),")
 }
+di "$footnote_reasonnosurg"
 qui: drop if !mi(surg_reason)
 
 
