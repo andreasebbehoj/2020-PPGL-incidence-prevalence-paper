@@ -89,9 +89,9 @@ label var modcat "Mode of discovery"
 * Tumor size
 egen sizemax = rowmax(tumo_size*)
 recode sizemax ///
-	(0/3.999=1 "<4 cm") ///
+	(0/3.999=3 "<4 cm") ///
 	(4/7.999=2 "4-7.9 cm") ///
-	(8/50=3 "{&ge}8 cm") ///
+	(8/50=1 "{&ge}8 cm") ///
 	(.=.a "Missing records") ///
 	, gen(sizecat) label(sizecat_)
 label var sizemax "Size in cm"
