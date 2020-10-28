@@ -4,21 +4,75 @@ use data/cohort_ppgl.dta, clear
 keep if ppgl_incident==1 & cohort_simple==1
 
 
-*** Report
+*** Special cases of diagnosis
+preserve
+
 putdocx clear
 putdocx begin
+putdocx paragraph, style(Heading2)
+putdocx text ("Special cases of diagnosis, post operative diagnosis ect")
+putdocx paragraph
 
-* Count for table foot notes 
+order surg_resec surg_reason surg_medalpha mod*
+capture: log off
+slist modcat mod_special mod_biopsy mod_preopdiag surg_medalpha if mod_special==1, label
+capture: log on
+
+** Missing data before diagnosis/surgery 
 count if !mi(modcat)
 global Nmod = `r(N)'
 
 count if mi(modcat)
-global Nmodmiss = `r(N)'
+global Nmodmiss = `r(N)' // for table footnotes and below
+qui: drop if mi(modcat)
+
+putdocx text ("$Nmodmiss had missing records before diagnosis/surgery. ")
+
+** Diagnosed at autopsy
+count if modcat==3
+local Nautopsy = `r(N)'
+local grplabel : label modcat_ 3
+putdocx text ("`Nautopsy' diagnosed at `grplabel'"), linebreak
+qui: drop if modcat==3
+
+
+** FNA, biopsy or resection
+putdocx paragraph
+
+* Diagnosed alive
+count 
+local Ndiagalive = `r(N)'
+
+* Overview of FNA, biopsy and/or surgery before PPGL diagnosis
+tab mod_biopsy mod_preopdiag if mod_special==1, mi
+
+* FNA/biopsy only
+count if inlist(mod_biopsy, 1, 2, 3) & inlist(mod_preopdiag, 1, .) 
+local Nneedleonly = `r(N)'
+
+* OP before diagnosis only
+count if mod_preopdiag==0 & mod_biopsy==0 
+local Npostoponly = `r(N)'
+
+* Both FNA/biopsy and OP before diagnosis
+count if inlist(mod_biopsy, 1, 2, 3) & mod_preopdiag==0 // FNA/biopsy and surgery wo diagnosis
+local Nneedleandpostop = `r(N)'
+
+* Either FNA/biopsy or OP without diagnosis
+count if inlist(mod_biopsy, 1, 2, 3) | mod_preopdiag==0 
+local Nneedleorpostop = `r(N)'
+local Pneedleorpostop = string(round(100*`Nneedleorpostop'/`Ndiagalive', 0.1), "%3.1f")
+
+putdocx text ("Of the `Ndiagalive' patients diagnosed alive with available data, `Nneedleorpostop' (`Pneedleorpostop'%) patients underwent either FNA or biopsy (n=`Nneedleonly'), surgical resection (n=`Npostoponly'), or both FNA/biopsy and surgical resection (n=`Nneedleandpostop') of the PPGL tumor before being diagnosed with PPGL."), linebreak
 
 
 ** Reasons for no surgery
-putdocx paragraph, style(Heading2)
-putdocx text ("Reasons for no radical surgery")
+putdocx paragraph
+count if !mi(surg_reason)
+local Nnosurgery = `r(N)'
+local Pnosurgery = string(round(100*`Nnosurgery'/`Ndiagalive', 0.1), "%3.1f")
+
+putdocx text ("`Nnosurgery' (`Pnosurgery'%) of `Ndiagalive' patients were never operated due to:")
 putdocx paragraph, indent(left, 0.5) spacing(line, 0.2)
 
 local var = "surg_reason"
@@ -29,49 +83,49 @@ foreach grp in `r(levels)' {
 	qui: count if `var'==`grp'
 	putdocx text ("`r(N)' `grplabel'"), linebreak
 }
+qui: drop if !mi(surg_reason)
 
 
-** Diagnosis before surgery
-count if modcat!=3 & !mi(modcat) // not autopsied
-local Ndiagalive = `r(N)'
-count if modcat==3 // autopsied
-local Nautopsy = `r(N)'
+** Diagnosis before OP 
+putdocx paragraph
 
-count if surg_resec==1 & modcat!=3 & !mi(modcat) // Underwent surgery
+* Undergone surgery
+count if surg_resec==1
 local Nsurgery = `r(N)'
-count if surg_resec==7 & modcat!=3 & !mi(modcat) // No surgery
-local Nnosurgery = `r(N)'
+qui: count
+assert `r(N)'==`Nsurgery' // Check all remaining were operated
 
-count if surgcat==1 // Diagnosed before surgery
-local Npreopdiag = `r(N)'
+* Diagnosed before OP
+count if surg_resec==1 & mod_preopdiag==1
+local Nsurgdiag = `r(N)'
+local Psurgdiag = string(round(100*`Nsurgdiag'/`Nsurgery', 0.1), "%3.1f")
 
-count if surgcat==2  // Diagnosed after surgery
-local Npostopdiag = `r(N)'
-local Ppostopdiag = string(round(100*`Npostopdiag'/`Nsurgery', 0.1), "%3.1f")
+* Diagnosed after OP
+count if surg_resec==1 & mod_preopdiag==0 // diagnosed after OP
+local Nsurgnodiag = `r(N)'
+local Psurgnodiag = string(round(100*`Nsurgnodiag'/`Nsurgery', 0.1), "%3.1f")
 
-putdocx paragraph, style(Heading2)
-putdocx text ("Diagnosis before surgery")
-putdocx paragraph
-putdocx text ("Out of `Ndiagalive' patients who were diagnosed while alive ($Ncrnr patients minus `Nautopsy' diagnosed at autopsy and $Nmodmiss with missing records before diagnosis), `Nsurgery' were operated and `Nnosurgery' were not. Of the `Nsurgery' undergoing surgery, `Npreopdiag' were diagnosed before surgery and `Npostopdiag' (`Ppostopdiag'%) were diagnosed with PPGL AFTER resection of PPGL.")
+putdocx text ("Of the `Nsurgery' patients who underwent surgery, `Nsurgdiag' (`Psurgdiag' %) patients were diagnosed with PPGL and started on alpha-blockade before surgery, while `Nsurgnodiag' (`Psurgnodiag' %) were diagnosed after surgery. ")
 
 
-** Perisurgical mortality
+** Peri-operative mortality
 tab surgcat surg_perimort, mi
-count if surg_perimort==1 & surgcat==1
-local Npreopdiagmort = `r(N)'
-local Ppreopdiagmort = string(round(100*`Npreopdiagmort'/`Npreopdiag', 0.1), "%3.1f")
 
-count if surg_perimort==1 & surgcat==2
-local Npostopdiagmort = `r(N)'
-local Ppostopdiagmort = string(round(100*`Npostopdiagmort'/`Npostopdiag', 0.1), "%3.1f")
+* Diagnosed before OP
+count if surg_perimort==1 & mod_preopdiag==1
+local Nmortpreop = `r(N)'
+local Pmortpreop = string(round(100*`Nmortpreop'/`Nsurgdiag', 0.1), "%3.1f")
 
-putdocx paragraph, style(Heading2)
-putdocx text ("Peri-operative mortality")
-putdocx paragraph
-putdocx text ("Of `Npreopdiag' diagnosed before surgery, `Npreopdiagmort' (`Ppreopdiagmort' %) died up within 30 days of surgery. Of `Npostopdiag' NOT diagnosed before surgery, `Npostopdiagmort' (`Ppostopdiagmort' %) died up within 30 days of surgery. ")
+* Diagnosed after OP
+count if surg_perimort==1 & mod_preopdiag==0
+local Nmortpostop = `r(N)'
+local Pmortpostop = string(round(100*`Nmortpostop'/`Nsurgnodiag', 0.1), "%3.1f")
+
+putdocx text ("Perioperative mortality (within 30 days of surgery) was `Pmortpreop'% (`Nmortpreop' of `Nsurgdiag' patients) in the first group and `Pmortpostop' % (`Nmortpostop' of `Nsurgnodiag' patients) in the latter."), linebreak
 
 
-** Mets and recurrence 
+*** Mets and recurrence 
+restore
 putdocx paragraph, style(Heading2)
 putdocx text ("Metastases and recurrence")
 
@@ -131,4 +185,3 @@ foreach grp in `r(levels)' {
 
 
 putdocx save results/TextPatChar, replace
-
