@@ -42,7 +42,7 @@ putdocx text  ("Annual incidence rates of PPGL patients diagnosed in Denmark. In
 local figno = `figno'+1
 putdocx pagebreak
 putdocx paragraph, style(Heading2) `fontHeading2'
-putdocx text ("Figure `figno' - Incidence Rates of PPGL by Age and Sex")
+putdocx text ("Figure `figno' - Incidence Rates of PPGL by A) Age and B) Sex")
 putdocx paragraph, halign(center)
 putdocx text ("A")
 putdocx image results/FigIrByAge${exportformat}, height(5 in)
@@ -52,6 +52,18 @@ putdocx image results/FigIrBySex${exportformat}, height(5 in)
 putdocx paragraph
 putdocx text ("Notes: "), bold
 putdocx text  ("Crude incidence rates of new PPGL patients diagnosed in Denmark by A) age at diagnosis and B) sex.")
+
+
+** Prevalence
+local figno = `figno'+1
+putdocx pagebreak
+putdocx paragraph, style(Heading2) `fontHeading2'
+putdocx text ("Figure `figno' - Standardized Prevalence of PPGL in Denmark, 1977-${lastyear}")
+putdocx paragraph, halign(center)
+putdocx image results/FigPrevByYear${exportformat}, height(5 in)
+putdocx paragraph
+putdocx text ("Notes: "), bold
+putdocx text  ("Prevalence of PPGL patients living in Denmark December 31st each year. Patients are considered prevalent from date of diagnosis until death or emigration. Prevalences are age-standardized to the European Standard Population 2013. Most PPGL patients diagnosed before 1977 were likely missed, which explain the low prevalence in the beginning of the study period.")
 
 
 ** SIR by MoD, symptoms, and Tumor size
@@ -71,19 +83,6 @@ putdocx image results/FigSirBySize${exportformat}, height(2.5 in)
 putdocx paragraph, spacing(after, 0)
 putdocx text ("Notes: "), bold
 putdocx text  ("Incidence rates in the North and Central Danish regions by A) mode of discovery, B) symptoms, and C) tumor size. Incidence rates are reported in 10-year means and age-standardized to the European Standard Population 2013. Mode of discovery and symptoms at presentation are defined in methods with details in Supplementary 2. Tumor size refers to the largest tumor diameter.")
-
-
-** Prevalence
-local figno = `figno'+1
-putdocx pagebreak
-putdocx paragraph, style(Heading2) `fontHeading2'
-putdocx text ("Figure `figno' - Standardized Prevalence of PPGL in Denmark, 1977-${lastyear}")
-putdocx paragraph, halign(center)
-putdocx image results/FigPrevByYear${exportformat}, height(5 in)
-putdocx paragraph
-putdocx text ("Notes: "), bold
-putdocx text  ("Prevalence of PPGL patients living in Denmark December 31st each year. Patients are considered prevalent from date of diagnosis until death or emigration. Prevalences are age-standardized to the European Standard Population 2013. Most PPGL patients diagnosed before 1977 were likely missed, which explain the low prevalence in the beginning of the study period.")
-
 
 
 *** Tables
@@ -186,7 +185,7 @@ putdocx text  ("Details on mode of discovery were available for $Nmod out of $Nc
 local supno = `supno'+1
 putdocx sectionbreak
 putdocx paragraph, style(Heading2) `fontHeading2'
-putdocx text ("Supplementary `supno' - Age at PPGL Diagnosis A) in total, B) by Sex, and B) by Mode of Discovery")
+putdocx text ("Supplementary `supno' - Age at PPGL Diagnosis A) in total, B) by Sex, and C) by Mode of Discovery")
 
 putdocx paragraph, halign(center) spacing(after, 0.1) spacing(before, 0.1)
 putdocx text ("A"), linebreak
@@ -199,6 +198,19 @@ putdocx paragraph
 
 putdocx text ("Notes: "), bold
 putdocx text  ("Histogram of age at diagnosis for PPGL patients. Figure A and B include all patients diagnosed with PPGL in Denmark (n=$Ninci) and figure C include only patients from North and Central Danish Regions (n=$Ncrnr). Mode of discovery is defined in methods with details in Supplementary 2.")
+
+
+** Fig SIR by region
+local supno = `supno'+1
+putdocx sectionbreak
+putdocx paragraph, style(Heading2) `fontHeading2'
+putdocx text ("Supplementary `supno' - Standardized Incidence Rates by Region")
+putdocx paragraph
+putdocx image results/FigSirByRegion${exportformat}, height(5 in)
+putdocx paragraph
+
+putdocx text ("Notes: "), bold
+putdocx text  ("Incidence rates of PPGL in North and Central Region, where PPGL diagnosis was confirmed in medical records, compared to the remaining three Danish regions, where the PPGL diagnosis was validated algorithm. Incidence rates are reported in 10-year averages and age-standardized to the European Standard Population 2013.")
 
 
 ** PatChar by Mod
@@ -226,19 +238,6 @@ putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, PHEO, p
 putdocx text ("Notes: "), bold
 putdocx text  (`"Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes."'), linebreak
 putdocx text  (`"Reasons for missing clinical data: ${footnote_TabCharByMod_miss}. Reasons for not undergoing surgery included$footnote_reasonnosurg."')
-
-
-** Fig SIR by region
-local supno = `supno'+1
-putdocx sectionbreak
-putdocx paragraph, style(Heading2) `fontHeading2'
-putdocx text ("Supplementary `supno' - Age-standardized Incidence Rates by Region")
-putdocx paragraph
-putdocx image results/FigSirByRegion${exportformat}, height(5 in)
-putdocx paragraph
-
-putdocx text ("Notes: "), bold
-putdocx text  ("Incidence rates of PPGL in North and Central Region, where PPGL diagnosis was confirmed in medical records, compared to the remaining three Danish regions, where the PPGL diagnosis was validated algorithm. Incidence rates are reported in 10-year averages and age standardized to the European Standard Population 2013.")
 
 
 
