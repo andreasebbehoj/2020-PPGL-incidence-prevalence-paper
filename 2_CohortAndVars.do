@@ -195,12 +195,13 @@ egen biomax = rowmax(tumo_bioc_ne tumo_bioc_e tumo_bioc_uns)
 label var biomax "Fold increase above upper normal range"
 
 * Genetic disposition
-recode gen_synd	(1 2 3 4 56 7 8 9 10 11 20 30 39 = 1 "Hereditary PPGL") /// confirmed clinically or genetically
+recode gen_synd	(1 2 3 4 5 6 7 8 9 10 11 20 30 39 = 1 "Hereditary PPGL") /// confirmed clinically or genetically
 				(44=2 "Negative genetic tests") /// No known syndrome/mutation (both tested and non-tested)
 				(12345=3 "Never tested") /// empty value to create label
 				(98=.a "had missing records") /// 
 				, gen(gencat) label(gencat_)
-recode gencat (2=3) if obta_gene==2 // Recode for those never tested
+recode gencat (2=3) if gen_results==7 // Recode for those never tested
+recode gencat (2=.a) if gen_results==8 // Recode for those never tested
 label var gencat "Hereditary PPGL"
 
 * Reason for no surgery
@@ -286,7 +287,7 @@ count if cohort_simple==1 & ppgl_incident==1 // with clinical data
 global Ncrnr = `r(N)'
 
 *** Remove superfluous variables
-drop tumo_numb tumo_loc* tumo_size* tumo_late* tumo_bioc symp_* /// Aggregated in code above
+drop tumo_numb tumo_loc* tumo_size* tumo_late* tumo_bioc symp_* gen_clindiag gen_results /// Aggregated in code above
 	ppgl cohort exclude algo_* vali_* ext_algosample /// Validation data
 	from_* all_* allhighrisk* allfirstdate* /// Details on inclusion criteria
 	pato_* immuno_* datediagnosispato gen_performed gen_mut_* gen_report *_complete obta_* regeval_surg // Irrelevant for study
@@ -312,6 +313,7 @@ save data/cohort_pid.dta, replace
 
 ** Without PID
 drop cpr rec_nr *_comm_* *_comm d_foddato c_status d_status /// Sensitive data
+	date_genclin date_gentest gen_mutdetails gen_comm_synd gen_tested /// Genetic sensitive
 	date_symp date_index date_diag date_recu* date_surg* // Aggregated in code above
 
 save data/cohort_ppgl.dta, replace
