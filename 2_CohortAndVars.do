@@ -207,6 +207,21 @@ label var gencat "Hereditary PPGL"
 label list surg_reason_
 label define surg_reason_ 1 "diagnosis at autopsy" 2 "radical surgery not being technically possible" 3 "patient comorbidity" 4 "patient rejecting surgery" 5 "and patient died during work-up or before surgery", modify
 
+* Procedures on PPGL tumor before diagnosis
+recode mod ///
+	(12345=1 "None") /// labels only
+	(12345=2 "FNA/biopsy") ///
+	(12345=3 "Surgical resection") ///
+	(12345=4 "Both surgical resection and FNA/biopsy") ///
+	(50=.a "were diagnosed at autopsy") ///
+	(98=.c "had missing records") ///
+	if inlist(mod, 50, 98) ///
+	, gen(procedures) label(procedures_)
+recode procedures (.=4) if mod_preopdiag==0 & inlist(mod_biopsy, 1, 2, 3)
+recode procedures (.=3) if mod_preopdiag==0
+recode procedures (.=2) if inlist(mod_biopsy, 1, 2, 3)
+recode procedures (.=1) if mod_preopdiag==1 | !mi(surg_reason)
+label var procedures "Procedures on tumor before diagnosis"
 
 * PreOP diag
 recode mod_preopdiag 	(1=1 "Yes") ///
@@ -221,7 +236,7 @@ label var surgcat "PPGL diagnosed before surgery"
 
 * PeriOP death
 gen survdays=d_status-date_surg if c_status==90 // days from surgery to death
-gen surg_perimort = 1 if survdays<30 & inlist(surgcat, 1, 2)
+gen surg_perimort = 1 if survdays<=30 & inlist(surgcat, 1, 2)
 recode surg_perimort (.=0) if inlist(surgcat, 1, 2)
 label var surg_perimort "Peri-surgical mortality (<30 days)"
 label define surg_perimort_ 1 "Yes" 0 "No"
