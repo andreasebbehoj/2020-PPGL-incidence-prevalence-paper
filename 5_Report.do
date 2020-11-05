@@ -38,20 +38,15 @@ putdocx text ("Notes: "), bold
 putdocx text  ("Annual incidence rates of PPGL patients diagnosed in Denmark. Incidence rates are age-standardized to the European Standard Population 2013.")
 
 
-** IR by age and sex
+** IR by age
 local figno = `figno'+1
-putdocx pagebreak
 putdocx paragraph, style(Heading2) `fontHeading2'
-putdocx text ("Figure `figno' - Incidence Rates of PPGL by A) Age and B) Sex")
+putdocx text ("Figure `figno' - Crude Incidence Rates of PPGL by Age")
 putdocx paragraph, halign(center)
-putdocx text ("A")
 putdocx image results/FigIrByAge${exportformat}, height(5 in)
-putdocx paragraph, halign(center)
-putdocx text ("B")
-putdocx image results/FigIrBySex${exportformat}, height(5 in)
 putdocx paragraph
 putdocx text ("Notes: "), bold
-putdocx text  ("Crude incidence rates of new PPGL patients diagnosed in Denmark by A) age at diagnosis and B) sex.")
+putdocx text  ("Annual crude incidence rates of new PPGL patients diagnosed in Denmark by age at diagnosis.")
 
 
 ** Prevalence
@@ -185,19 +180,31 @@ putdocx text  ("Details on mode of discovery were available for $Nmod out of $Nc
 local supno = `supno'+1
 putdocx sectionbreak
 putdocx paragraph, style(Heading2) `fontHeading2'
-putdocx text ("Supplementary `supno' - Age at PPGL Diagnosis A) in total, B) by Sex, and C) by Mode of Discovery")
+putdocx text ("Supplementary `supno' - Age at Diagnosis A) Overall, B) by Sex, and C) by Mode of Discovery")
 
 putdocx paragraph, halign(center) spacing(after, 0.1) spacing(before, 0.1)
 putdocx text ("A"), linebreak
-putdocx image results/FigAgeOverall${exportformat}, height(2.5 in) linebreak
+putdocx image results/FigAgeOverall${exportformat}, height(2.3 in) linebreak
 putdocx text ("B"), linebreak
-putdocx image results/FigAgeBySex${exportformat}, height(2.5 in) linebreak
+putdocx image results/FigAgeBySex${exportformat}, height(2.3 in) linebreak
 putdocx text ("C"), linebreak
-putdocx image results/FigAgeByMod${exportformat}, height(2.5 in) linebreak
-putdocx paragraph
+putdocx image results/FigAgeByMod${exportformat}, height(2.3 in) 
 
+putdocx paragraph, spacing(after, 0)
 putdocx text ("Notes: "), bold
 putdocx text  ("Histogram of age at diagnosis for PPGL patients. Figure A and B include all patients diagnosed with PPGL in Denmark (n=$Ninci) and figure C include only patients from North and Central Danish Regions (n=$Ncrnr). Mode of discovery is defined in methods with details in Supplementary 2.")
+
+
+** Fig IR by sex
+local supno = `supno'+1
+putdocx sectionbreak
+putdocx paragraph, style(Heading2) `fontHeading2'
+putdocx text ("Supplementary `supno' - Crude Incidence Rates by Sex")
+putdocx paragraph, halign(center)
+putdocx image results/FigIrBySex${exportformat}, height(5 in)
+putdocx paragraph
+putdocx text ("Notes: "), bold
+putdocx text  ("Crude incidence rates of new PPGL patients diagnosed in Denmark by sex.")
 
 
 ** Fig SIR by region
