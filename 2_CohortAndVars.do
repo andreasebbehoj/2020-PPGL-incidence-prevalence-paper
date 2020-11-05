@@ -171,7 +171,7 @@ recode sympycat (.=.b) if cohort_simple==1 & (sympcat==.a | mi(date_symp))
 
 * Hypertension
 recode symp_hyper ///
-	(1=1 "Labile hypertension") ///
+	(1=1 "Paroxysmal hypertension") ///
 	(2 3=2 "Stable hypertension") ///
 	(4 99=3 "No hypertension") ///
 	(98=.a "had missing records") ///
