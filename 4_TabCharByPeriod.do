@@ -21,7 +21,7 @@ foreach col of local collist {
 }
 
 ** Categorical vars
-foreach var in sex agecat modcat sizecat sympcat sympycat htncat biocat tumorcat gencat {
+foreach var in sex agecat modcat sizecat sympcat sympycat htncat biocat tumorcat gencat surgcat {
 	di "`var'"
 	preserve
 	
@@ -149,7 +149,7 @@ foreach col of local collist {
 }
 
 * Appending results
-foreach var in sex agecat age modcat sympcat sympycat sympyears htncat sizecat sizemax tumorcat biocat biomax gencat {
+foreach var in sex agecat age modcat sympcat sympycat sympyears htncat sizecat sizemax tumorcat biocat biomax gencat surgcat {
 	qui: append using `results_`var''
 }
 
