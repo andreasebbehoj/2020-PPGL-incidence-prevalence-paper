@@ -51,13 +51,13 @@ global bar5_5 = `" color(white) lcolor(black) lpattern(solid) lalign(inside)"'
 
 * Graphs with 8 colors
 colorpalette HCL grays, n(8) nograph local(, prefix(c))
-global bar8_1 = `" fcolor(`c1') lcolor(white) lpattern("vshortdash") lwidth(1) lalign(inside)"'
-global bar8_2 = `" fcolor(`c3') lcolor(none)"'
-global bar8_3 = `" fcolor(`c5') lcolor(none)"'
-global bar8_4 = `" fcolor(`c7') lcolor(black) lalign(inside) lwidth(0.4) lpattern(dot)"'
-global bar8_5 = `" fcolor(`c2') lcolor(none)"'
-global bar8_6 = `" fcolor(`c4') lcolor(black) lalign(inside) lwidth(0.2) lpattern("-")"'
-global bar8_7 = `" fcolor(`c6') lcolor(none)"'
+global bar8_1 = `" fcolor(`c1') lcolor(`c1')"' // lpattern("vshortdash") lwidth(1) lalign(inside)"'
+global bar8_2 = `" fcolor(`c3') lcolor(`c3')"'
+global bar8_3 = `" fcolor(`c5') lcolor(`c5')"'
+global bar8_4 = `" fcolor(`c7') lcolor(`c7')"' // lalign(inside) lwidth(0.4) lpattern(dot)"'
+global bar8_5 = `" fcolor(`c2') lcolor(`c2')"'
+global bar8_6 = `" fcolor(`c4') lcolor(`c4')"' // lalign(inside) lwidth(0.2) lpattern("-")"'
+global bar8_7 = `" fcolor(`c6') lcolor(`c6')"'
 global bar8_8 = `" fcolor(white) lcolor(black) lpattern(solid) lalign(inside)"'
 
 
