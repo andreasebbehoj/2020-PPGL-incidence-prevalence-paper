@@ -1,3 +1,5 @@
+log using "log/`c(current_date)'_submission", replace text
+
 ***** 0_Master.do *****
 /*
 This do file runs the analysis for the paper on Incidence and Prevalence of PPGL by Ebbehoj et al, 2020.
@@ -100,3 +102,4 @@ do 5_Report.do
 
 file close _all
 window manage close graph _all
+log close

@@ -8,6 +8,7 @@ set more off
 *** Generate necessary folders
 capture: mkdir data
 capture: mkdir results
+capture: mkdir log
 
 
 *** Install necessary packages

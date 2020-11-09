@@ -15,3 +15,5 @@
 *.url
 *.pdf
 Notes/*
+
+!/log/*

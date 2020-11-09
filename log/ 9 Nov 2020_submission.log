@@ -1,0 +1,5345 @@
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\au335571\Forskning\2020-PPGL-incidence-prevalence-paper\log/ 9 Nov 2020_submission.log
+  log type:  text
+ opened on:   9 Nov 2020, 14:23:24
+
+. 
+. ***** 0_Master.do *****
+. /*
+> This do file runs the analysis for the paper on Incidence and Prevalence of PPGL by Ebbehoj et al, 2020.
+> 
+> The do-file is split in four sections:
+> 1) Stata setup
+> 2) Import patient data and define study variables
+> 3) Import and prepare other data (population data)
+> 4) Analysis
+> 5) Combine report
+> */
+. 
+. 
+. ***** 1) STATA SETUP
+. /*
+> This section:
+> - Clear memory
+> - Install necessary Stata program
+> - Define custom programs
+> - Defines common settings for figures and tables
+> */
+. do 1_Setup.do
+
+. ***** 1_Setup.do *****
+. version 16
+
+. clear all
+
+. file close _all
+
+. 
+. set more off
+
+. 
+. *** Generate necessary folders
+. capture: mkdir data
+
+. capture: mkdir results
+
+. capture: mkdir log
+
+. 
+. 
+. *** Install necessary packages
+. /*
+> net install github, from("https://haghish.github.io/github/")
+> github install andreasebbehoj/dstpop
+> ssc install grstyle, replace
+> ssc install palettes, replace
+> ssc install colrspace, replace
+> ssc install asdoc, replace
+> */
+. 
+. 
+. *** Define custom programs
+. 
+. ** Program to convert variable+labels from missing to non-missing integers
+. program define conv_missing
+  1. syntax, var(varname) [combmiss(string)]
+  2. 
+. * Unique values (without unlabeled . missing)
+. qui: levelsof `var', missing clean local(levels)
+  3. local levels = subinstr("`levels'", " . ", " ", 1)
+  4. 
+. * Label name and summary
+. local lblname : value label `var'
+  5. di "recode: `var'" _col(30) "value label: `lblname'" _col(60) "values: `levels'"
+  6. 
+. * Loop over values and change missing values to integers
+. local catno = wordcount("`levels'") // Number of values
+  7. local xnew = 1
+  8. foreach x of local levels {
+  9.         if "`x'"!="`xnew'" {
+ 10.                 local xlabel : label `lblname' `x'
+ 11.                 qui: recode `var' (`x'=`xnew')
+ 12.                 di _col(5) "from `x' to `xnew'" _col(20)  "`xlabel'  (`r(N)' changes made)"
+ 13.                 label define `lblname' `x' "", modify // remove old label
+ 14.                 label define `lblname' `xnew' "`xlabel'", modify // and new label
+ 15.                 
+.         }
+ 16.         local xnew = `xnew'+1
+ 17. }
+ 18. end
+
+. 
+end of do-file
+
+. do 1_FigTabLayout.do
+
+. ***** 4_FigTabLayout.do *****
+. 
+. ***** Graphs
+. ** General
+. set scheme s2color
+
+. grstyle init graphlayout, replace
+
+. grstyle set plain // No plot region color, white background + other tweaks
+
+. 
+. ** Size
+. grstyle set graphsize 560pt 1200pt // in pixels, default is 5.5 inches *72 pt/inch = 396pt
+
+. grstyle set symbolsize vlarge
+
+. grstyle set size 25pt: axis_title // X and Y axis text size
+
+. 
+. ** Axis
+. grstyle anglestyle vertical_tick horizontal // Horizontal "tick"text on y-axis
+
+. grstyle color major_grid gs11 // colour of horizontal lines
+
+. 
+. ** Legend
+. grstyle set legend ///
+>         10, /// clock position of legend (1-12).
+>         nobox /// no legend background
+>         inside // inside plotregion
+
+. 
+. ** Line graphs (size, colors and patterns)
+. grstyle set linewidth 3pt: p // line width (line and rcap)
+
+. 
+. global line1 = `"lpattern(solid) lcolor(black)"'
+
+. global line2 = `"lpattern(vshortdash) lcolor(black)"'
+
+. global line3 = `"lpattern("_") lcolor(black)"'
+
+. global line4 = `"lpattern("-") lcolor(black)"'
+
+. 
+. ** Bar graphs (colors and outline pattern)
+. * Graphs with 1-2 colors
+. global bar1 = `"fcolor(gs6) lcolor(gs6)"'
+
+. global bar2 = `"fcolor(gs12) lcolor(gs12)"'
+
+. 
+. * Graphs with 4 colors
+. colorpalette HCL grays, n(4) nograph local(, prefix(c))
+
+locals:
+                    c1 : "38 38 38"
+                    c2 : "98 98 98"
+                    c3 : "167 167 167"
+                    c4 : "241 241 241"
+
+. global bar4_1 = `" fcolor(`c1') lcolor(`c1') lalign(inside)"'
+
+. global bar4_2 = `" fcolor(`c2') lcolor(`c2') lalign(inside)"'
+
+. global bar4_3 = `" fcolor(`c3') lcolor(`c3') lalign(inside)"'
+
+. global bar4_4 = `" fcolor(white) lcolor(black) lalign(inside)"'
+
+. 
+. * Graphs with 5 colors
+. colorpalette HCL grays, n(5) nograph local(, prefix(c))
+
+locals:
+                    c1 : "38 38 38"
+                    c2 : "82 82 82"
+                    c3 : "132 132 132"
+                    c4 : "185 185 185"
+                    c5 : "241 241 241"
+
+. global bar5_1 = `" color(`c1') lcolor(`c1') lalign(inside)"'
+
+. global bar5_2 = `" color(`c2') lcolor(`c2') lalign(inside)"'
+
+. global bar5_3 = `" color(`c3') lcolor(`c3') lalign(inside)"'
+
+. global bar5_4 = `" color(`c4') lcolor(`c4') lalign(inside)"'
+
+. global bar5_5 = `" color(white) lcolor(black) lpattern(solid) lalign(inside)"'
+
+. 
+. * Graphs with 8 colors
+. colorpalette HCL grays, n(8) nograph local(, prefix(c))
+
+locals:
+                    c1 : "38 38 38"
+                    c2 : "62 62 62"
+                    c3 : "89 89 89"
+                    c4 : "117 117 117"
+                    c5 : "146 146 146"
+                    c6 : "177 177 177"
+                    c7 : "208 208 208"
+                    c8 : "241 241 241"
+
+. global bar8_1 = `" fcolor(`c1') lcolor(`c1')"' // lpattern("vshortdash") lwidth(1) lalign(inside)"'
+
+. global bar8_2 = `" fcolor(`c3') lcolor(`c3')"'
+
+. global bar8_3 = `" fcolor(`c5') lcolor(`c5')"'
+
+. global bar8_4 = `" fcolor(`c7') lcolor(`c7')"' // lalign(inside) lwidth(0.4) lpattern(dot)"'
+
+. global bar8_5 = `" fcolor(`c2') lcolor(`c2')"'
+
+. global bar8_6 = `" fcolor(`c4') lcolor(`c4')"' // lalign(inside) lwidth(0.2) lpattern("-")"'
+
+. global bar8_7 = `" fcolor(`c6') lcolor(`c6')"'
+
+. global bar8_8 = `" fcolor(white) lcolor(black) lpattern(solid) lalign(inside)"'
+
+. 
+. 
+. ** Export
+. graph set eps logo off
+
+. global exportformat = ".png"
+
+. global exportoptions = ", replace width(1200)"
+
+. 
+. 
+. ***** Tables
+. global tablecells =  `"border(all, nil) halign(center) valign(center)"'
+
+. global tablefirstrow = `"border(bottom, single) bold shading(191 191 191)"' // First row bold, underlined and dark gray
+
+. global tabletotalrow = `"border(bottom, single, black, 1) border(top, single, black, 1) "' // Bottom total row, black lines top and bottom
+
+. global tablerows = `"shading(217 217 217)"' // Remaining subheaders light grey
+
+. global tablefirstcol = `"halign(left)"'
+
+. 
+end of do-file
+
+. 
+. 
+. ***** 2) PREPARE PATIENT DATA
+. /*
+> This section:
+> - Import clinical data on PPGL patients from a REDCap database
+> - Define final PPGL cohort and generate study variables for later analyses
+> */
+. 
+. do 2_ImportRedcap.do
+
+. ***** 3_ImportRedcap.do *****
+. clear
+
+. file close _all
+
+. 
+. *** Import secret API key
+. file open text using APIKEY_redcap.txt, read text
+
+. file read text token // Store API key as local 'token'
+
+. 
+. 
+. *** Download file with cURL
+. local curlpath "C:\Windows\System32\curl.exe"
+
+. local outfile "redcap_export.csv"
+
+. local apiurl "https://redcap.au.dk/api/"
+
+. 
+. shell  `curlpath'       ///
+>         --output `outfile'              ///
+>         --form token=`token'    ///
+>         --form content=record   ///
+>         --form format=csv               ///
+>         --form type=flat                ///
+>         --form filterLogic="[ppgl]='1' or [ppgl]='2' or [algo_9l]='1'" ///
+>         `apiurl'
+
+. 
+. 
+. *** Convert to Stata format
+. import delimited `outfile', ///
+>         bindquote(strict) /// Fix quotes in text fields
+>         stringcols(2) // Force CPR var to string
+(282 vars, 621 obs)
+
+. qui: erase `outfile'
+
+. 
+. qui: ds
+
+. local varorder = "`r(varlist)'"
+
+. qui: do 2_RedcapCodebook.do, nostop // Redcap Stata export format tool, updated 11-09-2020
+
+. order `varorder'
+
+. 
+. 
+. *** Change formats
+. ds, has(format %d*)
+d_foddato     allfirstd~pr  allfirstd~ar  date_symp     date_recu1    date_recu2    date_recu3    date_genclin  d_status_h~t  date_surg_~o  datediagno~o
+allfirstdate  allfirstda~o  date_diag     date_surg     date_recus~1  date_recus~2  date_recus~3  date_gentest  date_surg_~r  date_surg_~t
+
+. format %tdCCYY-NN-DD `r(varlist)'
+
+. 
+. 
+. *** Save
+. save data/cohort_alldata.dta, replace
+file data/cohort_alldata.dta saved
+
+. 
+end of do-file
+
+. 
+. do 2_CohortAndVars.do
+
+. ***** 3_CohortAndVars.do *****
+. use data/cohort_alldata.dta, clear
+
+. 
+. 
+. *** Define cohort
+. ** Define important criteria
+. * End of study period
+. global lastyear = 2015
+
+. 
+. 
+. * Study period (10-year intervals)
+. global period10ycat =   `"(1977/1986=1 "1977-1986")"' ///
+>                                                 + `" (1987/1996=2 "1987-1996")"' ///
+>                                                 + `" (1997/2006=3 "1997-2006")"' ///
+>                                                 + `" (2007/${lastyear}=4 "2007-${lastyear}")"' //
+
+. 
+. * Age categories
+. global agecat = `"(0/24.999=1 "<25 years")"' ///
+>                                 + `" (25/49.999=2 "25-49 years")"' ///
+>                                 + `" (50/74.999=3 "50-74 years")"' ///
+>                                 + `" (75/100=4 "{&ge}75 years")"'
+
+. 
+. 
+. ** Study area
+. recode cohort (1 2 5 = 1 "North and Central Region") (3=2 "Remaining Danish regions"), gen(cohort_simple) label(cohort_simple_)
+(403 differences between cohort and cohort_simple)
+
+. label var cohort_simple "Study area"
+
+. 
+. ** Index date and year
+. gen date_index = date_diag if cohort_simple==1
+(414 missing values generated)
+
+. replace date_index = allfirstdate if cohort_simple==2
+(398 real changes made)
+
+. label var date_index "Index date"
+
+. format %d date_index
+
+. 
+. gen year_index = year(date_index)
+(16 missing values generated)
+
+. label var year_index "Index year"
+
+. 
+. 
+. ** Prevalent cases
+. gen ppgl_prevalent = 1 if ///
+>         cohort_simple==1 & inlist(ppgl, 1, 2) /// Confirmed in health records (in North/central region)
+>         | cohort_simple==2 & algo_9l==1 & ext_algosample==0 /// Algorithm-positive (in remaining DK)
+>         | cohort_simple==2 & algo_9l==1 & ext_algosample==1 & ppgl!=0 // Algorithm-positive refuted/excluded in ext.sample
+(24 missing values generated)
+
+. recode ppgl_prevalent (.=0)
+(ppgl_prevalent: 24 changes made)
+
+. 
+. * PPGL cases diagnosed 1977-2015 while living in Denmark
+.         // As prevalent but excluding 3 diagnosed <1977 / outside DK in health records
+. gen ppgl_incident = 1 if ///
+>         cohort_simple==1 & ppgl==1 & mi(vali_exclude) ///
+>         | cohort_simple==2 & algo_9l==1 & ext_algosample==0 ///
+>         | cohort_simple==2 & algo_9l==1 & ext_algosample==1 & inlist(ppgl, 0, 2)==0 //
+(33 missing values generated)
+
+. recode ppgl_incident (.=0)
+(ppgl_incident: 33 changes made)
+
+. 
+. 
+. *** Define study variables
+. * Study period (10-year intervals)
+. recode year_index $period10ycat, gen(period10y) label(period10y_)
+(577 differences between year_index and period10y)
+
+. label var period10y "Period"
+
+. 
+. * Age at diagnosis
+. gen age = (date_index-d_foddato)/365.25
+(16 missing values generated)
+
+. label var age "Age in years"
+
+. 
+. * Age categories
+. recode age $agecat, gen(agecat) label(agecat_)
+(605 differences between age and agecat)
+
+. label var agecat "Age at diagnosis"
+
+. 
+. * Age at surgery
+. gen age_surg = (date_surg-d_foddato)/365.25
+(434 missing values generated)
+
+. label var age "Age at time of surgery"
+
+. 
+. * Sex
+. recode sex (0=2)
+(sex: 343 changes made)
+
+. label define sex_ 1 "Male" 2 "Female" 0 "", modify
+
+. 
+. * Mode of discovery categories
+. label list mod_
+mod_:
+           1 Symptoms
+           2 Secondary HTN
+           3 Pressor-response during birth/pregnancy
+           4 Pressor-response during surgery/anesthesia
+          20 Adrenal incidentaloma
+          30 Cancer staging
+          31 Cancer FU
+          40 Syndrome evaluation or control
+          41 Eval due to familial disposition
+          50 Autopsy
+          60 Other (B-symptoms)
+          61 Other (Palpable abdominal mass)
+          62 Other (Acute abdomen)
+          63 Other (Ectopic ACTH)
+          64 Other (abdominal para incidentaloma)
+          65 Other (H/N para incidentaloma)
+          66 Other (heart failure)
+          69 Other (specify in comments)
+          98 Not found
+          99 Unspecified
+
+. recode mod ///
+>         (1=1 "Paroxysmal symptoms") ///
+>         (2 3 4=2 "Hypertension") ///
+>         (50=3 "Autopsy") ///
+>         (40 41=4 "Genetic") ///
+>         (20=5 "Adrenal incidentaloma") ///
+>         (30 31=6 "Cancer imaging") ///
+>         (60/69=7 "Other") ///
+>         (98 99=.a "Missing records") ///
+>         , gen(modcat) label(modcat_)
+(143 differences between mod and modcat)
+
+. label var modcat "Mode of discovery"
+
+. 
+. * Tumor size
+. egen sizemax = rowmax(tumo_size*)
+(412 missing values generated)
+
+. recode sizemax ///
+>         (0/3.999=3 "<4 cm") ///
+>         (4/7.999=2 "4-7.9 cm") ///
+>         (8/50=1 "{&ge}8 cm") ///
+>         (.=.a "Missing records") ///
+>         , gen(sizecat) label(sizecat_)
+(603 differences between sizemax and sizecat)
+
+. label var sizemax "Size in cm"
+
+. label var sizecat "Tumor size"
+
+. 
+. * Tumor location
+. gen tumorcat = 1 if tumo_numb==1 & tumo_loc1==1 // single pheo
+(423 missing values generated)
+
+. recode tumorcat (.=2) if tumo_numb==1 & inlist(tumo_loc1, 2, 3) // single para (2: abdominal, 3: head/neck)
+(tumorcat: 14 changes made)
+
+. recode tumorcat (.=3) if inrange(tumo_numb, 2, 9) // Multifocal PPGL
+(tumorcat: 13 changes made)
+
+. recode tumorcat (.=.a) if inlist(tumo_numb, 98, 99) // not found or unspecified
+(tumorcat: 1 changes made)
+
+. label var tumorcat "Tumor location"
+
+. label define tumorcat_ ///
+>         1 "Unilateral PHEO" ///
+>         2 "Unilateral PARA" ///
+>         3 "Multiple PPGL" ///
+>         .a "had missing records" ///
+>         , replace
+
+. label value tumorcat tumorcat_
+
+. 
+. * Paroxystic symptoms
+. /*
+> Data recorded on
+> - Classic symptoms: paroxysmal headache, sweating and palpitations
+> - Other symptoms: flushing, whitening, nausea, abdominal pain, dyspnea, syncope, lightheadedness, chest pain, tremor, or unspecified "attacks"
+> 
+> symp_x:
+>         1: Present and paroxysmal
+>         2: Present but not paroxysmal
+>         3: Present, unspecied if paroxysmal or not (consider not paroxysmal)
+>         4: Not present,
+>         98: Health records missing
+>         99: Unspecified in records if present (consider not present)
+> */
+. gen sympcat = 1 if /// classic triad
+>         symp_head==1 & symp_sweat==1 & symp_palp==1
+(573 missing values generated)
+
+. 
+. recode sympcat (.=2) if /// 1-2 classic symp
+>         symp_head==1 | symp_head==1 | symp_sweat==1
+(sympcat: 70 changes made)
+
+. 
+. recode sympcat (.=3) if /// other paroxysmal symp
+>         inlist(1, symp_flush, symp_white, symp_naus, symp_abdo, symp_dysp, symp_sync, symp_chest, symp_tremor, symp_sync, symp_light, symp_atta)
+(sympcat: 26 changes made)
+
+. 
+. foreach symp in /// no paroxysmal symp
+>         symp_palp symp_head symp_sweat symp_light symp_white symp_flush ///
+>         symp_sync symp_naus symp_chest symp_abdo symp_tremor symp_dysp symp_atta {
+  2.         qui: recode sympcat (.=4) if inlist(`symp', 2, 3, 4, 99)
+  3. }
+
+. 
+. recode sympcat (.=.a) if inlist(98, /// health records not found
+>         symp_palp, symp_head, symp_sweat, symp_light, symp_white, symp_flush, ///
+>         symp_sync, symp_naus, symp_chest, symp_abdo, symp_tremor, symp_dysp, symp_atta)
+(sympcat: 11 changes made)
+
+. 
+. label define sympcat_ ///
+>         1 "Classical triad" ///
+>         2 "1-2 classical symptoms" ///
+>         3 "Other paroxysmal symptoms" ///
+>         4 "No paroxysmal symptoms" ///
+>         .a "Missing records" ///
+>         , replace
+
+. label value sympcat sympcat_
+
+. label variable sympcat "Symptoms at diagnosis"
+
+. 
+. * Years of symptoms before diagnosis
+. gen sympyears = (date_index-date_symp)/365.25 if inlist(sympcat, 1, 2, 3) // Symptom duration for paroxysmal symp
+(480 missing values generated)
+
+. label var sympyears "Symptom duration in years"
+
+. 
+. recode sympyears ///
+>         (0/0.99999=1 "<1 year") ///
+>         (1/4.99999=2 "1-4.9 years") ///
+>         (5/max=3 "{&ge}5years") ///
+>         (12345=.a "had no paroxysmal symptoms") ///
+>         (12345=.b "had missing records") ///
+>         , gen(sympycat) label(sympycat_)
+(141 differences between sympyears and sympycat)
+
+. label var sympycat "Symptom duration"
+
+. recode sympycat (.=.a) if sympcat==4
+(sympycat: 68 changes made)
+
+. recode sympycat (.=.b) if cohort_simple==1 & (sympcat==.a | mi(date_symp))
+(sympycat: 28 changes made)
+
+. 
+. * Hypertension
+. recode symp_hyper ///
+>         (1=1 "Paroxysmal hypertension") ///
+>         (2 3=2 "Stable hypertension") ///
+>         (4 99=3 "No hypertension") ///
+>         (98=.a "had missing records") ///
+>         , gen(htncat) label(htncat_)
+(120 differences between symp_hyper and htncat)
+
+. label var htncat "Hypertension at diagnosis"
+
+. 
+. * Biochemical profile
+. recode tumo_bioc ///
+>         (1=1 "NE only") ///
+>         (2=2 "E only") ///
+>         (3=3 "Both NE and E") ///
+>         (4=.a "had only total catecholamines measured") ///
+>         (5=4 "Non-functioning") ///
+>         (7=.b "were never tested") ///
+>         (98=.c "had missing records") ///
+>         , gen(biocat) label(biocat_)
+(62 differences between tumo_bioc and biocat)
+
+. label var biocat "Biochemical profile"
+
+. 
+. * Biochemical elevation
+. egen biomax = rowmax(tumo_bioc_ne tumo_bioc_e tumo_bioc_uns)
+(449 missing values generated)
+
+. label var biomax "Fold increase above upper normal range"
+
+. 
+. * Genetic disposition
+. recode gen_synd (1 2 3 4 5 6 7 8 9 10 11 20 30 39 = 1 "Hereditary PPGL") /// confirmed clinically or genetically
+>                                 (44=2 "Negative genetic tests") /// No known syndrome/mutation (both tested and non-tested)
+>                                 (12345=3 "Never tested") /// empty value to create label
+>                                 (98=.a "had missing records") /// 
+>                                 , gen(gencat) label(gencat_)
+(255 differences between gen_synd and gencat)
+
+. recode gencat (2=3) if gen_results==7 // Recode for those never tested
+(gencat: 95 changes made)
+
+. recode gencat (2=.a) if gen_results==8 // Recode for those never tested
+(gencat: 2 changes made)
+
+. label var gencat "Hereditary PPGL"
+
+. 
+. * Reason for no surgery
+. label list surg_reason_
+surg_reason_:
+           1 Diagnosis at autopsy
+           2 Not technically possible
+           3 No surgery due to comorbidity
+           4 Patient reject surgery
+           5 Died during workup / before surgery
+          98 Not found
+          99 Unspecified
+
+. label define surg_reason_ 1 "diagnosis at autopsy" 2 "radical surgery not being technically possible" 3 "patient comorbidity" 4 "patient rejecting surgery" 5 "and patien
+> t died during work-up or before surgery", modify
+
+. 
+. * Procedures on PPGL tumor before diagnosis
+. recode mod ///
+>         (12345=1 "None") /// labels only
+>         (12345=2 "FNA/biopsy") ///
+>         (12345=3 "Surgical resection") ///
+>         (12345=4 "Both surgical resection and FNA/biopsy") ///
+>         (50=.a "were diagnosed at autopsy") ///
+>         (98=.c "had missing records") ///
+>         if inlist(mod, 50, 98) ///
+>         , gen(procedures) label(procedures_)
+(35 differences between mod and procedures)
+
+. recode procedures (.=4) if mod_preopdiag==0 & inlist(mod_biopsy, 1, 2, 3)
+(procedures: 6 changes made)
+
+. recode procedures (.=3) if mod_preopdiag==0
+(procedures: 9 changes made)
+
+. recode procedures (.=2) if inlist(mod_biopsy, 1, 2, 3)
+(procedures: 15 changes made)
+
+. recode procedures (.=1) if mod_preopdiag==1 | !mi(surg_reason)
+(procedures: 158 changes made)
+
+. label var procedures "Procedures on tumor before diagnosis"
+
+. 
+. * PreOP diag
+. recode mod_preopdiag    (1=1 "Yes") ///
+>                                                 (0=2 "No") ///
+>                                                 (12345=.a "were diagnosed at autopsy") ///
+>                                                 (12345=.b "were never operated for other reasons") ///
+>                                                 (98=.c "had missing records") ///
+>                                                 , gen(surgcat) label(surgcat_)
+(25 differences between mod_preopdiag and surgcat)
+
+. recode surgcat (.=.a) if surg_reas==1 // Diagnosed at autopsy
+(surgcat: 24 changes made)
+
+. recode surgcat (.=.b) if inlist(surg_reas, 2, 3, 4, 5) // All non-operated (except those diagnosed at autopsy)
+(surgcat: 14 changes made)
+
+. label var surgcat "PPGL diagnosed before surgery"
+
+. 
+. * PeriOP death
+. gen survdays=d_status-date_surg if c_status==90 // days from surgery to death
+(568 missing values generated)
+
+. gen surg_perimort = 1 if survdays<=30 & inlist(surgcat, 1, 2)
+(618 missing values generated)
+
+. recode surg_perimort (.=0) if inlist(surgcat, 1, 2)
+(surg_perimort: 173 changes made)
+
+. label var surg_perimort "Peri-surgical mortality (<30 days)"
+
+. label define surg_perimort_ 1 "Yes" 0 "No"
+
+. label values surg_perimort surg_perimort_
+
+. 
+. * Recurrence
+. codebook cour_recu1
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+cour_recu1                                                                                                                                 Status 1 (after first diagnose)?
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+                  type:  numeric (byte)
+                 label:  cour_recu1_
+
+                 range:  [1,98]                       units:  1
+         unique values:  6                        missing .:  397/621
+
+            tabulation:  Freq.   Numeric  Label
+                           163         1  No new tumors
+                             6         2  Recurrence - CAs metastasis
+                                          confirmed
+                             7         3  Recurrence - New primary tumor
+                                          (specify #loc)
+                             9         4  Recurrence - local recurrence
+                            38         7  Persistent disease - no radical
+                                          surgery
+                             1        98  Not found
+                           397         .  
+
+. local recugrp2 = "mets"
+
+. local recugrp3 = "prim"
+
+. local recugrp4 = "local"
+
+. 
+. foreach recu in 2 3 4 { 
+  2.         qui: gen recu_`recugrp`recu'' = 1 if inlist(`recu', cour_recu1, cour_recu2, cour_recu3)
+  3.         label var recu_`recugrp`recu'' "Recurrence: `recugrp`recu''"
+  4.         label define recu_`recugrp`recu''_ 1 "`recugrp`recu''"
+  5.         label value recu_`recugrp`recu'' recu_`recugrp`recu''_
+  6.         * Age at first recurrence
+.         qui: gen recu_`recugrp`recu''_age = (date_recu1-d_foddato)/365.25 if cour_recu1==`recu'
+  7.         qui: replace recu_`recugrp`recu''_age = (date_recu2-d_foddato)/365.25 if cour_recu2==`recu' & mi(recu_`recugrp`recu''_age)
+  8.         qui: replace recu_`recugrp`recu''_age = (date_recu3-d_foddato)/365.25 if cour_recu3==`recu' & mi(recu_`recugrp`recu''_age)
+  9.         
+.         label var recu_`recugrp`recu''_age "Age at recurrence (`recugrp`recu'')"
+ 10. }
+
+. egen recu_any = rowmin(recu_mets recu_prim recu_local)
+(599 missing values generated)
+
+. label var recu_any "Recurrence: any"
+
+. egen recu_any_age = rowmin(recu_mets_age recu_prim_age recu_local_age)
+(599 missing values generated)
+
+. label var recu_any_age "Age at recurrence: any"
+
+. 
+. 
+. *** Restrict to PPGL patients
+. keep if inlist(1, ppgl_incident, ppgl_prevalent)
+(24 observations deleted)
+
+. 
+. * Count incident/prevalent for report
+. count if ppgl_incident==1
+  588
+
+. local incitotal=`r(N)'
+
+. count if year_index>${lastyear} // Patients diagnosed after 2015 removed
+  21
+
+. local afterlastyear=`r(N)'
+
+. 
+. drop if year_index>${lastyear}
+(21 observations deleted)
+
+. 
+. count if ppgl_incident==1
+  567
+
+. global Ninci=`r(N)'
+
+. count if ppgl_prevalent==1
+  576
+
+. local Nprev=`r(N)'
+
+. 
+. count if cohort_simple==1 & ppgl_incident==1 // with clinical data
+  192
+
+. global Ncrnr = `r(N)'
+
+. 
+. *** Remove superfluous variables
+. drop tumo_numb tumo_loc* tumo_size* tumo_late* tumo_bioc symp_* gen_clindiag gen_results /// Aggregated in code above
+>         ppgl cohort exclude algo_* vali_* ext_algosample /// Validation data
+>         from_* all_* allhighrisk* allfirstdate* /// Details on inclusion criteria
+>         pato_* immuno_* datediagnosispato gen_performed gen_mut_* gen_report *_complete obta_* regeval_surg // Irrelevant for study
+
+. 
+. 
+. *** Save data
+. order cohort_simple ppgl* include_reg year_index period* age* sex mod* size* symp* bio* tumo*
+
+. 
+. ** Report
+. putdocx clear
+
+. putdocx begin
+
+. putdocx paragraph, style(Heading2)
+
+. putdocx text ("Patient flow")
+
+. putdocx paragraph
+
+. putdocx text ("Total PPGL cohort from 1977-2016 was `incitotal' (Ebbehoj A 2018, Clin Epidemiol). ")
+
+. putdocx text ("We excluded `afterlastyear' patients diagnosed after ${lastyear}. ")
+
+. putdocx text ("Final cohort in this study was $Ninci incident cases of PPGL and $Nprev prevalent cases. "), linebreak
+
+. putdocx save results/TextPatientFlow, replace
+successfully replaced "C:/Users/au335571/Forskning/2020-PPGL-incidence-prevalence-paper/results/TextPatientFlow.docx"
+
+. 
+. ** With PID
+. save data/cohort_pid.dta, replace
+file data/cohort_pid.dta saved
+
+. 
+. 
+. ** Without PID
+. drop cpr rec_nr *_comm_* *_comm d_foddato c_status d_status /// Sensitive data
+>         date_genclin date_gentest gen_mutdetails gen_comm_synd gen_tested /// Genetic sensitive
+>         date_symp date_index date_diag date_recu* date_surg* // Aggregated in code above
+
+. 
+. save data/cohort_ppgl.dta, replace
+file data/cohort_ppgl.dta saved
+
+. 
+end of do-file
+
+. 
+. 
+. 
+. ***** 3) PREPARE OTHER DATA
+. /*
+> This section:
+> - Import data on Danish population from Statistics Denmark
+> - Define European Standard population
+> */
+. 
+. do 3_ImportPopDK.do
+
+. ***** 3_ImportPopDK.do *****
+. *** Total population by year
+. dstpop, clear ///
+>         year(1977/$lastyear) /// 
+>         area(total)
+
+Download settings:
+    Time period: 1977-2015
+    Registries: BEF1 BEF1A BEF1A07 FOLK1A 
+    Population by: total   
+
+Downloading from:
+    BEF1 (years: 1977 1978 1979 1980 1981 1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 1998 1999 2000 2001 2002)
+    BEF1A (years: 2003 2004 2005 2006)
+    BEF1A07 (years: 2007)
+    FOLK1A (years: 2008K1 2009K1 2010K1 2011K1 2012K1 2013K1 2014K1 2015K1)
+
+. 
+. save data/popDK_year.dta, replace
+file data/popDK_year.dta saved
+
+. 
+. 
+. *** Population by year and age group
+. dstpop, clear ///
+>         year(1977/$lastyear) ///
+>         area(total) ///
+>         age
+
+Download settings:
+    Time period: 1977-2015
+    Registries: BEF1 BEF1A BEF1A07 FOLK1A 
+    Population by: total  age 
+
+Downloading from:
+    BEF1 (years: 1977 1978 1979 1980 1981 1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 1998 1999 2000 2001 2002)
+    BEF1A (years: 2003 2004 2005 2006)
+    BEF1A07 (years: 2007)
+    FOLK1A (years: 2008K1 2009K1 2010K1 2011K1 2012K1 2013K1 2014K1 2015K1)
+
+. 
+. recode age $agecat, gen(agecat) label(agecat_)
+(3861 differences between age and agecat)
+
+. label var agecat "Age category"
+
+. 
+. bysort year agecat: egen poptotal=total(pop)
+
+. drop age pop
+
+. rename poptotal pop
+
+. duplicates drop
+
+Duplicates in terms of all variables
+
+(3,744 observations deleted)
+
+. 
+. save data/popDK_year_age.dta, replace
+file data/popDK_year_age.dta saved
+
+. 
+. *** Population in DK by year/period, age, and sex
+. dstpop, clear ///
+>         year(1977/$lastyear) ///
+>         area(total) ///
+>         sex ///
+>         age
+
+Download settings:
+    Time period: 1977-2015
+    Registries: BEF1 BEF1A BEF1A07 FOLK1A 
+    Population by: total sex age 
+
+Downloading from:
+    BEF1 (years: 1977 1978 1979 1980 1981 1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 1998 1999 2000 2001 2002)
+    BEF1A (years: 2003 2004 2005 2006)
+    BEF1A07 (years: 2007)
+    FOLK1A (years: 2008K1 2009K1 2010K1 2011K1 2012K1 2013K1 2014K1 2015K1)
+
+. 
+. * By year
+. recode age $agecat, gen(agecat) label(agecat_)
+(7722 differences between age and agecat)
+
+. label var agecat "Age category"
+
+. bysort year agecat sex: egen poptotal=total(pop)
+
+. drop age pop
+
+. rename poptotal pop
+
+. duplicates drop
+
+Duplicates in terms of all variables
+
+(7,488 observations deleted)
+
+. save data/popDK_year_age_sex.dta, replace
+file data/popDK_year_age_sex.dta saved
+
+. 
+. * By period
+. recode year $period10ycat, gen(period) label(period_)
+(312 differences between year and period)
+
+. label var period "Period"
+
+. 
+. bysort period agecat sex: egen poptotal=total(pop)
+
+. drop year pop
+
+. rename poptotal pop
+
+. duplicates drop
+
+Duplicates in terms of all variables
+
+(280 observations deleted)
+
+. 
+. save data/popDK_period_age_sex.dta, replace
+file data/popDK_period_age_sex.dta saved
+
+. 
+. *** Population by year, age, and region
+. dstpop, clear ///
+>         year(1977/$lastyear) ///
+>         area(c_reg) ///
+>         age
+
+Download settings:
+    Time period: 1977-2015
+    Registries: BEF1 BEF1A BEF1A07 FOLK1A 
+    Population by: c_reg  age 
+
+Downloading from:
+    BEF1 (years: 1977 1978 1979 1980 1981 1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 1998 1999 2000 2001 2002)
+         1977
+         1978
+         1979
+         1980
+         1981
+         1982
+         1983
+         1984
+         1985
+         1986
+         1987
+         1988
+         1989
+         1990
+         1991
+         1992
+         1993
+         1994
+         1995
+         1996
+         1997
+         1998
+         1999
+         2000
+         2001
+         2002
+    BEF1A (years: 2003 2004 2005 2006)
+         2003
+         2004
+         2005
+         2006
+    BEF1A07 (years: 2007)
+         2007
+    FOLK1A (years: 2008K1 2009K1 2010K1 2011K1 2012K1 2013K1 2014K1 2015K1)
+         2008K1
+         2009K1
+         2010K1
+         2011K1
+         2012K1
+         2013K1
+         2014K1
+         2015K1
+
+. 
+. recode age $agecat, gen(agecat) label(agecat_)
+(19305 differences between age and agecat)
+
+. label var agecat "Age category"
+
+. 
+. recode area (81 82 = 1) (83 84 85 = 2), gen(cohort_simple)
+(19500 differences between area and cohort_simple)
+
+. 
+. bysort year cohort_simple agecat: egen poptotal=total(pop)
+
+. drop age pop area
+
+. rename poptotal pop
+
+. duplicates drop
+
+Duplicates in terms of all variables
+
+(19,188 observations deleted)
+
+. save data/popDK_year_age_region.dta, replace
+file data/popDK_year_age_region.dta saved
+
+. 
+. * Population by period, age, and region
+. recode year $period10ycat, gen(period) label(period_)
+(312 differences between year and period)
+
+. label var period "Period"
+
+. 
+. bysort cohort_simple agecat period: egen poptotal=total(pop)
+
+. drop year pop 
+
+. rename poptotal pop
+
+. duplicates drop
+
+Duplicates in terms of all variables
+
+(280 observations deleted)
+
+. 
+. save data/popDK_period_age_region.dta, replace
+file data/popDK_period_age_region.dta saved
+
+. 
+end of do-file
+
+. 
+. do 3_ImportPopEU.do
+
+. ***** 3_ImportPopEU.do *****
+. /*
+> European Standard Population 2013 edition - Appendix F
+> Link: https://ec.europa.eu/eurostat/web/products-manuals-and-guidelines/-/KS-RA-13-028
+> */
+. 
+. clear
+
+. input age_from  age_to  pop
+
+      age_from     age_to        pop
+  1. 0       0       1000
+  2. 1       4       4000
+  3. 5       9       5500
+  4. 10      14      5500
+  5. 15      19      5500
+  6. 20      24      6000
+  7. 25      29      6000
+  8. 30      34      6500
+  9. 35      39      7000
+ 10. 40      44      7000
+ 11. 45      49      7000
+ 12. 50      54      7000
+ 13. 55      59      6500
+ 14. 60      64      6000
+ 15. 65      69      5500
+ 16. 70      74      5000
+ 17. 75      79      4000
+ 18. 80      84      2500
+ 19. 85      89      1500
+ 20. 90      94      800
+ 21. 95      100     200
+ 22. end
+
+. 
+. recode age_to $agecat, gen(agecat) label(agecat_)
+(21 differences between age_to and agecat)
+
+. label var agecat "Age category"
+
+. bysort agecat: egen poptotal=total(pop)
+
+. drop age_from age_to pop
+
+. rename poptotal pop
+
+. duplicates drop
+
+Duplicates in terms of all variables
+
+(17 observations deleted)
+
+. 
+. save data/popEU_age.dta, replace
+file data/popEU_age.dta saved
+
+. 
+end of do-file
+
+. 
+. 
+. 
+. ***** 4) Analysis
+. /*
+> This section:
+> - Makes calculations for text
+> - Export tables
+> - Export graphs
+> - Generate supplementary results
+> */
+. 
+. 
+. ** Patient Characteristics 
+. do 4_TextCharDetails.do // details for text
+
+. ***** 4_TextPatCharDetails.do *****
+. use data/cohort_ppgl.dta, clear
+
+. 
+. keep if ppgl_incident==1 & cohort_simple==1
+(384 observations deleted)
+
+. 
+. 
+. *** Special cases of diagnosis
+. preserve
+
+. 
+. putdocx clear
+
+. putdocx begin
+
+. putdocx paragraph, style(Heading2)
+
+. putdocx text ("Special cases of diagnosis, post operative diagnosis ect")
+
+. putdocx paragraph
+
+. 
+. order surg_resec surg_reason surg_medalpha mod*
+
+. capture: log off
+
+. 
+. ** Missing data before diagnosis/surgery 
+. count if !mi(modcat)
+  191
+
+. global Nmod = `r(N)'
+
+. 
+. count if mi(modcat)
+  1
+
+. global Nmodmiss = `r(N)' // for table footnotes and below
+
+. qui: drop if mi(modcat)
+
+. 
+. putdocx text ("$Nmodmiss had missing records before diagnosis/surgery. ")
+
+. 
+. ** Diagnosed at autopsy
+. count if modcat==3
+  24
+
+. local Nautopsy = `r(N)'
+
+. local grplabel : label modcat_ 3
+
+. putdocx text ("`Nautopsy' diagnosed at `grplabel'"), linebreak
+
+. qui: drop if modcat==3
+
+. 
+. 
+. ** FNA, biopsy or resection
+. putdocx paragraph
+
+. 
+. * Diagnosed alive
+. count 
+  167
+
+. local Ndiagalive = `r(N)'
+
+. 
+. * Overview of FNA, biopsy and/or surgery before PPGL diagnosis
+. tab mod_biopsy mod_preopdiag if mod_special==1, mi
+
+  Biopsy or |
+ FNA before |    Diagnosed before surgery?
+ lab tests? |        No        Yes          . |     Total
+------------+---------------------------------+----------
+         No |         9          4          1 |        14 
+        FNA |         4          7          1 |        12 
+     Biopsy |         1          1          3 |         5 
+       Both |         1          1          0 |         2 
+------------+---------------------------------+----------
+      Total |        15         13          5 |        33 
+
+. 
+. * FNA/biopsy only
+. count if inlist(mod_biopsy, 1, 2, 3) & inlist(mod_preopdiag, 1, .) 
+  13
+
+. local Nneedleonly = `r(N)'
+
+. 
+. * OP before diagnosis only
+. count if mod_preopdiag==0 & mod_biopsy==0 
+  9
+
+. local Npostoponly = `r(N)'
+
+. 
+. * Both FNA/biopsy and OP before diagnosis
+. count if inlist(mod_biopsy, 1, 2, 3) & mod_preopdiag==0 // FNA/biopsy and surgery wo diagnosis
+  6
+
+. local Nneedleandpostop = `r(N)'
+
+. 
+. * Either FNA/biopsy or OP without diagnosis
+. count if inlist(mod_biopsy, 1, 2, 3) | mod_preopdiag==0 
+  28
+
+. local Nneedleorpostop = `r(N)'
+
+. local Pneedleorpostop = string(round(100*`Nneedleorpostop'/`Ndiagalive', 0.1), "%3.1f")
+
+. 
+. putdocx text ("Of the `Ndiagalive' patients diagnosed alive with available data, `Nneedleorpostop' (`Pneedleorpostop'%) patients underwent either FNA or biopsy (n=`Nneed
+> leonly'), surgical resection (n=`Npostoponly'), or both FNA/biopsy and surgical resection (n=`Nneedleandpostop') of the PPGL tumor before being diagnosed with PPGL."), l
+> inebreak
+
+. 
+. 
+. ** Reasons for no surgery
+. putdocx paragraph
+
+. count if !mi(surg_reason)
+  10
+
+. local Nnosurgery = `r(N)'
+
+. local Pnosurgery = string(round(100*`Nnosurgery'/`Ndiagalive', 0.1), "%3.1f")
+
+. 
+. putdocx text ("`Nnosurgery' (`Pnosurgery'%) of `Ndiagalive' patients were never operated due to:")
+
+. putdocx paragraph, indent(left, 0.5) spacing(line, 0.2)
+
+. 
+. global footnote_reasonnosurg = ""
+
+. 
+. local var = "surg_reason"
+
+. qui: levelsof `var'
+
+. 
+. foreach grp in `r(levels)' {
+  2.         local grplabel : label `var'_ `grp'
+  3.         qui: count if `var'==`grp'
+  4.         putdocx text ("`r(N)' `grplabel'"), linebreak
+  5.         global footnote_reasonnosurg = lower("$footnote_reasonnosurg `grplabel' (n=`r(N)'),")
+  6. }
+
+. di "$footnote_reasonnosurg"
+ radical surgery not being technically possible (n=4), patient comorbidity (n=1), patient rejecting surgery (n=3), and patient died during work-up or before surgery (n=2),
+
+. qui: drop if !mi(surg_reason)
+
+. 
+. 
+. ** Diagnosis before OP 
+. putdocx paragraph
+
+. 
+. * Undergone surgery
+. count if surg_resec==1
+  157
+
+. local Nsurgery = `r(N)'
+
+. qui: count
+
+. assert `r(N)'==`Nsurgery' // Check all remaining were operated
+
+. 
+. * Diagnosed before OP
+. count if surg_resec==1 & mod_preopdiag==1
+  142
+
+. local Nsurgdiag = `r(N)'
+
+. local Psurgdiag = string(round(100*`Nsurgdiag'/`Nsurgery', 0.1), "%3.1f")
+
+. 
+. * Diagnosed after OP
+. count if surg_resec==1 & mod_preopdiag==0 // diagnosed after OP
+  15
+
+. local Nsurgnodiag = `r(N)'
+
+. local Psurgnodiag = string(round(100*`Nsurgnodiag'/`Nsurgery', 0.1), "%3.1f")
+
+. 
+. putdocx text ("Of the `Nsurgery' patients who underwent surgery, `Nsurgdiag' (`Psurgdiag' %) patients were diagnosed with PPGL and started on alpha-blockade before surge
+> ry, while `Nsurgnodiag' (`Psurgnodiag' %) were diagnosed after surgery. ")
+
+. 
+. 
+. ** Peri-operative mortality
+. tab surgcat surg_perimort, mi
+
+                      |     Peri-surgical
+PPGL diagnosed before | mortality (<30 days)
+              surgery |        No        Yes |     Total
+----------------------+----------------------+----------
+                  Yes |       140          2 |       142 
+                   No |        14          1 |        15 
+----------------------+----------------------+----------
+                Total |       154          3 |       157 
+
+. 
+. * Diagnosed before OP
+. count if surg_perimort==1 & mod_preopdiag==1
+  2
+
+. local Nmortpreop = `r(N)'
+
+. local Pmortpreop = string(round(100*`Nmortpreop'/`Nsurgdiag', 0.1), "%3.1f")
+
+. 
+. * Diagnosed after OP
+. count if surg_perimort==1 & mod_preopdiag==0
+  1
+
+. local Nmortpostop = `r(N)'
+
+. local Pmortpostop = string(round(100*`Nmortpostop'/`Nsurgnodiag', 0.1), "%3.1f")
+
+. 
+. putdocx text ("Perioperative mortality (within 30 days of surgery) was `Pmortpreop'% (`Nmortpreop' of `Nsurgdiag' patients) in the first group and `Pmortpostop' % (`Nmor
+> tpostop' of `Nsurgnodiag' patients) in the latter."), linebreak
+
+. 
+. 
+. *** Mets and recurrence 
+. restore
+
+. putdocx paragraph, style(Heading2)
+
+. putdocx text ("Metastases and recurrence")
+
+. 
+. * Mets at time of diagnosis
+. count if tumo_meta==1 
+  5
+
+. local Nmets = `r(N)'
+
+. local Pmets = string(round(100*`Nmets'/$Ncrnr, 0.1), "%3.1f")
+
+. putdocx paragraph
+
+. putdocx text ("`Nmets' (`Pmets'%) had confirmed metastases at time of diagnosis")
+
+. 
+. * Recurrences
+. putdocx paragraph
+
+. putdocx text ("All combinations of recurrence (metastases, new primary tumor, and local recurrence):")
+
+. putdocx paragraph, indent(left, 0.5) spacing(line, 0.2)
+
+. 
+. egen recu_all = group(recu_mets recu_prim recu_local), missing label lname(recu_all_)
+
+. 
+. local var = "recu_all"
+
+. qui: levelsof `var'
+
+. foreach grp in `r(levels)' {
+  2.         local grplabel : label `var'_ `grp'
+  3.         qui: count if `var'==`grp'
+  4.         local Nrecur = `r(N)'
+  5.         local Precur = string(round(100*`Nrecur'/$Ncrnr, 0.1), "%3.1f")
+  6.         putdocx text ("`Nrecur' (`Precur'%) `grplabel'"), linebreak
+  7. }
+
+. 
+. * Time to recurrence
+. putdocx paragraph
+
+. putdocx text ("Time from surgery to recurrence:")
+
+. putdocx paragraph, indent(left, 0.5) spacing(line, 0.2)
+
+. foreach var in any mets prim local {
+  2.         qui: gen years = recu_`var'_age-age
+  3.         qui: su years, detail
+  4.         local Trecur = string(`r(p50)', "%3.1f") + " years (range " ///
+>                                 + string(`r(min)', "%3.1f") + "-" ///
+>                                 + string(`r(max)', "%3.1f") + ")" //
+  5.         drop years
+  6.         putdocx text ("`Trecur' `var'"), linebreak
+  7. }
+
+. 
+. 
+. ** Genetic 
+. putdocx paragraph, style(Heading2)
+
+. putdocx text ("Genetic details")
+
+. putdocx paragraph
+
+. putdocx text ("Mutations and syndromes included:")
+
+. putdocx paragraph, indent(left, 0.5) spacing(line, 0.2)
+
+. 
+. local var = "gen_synd"
+
+. levelsof `var' if gencat==1 
+1 2 3 4 7 8 20 39
+
+. foreach grp in `r(levels)' {
+  2.         local grplabel : label `var'_ `grp'
+  3.         qui: count if `var'==`grp'
+  4.         putdocx text ("`r(N)' `grplabel'"), linebreak
+  5. }
+
+. 
+. 
+. putdocx save results/TextPatChar, replace
+successfully replaced "C:/Users/au335571/Forskning/2020-PPGL-incidence-prevalence-paper/results/TextPatChar.docx"
+
+. 
+end of do-file
+
+. do 4_TabModDetails.do
+
+. ***** 4_TabMod.do *****
+. use data/cohort_ppgl.dta, clear
+
+. merge 1:1 id using data/cohort_pid, assert(match) nolabel nogen noreport ///
+>                 keepusing(mod_comm mod_comm_cod) // Add comments on special cases of MoD
+
+. 
+. keep if ppgl_incident==1
+(9 observations deleted)
+
+. keep if cohort_simple==1
+(375 observations deleted)
+
+. 
+. 
+. *** Generate descriptive text 
+.         // This section is partially excluded from log to hide sensitive data
+. gen mod_textdetails = ""
+(192 missing values generated)
+
+. tab modcat, mi
+
+    Mode of discovery |      Freq.     Percent        Cum.
+----------------------+-----------------------------------
+  Paroxysmal symptoms |         40       20.83       20.83
+         Hypertension |         34       17.71       38.54
+              Autopsy |         24       12.50       51.04
+              Genetic |         16        8.33       59.38
+Adrenal incidentaloma |         44       22.92       82.29
+       Cancer imaging |         19        9.90       92.19
+                Other |         14        7.29       99.48
+      Missing records |          1        0.52      100.00
+----------------------+-----------------------------------
+                Total |        192      100.00
+
+. label list mod_
+mod_:
+           1 Symptoms
+           2 Secondary HTN
+           3 Pressor-response during birth/pregnancy
+           4 Pressor-response during surgery/anesthesia
+          20 Adrenal incidentaloma
+          30 Cancer staging
+          31 Cancer FU
+          40 Syndrome evaluation or control
+          41 Eval due to familial disposition
+          50 Autopsy
+          60 Other (B-symptoms)
+          61 Other (Palpable abdominal mass)
+          62 Other (Acute abdomen)
+          63 Other (Ectopic ACTH)
+          64 Other (abdominal para incidentaloma)
+          65 Other (H/N para incidentaloma)
+          66 Other (heart failure)
+          69 Other (specify in comments)
+          98 Not found
+          99 Unspecified
+
+. 
+. ** Symptoms
+. capture: log off
+
+. 
+. replace mod_textdetails = "Classical triad of paroxysmal headache, sweating, and palpitations." if mod==1 & sympcat==1
+variable mod_textdetails was str1 now str67
+(20 real changes made)
+
+. replace mod_textdetails = "One to two classical symptoms." if mod==1 & sympcat==2
+(17 real changes made)
+
+. replace mod_textdetails = "Other paroxysmal symptoms." if mod==1 & sympcat==3
+(3 real changes made)
+
+. 
+. 
+. ** Secondary HTN
+. capture: log off
+
+. 
+. replace mod_textdetails = "Diagnosed after evaluation for secondary hypertension caused by catecholamine-excess." if mod==2 & mod_special!=1
+variable mod_textdetails was str67 now str85
+(25 real changes made)
+
+. 
+. replace mod_textdetails = "Evaluation for secondary hypertension caused by tumor compressing renal artery. Tumor removed on suspicion of renal cancer with labile peri-op
+> erative BP and post-operative diagnosis of pheochromocytoma." if id==1783
+variable mod_textdetails was str85 now str202
+(1 real change made)
+
+. 
+. 
+. ** Pressor-response pregnancy/birth
+. capture: log off
+
+. 
+. replace mod_textdetails = "Diagnosed after pressor-response during pregnancy or birth" if mod==3
+(2 real changes made)
+
+. 
+. 
+. ** Pressor-response surgery/anesthesia
+. capture: log off
+
+. 
+. replace mod_textdetails = "Diagnosed after pressor-response during surgery or anesthesia unrelated to PPGL or adrenals." if mod==4 & inlist(id, 625, 854, 1507, 3242)
+(4 real changes made)
+
+. 
+. replace mod_textdetails = "Diagnosed after pressor-response occurring during the day after minor surgery." if id==1816
+(1 real change made)
+
+. replace mod_textdetails = "Diagnosed after pressor-response during aspiration of a suspected renal cyst, later confirmed to be a pheochromocytoma." if id==975
+(1 real change made)
+
+. 
+. 
+. ** Adrenal Incidentaloma
+. capture: log off
+
+. 
+. * Imaging
+. qui: count if mod==20 & mod_imagemodality==1
+
+. local no_ct = `r(N)'
+
+. qui: count if mod==20 & mod_imagemodality==2
+
+. local no_us = `r(N)'
+
+. qui: count if mod==20 & mod_imagemodality==3
+
+. local no_mri = `r(N)'
+
+. qui: count if mod==20 & mod_imagemodality==4
+
+. local no_other = `r(N)'
+
+. 
+. local text_inci_imaging = "Incidentaloma found on CT (n=`no_ct'), US (n=`no_us'), MRI (n=`no_mri'), or other imaging (n=`no_other')" 
+
+. 
+. * Incidentalomas with biochemical work-up
+. replace mod_textdetails = "Diagnosed after biochemical evaluation of adrenal incidentaloma." if mod==20 & mod_special!=1
+(33 real changes made)
+
+. 
+. * Incidentalomas postOP diagnosed as pheo
+. replace mod_textdetails = "Diagnosed after surgical removal of cancer-suspicious adrenal incidentaloma. One patient had normal peri-operative BP and two had very labile 
+> BP, one of whom died of bleeding complications immediately after surgery." if mod==20 & mod_special==1 & mod_preopdiag==0
+variable mod_textdetails was str202 now str215
+(3 real changes made)
+
+. 
+. * FNA/Biopsied incidentalomas  (diagnosed before surgery / never operated)
+. replace mod_textdetails = "Diagnosed after FNA or biopsy of adrenal incidentaloma. Incidentalomas found on CT" if mod==20 & mod_special==1 & inlist(mod_biopsy, 1, 2, 3)
+(7 real changes made)
+
+. 
+. * Case of initially silent AI-pheo
+. replace mod_textdetails = "Patient diagnosed with adrenal incidentaloma. Followed for three years without any symptoms, growth or biochemical evidence of catecholamine-e
+> xcess. Later re-evaluation due to new paroxysmal symptoms showed tumor growth and catecholamine-excess." if id==2846
+variable mod_textdetails was str215 now str245
+(1 real change made)
+
+. 
+. 
+. ** Cancer imaging
+. * Imaging
+. qui: count if inlist(mod, 30, 31) & mod_imagemodality==1
+
+. local no_ct = `r(N)'
+
+. qui: count if inlist(mod, 30, 31) & mod_imagemodality==2
+
+. local no_us = `r(N)'
+
+. qui: count if inlist(mod, 30, 31) & mod_imagemodality==3
+
+. local no_mri = `r(N)'
+
+. qui: count if inlist(mod, 30, 31) & mod_imagemodality==4
+
+. local no_other = `r(N)'
+
+. 
+. local text_cancer_imaging = "Tumor found on CT (n=`no_ct'), US (n=`no_us'), MRI (n=`no_mri'), or other imaging (n=`no_other')" 
+
+. 
+. * Cancer staging
+. capture: log off
+
+. 
+. replace mod_textdetails = "Diagnosed during staging of other cancer. Two patients were operated for their other cancers before work-up for PPGL was conducted." if mod==3
+> 0 & mod_special==0 | mod==30 & mod_special==1 & mod_biopsy==0 & mod_preopdiag==1
+(9 real changes made)
+
+. 
+. replace mod_textdetails = "Diagnosed after FNA of suspected adrenal metastasis." if mod==30 & mod_special==1 & mod_biopsy==1 
+(1 real change made)
+
+. 
+. replace mod_textdetails = "Diagnosed after surgical removal of suspected adrenal metastasis. Two patients were operated without any biochemical work-up and one patient h
+> ad elevated catecholamines but was operated before test results were seen." if mod==30 & mod_special==1 & mod_preopdiag==0
+(3 real changes made)
+
+. 
+. * Cancer FU
+. capture: log off
+
+. 
+. replace mod_textdetails = "Diagnosed during follow-up of previous cancer." if mod==31 & mod_special==0 
+(5 real changes made)
+
+. 
+. replace mod_textdetails = "Diagnosed after failed FNA and surgical removal of suspected adrenal metastasis." if mod==31 & mod_special==1 & mod_biopsy==1 & mod_preopdiag=
+> =0
+(1 real change made)
+
+. 
+. 
+. ** Evaluation/control for syndrome or mutation
+. capture: log off
+
+. 
+. * List of genes/syndromes
+. local textgenes = ""
+
+. qui: levelsof gen_synd if mod==40, local(genes)
+
+. foreach gene of local genes {
+  2.         local label : label gen_synd_ `gene'
+  3.         qui: count if gen_synd==`gene' & mod==40
+  4.         local textgenes = itrim("`textgenes'`label' (n=`r(N)'), ")
+  5. }
+
+. local textgenes = reverse(subinstr(subinstr(reverse("`textgenes'"), " ,", "", 1)), ",", "dna ,", 1)
+
+. di "`textgenes'"
+vHL (n=1), NF1 (n=1), MEN2A (n=7), MEN2B (n=2), and SDHB (n=1)
+
+. 
+. replace mod_textdetails = "Diagnosed during work-up or regular control for predisposing mutation or syndrome in `textgenes'." if mod==40
+(12 real changes made)
+
+. 
+. 
+. ** Familial disposition
+. capture: log off
+
+. 
+. * List of genes/syndromes
+. local textgenes = ""
+
+. qui: levelsof gen_synd if mod==41, local(genes)
+
+. foreach gene of local genes {
+  2.         local label : label gen_synd_ `gene'
+  3.         qui: count if gen_synd==`gene' & mod==41
+  4.         local textgenes = itrim("`textgenes'`label' (n=`r(N)'), ")
+  5. }
+
+. local textgenes = reverse(subinstr(subinstr(reverse("`textgenes'"), " ,", "", 1)), ",", "dna ,", 1)
+
+. di "`textgenes'"
+MEN2A (n=3), and SDHC (n=1)
+
+. 
+. replace mod_textdetails = "Diagnosed due to family member diagnosed with predisposing mutation or syndrome in `textgenes'." if mod==41
+(4 real changes made)
+
+. 
+. 
+. ** Autopsy
+. capture: log off
+
+. 
+. * Normal autopsy cases 
+. qui: count if mod==50 & mod_cod==1 & inlist(id, 621)==0 // primary CoD 
+
+. local no_codprim = `r(N)'
+
+. qui: count if mod==50 & mod_cod==2 & inlist(id, 621)==0 // possible contributing CoD
+
+. local no_codcont = `r(N)'
+
+. qui: count if mod==50 & mod_cod==3 & inlist(id, 621)==0 //  incidental/insignificant
+
+. local no_codinci = `r(N)'
+
+. 
+. replace mod_textdetails = "Diagnosed at autopsy with PPGL considered to be the primary cause of death (n=`no_codprim'), a potentially contributing cause of death (n=`no_
+> codcont'), or an incidental or insignificant finding (n=`no_codinci')." if mod==50 & inlist(id, 621)==0 
+(23 real changes made)
+
+. 
+. * Special autopsy case
+. replace mod_textdetails = "Diagnosed with adrenal incidentaloma 7 years before death. Catecholamine levels was twofold elevated above normal reference. A FNA of the adre
+> nal tumor was inconclusive. Pheochromocytoma was suspected but patient was never followed-up on. Pheochromocytoma was later diagnosed at autopsy. Heart failure due lung 
+> disease was considered the primary cause of death and pheochromocytoma was considered a potentially contributing cause of death." if mod==50 & id==621
+variable mod_textdetails was str245 now str439
+(1 real change made)
+
+. 
+. 
+. ** Other
+. capture: log off
+
+. 
+. * Bsymp
+. replace mod_textdetails = "Evaluated for B-symptoms (weight loss, fatigue, unexplained fever, and excessive sweating). One patient was diagnosed with benign paragangliom
+> a (causing activation of brown adipose tissue and excessive sweating), one was patient diagnosed with paraganglioma with central necrosis (causing fever), one patient wa
+> s diagnosed with metastatic pheochromocytoma, and two patients were operated on suspicion of renal or pancreatic cancer, which turned out to be benign pheochromocytomas.
+> " if mod==60
+variable mod_textdetails was str439 now str480
+(5 real changes made)
+
+. 
+. * Abdominal mass
+. replace mod_textdetails = "Evaluated for large palpable abdominal mass. Patient was operated on suspicion of unknown cancer, which turned out to be a giant pheochromocyt
+> oma (approximate 30 cm). Patient was later diagnosed with multiple PPGL metastases." if mod==61
+(1 real change made)
+
+. 
+. * Acute abdomen caused by pheo
+. replace mod_textdetails = "Evaluated for acute abdominal pain. Abdominal pain was eventually attributed to ruptured pheochromocytoma (n=1), pheochromocytoma with hemorrh
+> age and necrosis (n=1), necrotic intestines due to catecholamine storm (n=1), widespread metastatic pheochromocytoma (n=1), and paroxysmal symptoms of catecholamine-exce
+> ss (n=1)." if mod==62
+(5 real changes made)
+
+. 
+. * Ectopic ACTH
+. replace mod_textdetails = "Evaluated for symptoms of cortisol-excess and diagnosed with ACTH-producing pheochromocytoma." if mod==63
+(1 real change made)
+
+. 
+. * Abdominal paraganglioma "incidentaloma"
+. replace mod_textdetails = "Diagnosed due to an incidentally found peri-adrenal paraganglioma." if mod==64
+(1 real change made)
+
+. 
+. * Heart failure
+. replace mod_textdetails = "Evaluated for acute myocardial infarction and heart failure. Chest x-ray show impression of large tumor, which is biopsied twice and removed o
+> f suspicion of renal cancer. Pathologist diagnose a benign pheochromocytoma. Heart failure is eventually attributed to Takutsubo myopathy in combination with myocardial 
+> infarction." if mod==66
+(1 real change made)
+
+. 
+. ** Not found
+. replace mod_textdetails = "Health records missing from time before diagnosis." if mod==98
+(1 real change made)
+
+. 
+. 
+. 
+. *** Format to text
+. assert !mi(mod_textdetails)
+
+. 
+. * Count each category
+. statsby, by(modcat mod_textdetails) clear : count 
+(running count on estimation sample)
+
+      command:  count
+            N:  r(N)
+           by:  modcat mod_textdetails
+
+Statsby groups
+----+--- 1 ---+--- 2 ---+--- 3 ---+--- 4 ---+--- 5 
+............................
+
+. bysort modcat (N mod_textdetails): gen obsno=1+_N-_n
+
+. sort modcat obsno
+
+. 
+. * Calculate total per modcat 
+. reshape wide N mod_textdetails, i(modcat) j(obsno) 
+(note: j = 1 2 3 4 5 6)
+
+Data                               long   ->   wide
+-----------------------------------------------------------------------------
+Number of obs.                       28   ->       7
+Number of variables                   4   ->      13
+j variable (6 values)             obsno   ->   (dropped)
+xij variables:
+                                      N   ->   N1 N2 ... N6
+                        mod_textdetails   ->   mod_textdetails1 mod_textdetails2 ... mod_textdetails6
+-----------------------------------------------------------------------------
+
+. egen N0 = rowtotal(N*)
+
+. gen mod_textdetails0 = ""
+(7 missing values generated)
+
+. reshape long
+(note: j = 0 1 2 3 4 5 6)
+
+Data                               wide   ->   long
+-----------------------------------------------------------------------------
+Number of obs.                        7   ->      49
+Number of variables                  15   ->       4
+j variable (7 values)                     ->   obsno
+xij variables:
+                           N0 N1 ... N6   ->   N
+mod_textdetails0 mod_textdetails1 ... mod_textdetails6->mod_textdetails
+-----------------------------------------------------------------------------
+
+. drop if N==.
+(14 observations deleted)
+
+. 
+. * Convert to text
+. decode modcat, gen(var)
+
+. gen firstcol = var if obsno==0
+(28 missing values generated)
+
+. gen cell_0 = string(N)
+
+. gen cell_1 = mod_textdetails if obsno!=0
+(7 missing values generated)
+
+. 
+. * Headings
+. local count = _N + 1
+
+. set obs `count'
+number of observations (_N) was 35, now 36
+
+. 
+. replace firstcol = "Mode of Discovery" if _n==_N
+(1 real change made)
+
+. replace cell_0 = "No. of Patients" if _n==_N
+variable cell_0 was str2 now str15
+(1 real change made)
+
+. replace cell_1 = "Definitions and Details on PPGL Diagnosis" if _n==_N
+(1 real change made)
+
+. recode modcat (.=0) if _n==_N
+(modcat: 1 changes made)
+
+. 
+. 
+. *** Add definition of MoD categories
+. replace cell_1 = "Patients diagnosed with PPGL after evaluation for paroxysmal symptoms caused by catecholamine-excess, including palpitations, headache, diaphoresis, pa
+> llor, flushing, chest pain, tremor, and unspecified spells." if modcat==1 & obsno==0
+(1 real change made)
+
+. 
+. replace cell_1 = "Patients diagnosed with PPGL during evaluation for suspected secondary hypertension (paroxysmal, malignant or treatment resistant). Includes patients d
+> iagnosed after a hypertensive crisis or pressor-response during surgery, anesthesia, pregnancy, or birth." if modcat==2 & obsno==0
+(1 real change made)
+
+. 
+. replace cell_1 = "Patients diagnosed with PPGL post-mortem at autopsy." if modcat==3 & obsno==0
+(1 real change made)
+
+. 
+. replace cell_1 = "Patients diagnosed with PPGL during regular control for a known PPGL-predisposing syndrome or mutation (vHL, NF1, MEN2, SDHx mutations, etc), during ev
+> aluation for a possible syndrome-related disease (renal clear cell carcinoma, medullary thyroid carcinoma, schwannoma, etc) or after diagnosis of PPGL or a PPGL-related 
+> syndrome or mutation in a family member." if modcat==4 & obsno==0
+(1 real change made)
+
+. 
+. replace cell_1 = "Patients diagnosed with PPGL after evaluation for an adrenal incidentaloma, defined as a ≥1 cm adrenal mass found on imaging not performed due to suspe
+> cted adrenal disease. `text_inci_imaging'. Patients diagnosed during work-up for cancer were excluded from this category." if modcat==5 & obsno==0
+(1 real change made)
+
+. 
+. replace cell_1 = "Patients diagnosed with PPGL after evaluation for an adrenal mass found during cancer staging for active malignancy or follow-up for previous cancer. `
+> text_cancer_imaging'. Patients evaluated for what was thought to be extra-adrenal cancer but turned out to be benign PPGL were excluded from this category." if modcat==6
+>  & obsno==0
+(1 real change made)
+
+. 
+. replace cell_1 = "Other modes of discovery." if modcat==7 & obsno==0
+(1 real change made)
+
+. 
+. 
+. *** Export to table
+. sort modcat obsno
+
+. gen row = _n
+
+. 
+. keep var row firstcol cell_*
+
+. order var row firstcol cell_*
+
+. 
+. save results/TabModDetails.dta, replace
+file results/TabModDetails.dta saved
+
+. 
+end of do-file
+
+. do 4_TabCharByPeriod.do // by period
+
+. ***** 4_TabCharByPeriod.do *****
+. use data/cohort_ppgl.dta, clear
+
+. keep if ppgl_incident==1
+(9 observations deleted)
+
+. global footnote_TabCharByPeriod_miss = ""
+
+. 
+. ** Define column headers
+. label define period10y_ 0 "Total", modify
+
+. local collist = "0 1 2 3 4"
+
+. 
+. * Total N per column
+. foreach col of local collist {
+  2.         local label`col' : label period10y_ `col'
+  3.         if `col'==0 {
+  4.                 qui: count
+  5.         }
+  6.         else {
+  7.                 qui: count if period10y==`col'
+  8.         }
+  9.         local coltotal_`col' = `r(N)'
+ 10.         di " `col' - `label`col'' (n=`coltotal_`col'')"
+ 11. }
+ 0 - Total (n=567)
+ 1 - 1977-1986 (n=87)
+ 2 - 1987-1996 (n=104)
+ 3 - 1997-2006 (n=148)
+ 4 - 2007-2015 (n=228)
+
+. 
+. ** Categorical vars
+. foreach var in sex agecat modcat sizecat sympcat sympycat htncat biocat tumorcat gencat surgcat {
+  2.         di "`var'"
+  3.         preserve
+  4.         
+.         * Count each category
+.         if inlist("`var'", "sex", "agecat") { // Available for all of DK
+  5.                 qui: statsby, by(period10y `var') clear : count
+  6.         }
+  7.         else { // Only available in North and Central regions
+  8.                 
+.                 * Count missing footnote
+.                 qui: levelsof `var' if cohort_simple==1 & mi(`var'), missing clean local(missing)
+  9.                 if !mi("`missing'") {
+ 10.                         local varname : var label `var'
+ 11.                         global footnote_TabCharByPeriod_miss = "$footnote_TabCharByPeriod_miss" + "`varname' ("
+ 12.                         foreach cat of local missing {
+ 13.                                 local catname : label `var'_ `cat'
+ 14.                                 qui: count if `var'==`cat' & cohort_simple==1
+ 15.                                 local missno = `r(N)'
+ 16.                                 global footnote_TabCharByPeriod_miss = "$footnote_TabCharByPeriod_miss" + "`missno' `catname', "
+ 17.                         }
+ 18.                 global footnote_TabCharByPeriod_miss = "$footnote_TabCharByPeriod_miss" + "), "
+ 19.                 }
+ 20.                 qui: statsby, by(period10y `var') clear : count if cohort_simple==1
+ 21.         }
+ 22.         
+.                 
+.         * Reshape
+.         qui: reshape wide N , i(`var') j(period10y) 
+ 23.         
+.         * Calculate rowtotal
+.         qui: egen N0 = rowtotal(N*)
+ 24.         
+.         * Calculate column percentage
+.         foreach col of local collist {
+ 25.                 qui: egen perc_`col' = pc(N`col')
+ 26.                 qui: gen cell_`col' =   string(N`col') /// N
+>                                                         + " (" ///
+>                                                         + string(round(perc_`col', 0.1), "%3.1f") ///
+>                                                         + ")"
+ 27.         drop N`col' perc_`col'
+ 28.         }
+ 29.         
+.         * Row names (subgroups)
+.         qui: decode `var', gen(seccol)
+ 30.         qui: replace seccol = seccol + ", n (%)"
+ 31.         
+.         * Row names (var group)
+.         local name : variable label `var'
+ 32.         local obsno = _N+1
+ 33.         qui: set obs `obsno'
+ 34.         qui: gen firstcol = "`name'" if _n==_N
+ 35.         
+.         qui: gen var = "`var'"
+ 36.         
+.         * Only available in North and Central regions
+.         if inlist("`var'", "sex", "agecat")==0 {
+ 37.                 qui: gen onlyavailable = 1 if !mi(firstcol)
+ 38.         }
+ 39.         
+.         * Sort and order
+.         gsort -firstcol +`var'
+ 40.         qui: drop `var'
+ 41.         order var firstcol seccol cell_0 cell_*
+ 42.         
+.         * Save
+.         tempfile results_`var'
+ 43.         qui: save `results_`var'', replace
+ 44.         
+.         restore
+ 45. }
+sex
+agecat
+modcat
+sizecat
+sympcat
+sympycat
+htncat
+biocat
+tumorcat
+gencat
+surgcat
+
+. 
+. 
+. ** Continous results
+. foreach var in age sizemax biomax sympyears { //  
+  2.         di "`var'"
+  3.         preserve
+  4.         
+.         local name : variable label `var'
+  5.         
+.         * Calculate median and range
+.         if "`var'"=="age" {
+  6.                 qui: statsby, by(period10y) clear total: su `var', detail
+  7.         }
+  8.         else {  // Only available in North and Central regions
+  9.                 qui: statsby, by(period10y) clear total: su `var' if cohort_simple==1, detail
+ 10.         }
+ 11.         gen cell_ = string(round(p50, 0.1), "%3.1f") /// Median
+>                                                         + " (" /// 
+>                                                         + string(round(min, 0.1), "%3.1f") /// min
+>                                                         + "-" ///
+>                                                         + string(round(max, 0.1), "%3.1f") /// max
+>                                                         + ")"
+ 12.         
+.         * Row names (var group)
+.         qui: gen firstcol = "`name', median (range)" 
+ 13.         qui: gen seccol = " "
+ 14.         qui: gen var = "`var'"
+ 15.         
+.         * Reshape 
+.         qui: recode period10y (.=0)
+ 16.         keep var var firstcol seccol period10y cell_
+ 17.         qui: reshape wide cell_, i(var) j(period10y)
+ 18.         
+.         * Order
+.         order var firstcol seccol cell_0 cell_*
+ 19.         
+.         * Save
+.         tempfile results_`var'
+ 20.         qui: save `results_`var'', replace
+ 21.         
+.         restore
+ 22. }
+age
+sizemax
+biomax
+sympyears
+
+. 
+. ** Combining results
+. * Headings and N 
+. drop _all
+
+. qui: set obs 2
+
+. gen var = " "
+
+. qui: gen firstcol = "Patients, n " if _n==2
+
+. gen seccol = " "
+
+. foreach col of local collist {
+  2.         di " `col' - `label`col''"
+  3.         qui: gen cell_`col' = "`label`col''" if _n==1
+  4.         qui: replace cell_`col' = "`coltotal_`col''" if _n==2
+  5. }
+ 0 - Total
+ 1 - 1977-1986
+ 2 - 1987-1996
+ 3 - 1997-2006
+ 4 - 2007-2015
+
+. 
+. * Appending results
+. foreach var in sex agecat age modcat sympcat sympycat sympyears htncat sizecat sizemax tumorcat biocat biomax gencat surgcat {
+  2.         qui: append using `results_`var''
+  3. }
+
+. 
+. * Format first column
+. qui: replace seccol = subinstr(seccol, "{&ge}", ustrunescape("\u2265"), 1) // equal-or-above-sign
+
+. qui: gen rowname = firstcol
+
+. qui: replace rowname = "    " + seccol if mi(rowname)
+
+. 
+. * Format cells
+. qui: ds cell*
+
+. foreach var in `r(varlist)' {
+  2.         qui: replace `var' = "-" if `var'==". (.)"
+  3. }
+
+. gen row = _n
+
+. 
+. 
+. *** Export 
+. save results/TabCharByPeriod.dta, replace
+file results/TabCharByPeriod.dta saved
+
+. 
+. 
+. *** Formatting footnote 
+. di "Reasons for missing data (not formatted): $footnote_TabCharByPeriod_miss"
+Reasons for missing data (not formatted): Mode of discovery (1 Missing records, ), Tumor size (8 Missing records, ), Symptoms at diagnosis (3 Missing records, ), Symptom d
+> uration (61 had no paroxysmal symptoms, 6 had missing records, ), Hypertension at diagnosis (3 had missing records, ), Biochemical profile (12 had only total catecholami
+> nes measured, 36 were never tested, 3 had missing records, ), Hereditary PPGL (2 had missing records, ), PPGL diagnosed before surgery (24 were diagnosed at autopsy, 10 
+> were never operated for other reasons, 1 had missing records, ), 
+
+. 
+. * Reword "Missing records"
+. global footnote_TabCharByPeriod_miss = subinstr(`"${footnote_TabCharByPeriod_miss}"', "Missing records", "had missing records", .)
+
+. 
+. * Remove last comma in each parentheses and end of sentence
+. global footnote_TabCharByPeriod_miss = subinstr("$footnote_TabCharByPeriod_miss", ", )", ")", .) 
+
+. global footnote_TabCharByPeriod_miss = substr("$footnote_TabCharByPeriod_miss", 1, strrpos("$footnote_TabCharByPeriod_miss", ", ")-1)
+
+. 
+. * Remove capital letters (except PPGL)
+. global footnote_TabCharByPeriod_miss = subinstr(lower("$footnote_TabCharByPeriod_miss"), "ppgl", "PPGL", .)
+
+. 
+. di "Reasons for missing data (formatted): $footnote_TabCharByPeriod_miss"
+Reasons for missing data (formatted): mode of discovery (1 had missing records), tumor size (8 had missing records), symptoms at diagnosis (3 had missing records), symptom
+>  duration (61 had no paroxysmal symptoms, 6 had missing records), hypertension at diagnosis (3 had missing records), biochemical profile (12 had only total catecholamine
+> s measured, 36 were never tested, 3 had missing records), hereditary PPGL (2 had missing records), PPGL diagnosed before surgery (24 were diagnosed at autopsy, 10 were n
+> ever operated for other reasons, 1 had missing records)
+
+. 
+end of do-file
+
+. do 4_TabCharByMod.do // by MoD
+
+. ***** 4_TabCharByMod.do *****
+. use data/cohort_ppgl.dta, clear
+
+. keep if ppgl_incident==1
+(9 observations deleted)
+
+. keep if cohort_simple==1
+(375 observations deleted)
+
+. global footnote_TabCharByMod_miss = ""
+
+. 
+. * Count missing modcat for footnote
+. qui: levelsof modcat if mi(modcat), missing clean local(missing)
+
+. if !mi("`missing'") {
+.                 local varname : var label modcat
+.                 global footnote_TabCharByMod_miss = "$footnote_TabCharByMod_miss" + "`varname' ("
+.                 foreach cat of local missing {
+  2.                         local catname : label modcat_ `cat'
+  3.                         qui: count if modcat==`cat'
+  4.                         local missno = `r(N)'
+  5.                         global footnote_TabCharByMod_miss = "$footnote_TabCharByMod_miss" + "`missno' `catname', "
+  6.                 }
+.         global footnote_TabCharByMod_miss = "$footnote_TabCharByMod_miss" + "), "
+.         }
+
+. conv_missing, var(modcat) combmiss("Missing")
+recode: modcat               value label: modcat_          values: 1 2 3 4 5 6 7 .a
+    from .a to 8   Missing records  (1 changes made)
+
+. 
+. ** Define column headers
+. label define modcat_ 0 "Total", modify
+
+. local collist = "0 1 2 3 4 5 6 7" // Missing modcat not included
+
+. 
+. * Total N per column
+. foreach col of local collist {
+  2.         local label`col' : label modcat_ `col'
+  3.         if `col'==0 {
+  4.                 qui: count
+  5.         }
+  6.         else {
+  7.                 qui: count if modcat==`col'
+  8.         }
+  9.         local coltotal_`col' = `r(N)'
+ 10.         di " `col' - `label`col'' (n=`coltotal_`col'')"
+ 11. }
+ 0 - Total (n=192)
+ 1 - Paroxysmal symptoms (n=40)
+ 2 - Hypertension (n=34)
+ 3 - Autopsy (n=24)
+ 4 - Genetic (n=16)
+ 5 - Adrenal incidentaloma (n=44)
+ 6 - Cancer imaging (n=19)
+ 7 - Other (n=14)
+
+. 
+. ** Categorical vars
+. foreach var in sex agecat sizecat sympcat sympycat htncat biocat tumorcat gencat surgcat {
+  2.         di "`var'"
+  3.         preserve
+  4.         
+.         * Count missing footnote
+.         qui: levelsof `var' if mi(`var'), missing clean local(missing)
+  5.         if !mi("`missing'") {
+  6.                         local varname : var label `var'
+  7.                         global footnote_TabCharByMod_miss = "$footnote_TabCharByMod_miss" + "`varname' ("
+  8.                         foreach cat of local missing {
+  9.                                 local catname : label `var'_ `cat'
+ 10.                                 qui: count if `var'==`cat'
+ 11.                                 local missno = `r(N)'
+ 12.                                 global footnote_TabCharByMod_miss = "$footnote_TabCharByMod_miss" + "`missno' `catname', "
+ 13.                         }
+ 14.                 global footnote_TabCharByMod_miss = "$footnote_TabCharByMod_miss" + "), "
+ 15.                 }
+ 16.         
+.         * Count each category
+.         qui: statsby, by(modcat `var') clear : count
+ 17.         
+.         * Reshape
+.         qui: reshape wide N , i(`var') j(modcat) 
+ 18.         
+.         * Calculate rowtotal
+.         qui: egen N0 = rowtotal(N*)
+ 19.         
+.         * Calculate column percentage
+.         foreach col of local collist {
+ 20.                 capture: egen perc_`col' = pc(N`col')
+ 21.                 capture: gen cell_`col' =       string(N`col') /// N
+>                                                         + " (" ///
+>                                                         + string(round(perc_`col', 0.1), "%3.1f") ///
+>                                                         + ")"
+ 22.         capture: drop N`col' perc_`col'
+ 23.         }
+ 24.         
+.         * Row names (subgroups)
+.         qui: decode `var', gen(seccol)
+ 25.         qui: replace seccol = seccol + ", n (%)"
+ 26.         
+.         * Row names (var group)
+.         local name : variable label `var'
+ 27.         local obsno = _N+1
+ 28.         qui: set obs `obsno'
+ 29.         qui: gen firstcol = "`name'" if _n==_N
+ 30.         
+.         qui: gen var = "`var'"
+ 31.         
+.         * Sort and order
+.         gsort -firstcol +`var'
+ 32.         qui: drop `var'
+ 33.         order var firstcol seccol cell_0 cell_*
+ 34.         
+.         * Save
+.         tempfile results_`var'
+ 35.         qui: save `results_`var'', replace
+ 36.         
+.         restore
+ 37. }
+sex
+agecat
+sizecat
+sympcat
+sympycat
+htncat
+biocat
+tumorcat
+gencat
+surgcat
+
+. 
+. 
+. ** Continous results
+. foreach var in age sizemax biomax sympyears { //  
+  2.         di "`var'"
+  3.         preserve
+  4.         
+.         local name : variable label `var'
+  5.         
+.         * Calculate median and range
+.         qui: statsby, by(modcat) clear total: su `var', detail
+  6.         gen cell_ = string(round(p50, 0.1), "%3.1f") /// Median
+>                                                         + " (" /// 
+>                                                         + string(round(min, 0.1), "%3.1f") /// min
+>                                                         + "-" ///
+>                                                         + string(round(max, 0.1), "%3.1f") /// max
+>                                                         + ")"
+  7.         
+.         * Row names (var group)
+.         qui: gen firstcol = "`name', median (range)" 
+  8.         qui: gen seccol = " "
+  9.         qui: gen var = "`var'"
+ 10.         
+.         * Reshape 
+.         qui: recode modcat (.=0)
+ 11.         keep var var firstcol seccol modcat cell_
+ 12.         qui: reshape wide cell_, i(var) j(modcat)
+ 13.         
+.         * Order
+.         order var firstcol seccol cell_0 cell_*
+ 14.         
+.         * Save
+.         tempfile results_`var'
+ 15.         qui: save `results_`var'', replace
+ 16.         
+.         restore
+ 17. }
+age
+sizemax
+biomax
+sympyears
+
+. 
+. ** Combining results
+. * Headings and N 
+. drop _all
+
+. qui: set obs 2
+
+. gen var = " "
+
+. qui: gen firstcol = "Patients, n " if _n==2
+
+. gen seccol = " "
+
+. foreach col of local collist {
+  2.         di " `col' - `label`col''"
+  3.         qui: gen cell_`col' = "`label`col''" if _n==1
+  4.         qui: replace cell_`col' = "`coltotal_`col''" if _n==2
+  5. }
+ 0 - Total
+ 1 - Paroxysmal symptoms
+ 2 - Hypertension
+ 3 - Autopsy
+ 4 - Genetic
+ 5 - Adrenal incidentaloma
+ 6 - Cancer imaging
+ 7 - Other
+
+. 
+. * Appending results
+. foreach var in sex agecat age sympcat sympycat sympyears htncat sizecat sizemax tumorcat biocat biomax gencat surgcat {
+  2.         qui: append using `results_`var''
+  3. }
+
+. 
+. * Format first column
+. qui: replace seccol = subinstr(seccol, "{&ge}", ustrunescape("\u2265"), 1) // equal-or-above-sign
+
+. qui: gen rowname = firstcol
+
+. qui: replace rowname = "    " + seccol if mi(rowname)
+
+. 
+. * Format cells
+. qui: ds cell*
+
+. foreach var in `r(varlist)' {
+  2.         qui: replace `var' = "-" if `var'==". (.)" | !mi(seccol) & mi(`var')
+  3. }
+
+. gen row = _n
+
+. 
+. 
+. *** Export 
+. save results/TabCharByMod.dta, replace
+file results/TabCharByMod.dta saved
+
+. 
+. 
+. *** Formatting footnote 
+. di "Reasons for missing data (not formatted): $footnote_TabCharByMod_miss"
+Reasons for missing data (not formatted): Mode of discovery (1 Missing records, ), Tumor size (8 Missing records, ), Symptoms at diagnosis (3 Missing records, ), Symptom d
+> uration (61 had no paroxysmal symptoms, 6 had missing records, ), Hypertension at diagnosis (3 had missing records, ), Biochemical profile (12 had only total catecholami
+> nes measured, 36 were never tested, 3 had missing records, ), Hereditary PPGL (2 had missing records, ), PPGL diagnosed before surgery (24 were diagnosed at autopsy, 10 
+> were never operated for other reasons, 1 had missing records, ), 
+
+. 
+. * Reword "Missing records"
+. global footnote_TabCharByMod_miss = subinstr(`"${footnote_TabCharByMod_miss}"', "Missing records", "had missing records", .)
+
+. 
+. * Remove last comma in each parentheses and end of sentence
+. global footnote_TabCharByMod_miss = subinstr("$footnote_TabCharByMod_miss", ", )", ")", .) 
+
+. global footnote_TabCharByMod_miss = substr("$footnote_TabCharByMod_miss", 1, strrpos("$footnote_TabCharByMod_miss", ", ")-1)
+
+. 
+. * Remove capital letters (except PPGL)
+. global footnote_TabCharByMod_miss = subinstr(lower("$footnote_TabCharByMod_miss"), "ppgl", "PPGL", .)
+
+. 
+. di "Reasons for missing data (formatted): $footnote_TabCharByMod_miss"
+Reasons for missing data (formatted): mode of discovery (1 had missing records), tumor size (8 had missing records), symptoms at diagnosis (3 had missing records), symptom
+>  duration (61 had no paroxysmal symptoms, 6 had missing records), hypertension at diagnosis (3 had missing records), biochemical profile (12 had only total catecholamine
+> s measured, 36 were never tested, 3 had missing records), hereditary PPGL (2 had missing records), PPGL diagnosed before surgery (24 were diagnosed at autopsy, 10 were n
+> ever operated for other reasons, 1 had missing records)
+
+. 
+end of do-file
+
+. 
+. do 4_AgeByMod.do // Age histogram overall and by mod
+
+. ***** 4_AgeByMod.do *****
+. 
+. *** Calculations
+. ** Cases per age category
+. use data/cohort_ppgl.dta, clear
+
+. keep if ppgl_incident==1
+(9 observations deleted)
+
+. conv_missing, var(modcat) combmiss("Missing")
+recode: modcat               value label: modcat_          values: 1 2 3 4 5 6 7 .a
+    from .a to 8   Missing records  (3 changes made)
+
+. 
+. 
+. assert age<100
+
+. egen float age10y = cut(age), at(0(10)100) 
+
+. label var age10y "Age at diagnosis"
+
+. local i = 1
+
+. local labeltext = ""
+
+. 
+. forvalues agegrp = 0(10)99.9 {
+  2.         local from = string(`agegrp', "%2.0f")
+  3.         local to = string(`agegrp'+9.9, "%2.1f")
+  4.         local labeltext = `"`labeltext' `i' "`from'-`to'" "'
+  5.         
+.         qui: recode age10y (`agegrp'=`i')
+  6.         
+.         local i = `i'+1
+  7. }
+
+. 
+. label define age10y_ `labeltext'
+
+. label value age10y age10y_
+
+. tab age10y, mi
+
+     Age at |
+  diagnosis |      Freq.     Percent        Cum.
+------------+-----------------------------------
+      0-9.9 |          1        0.18        0.18
+    10-19.9 |         12        2.12        2.29
+    20-29.9 |         25        4.41        6.70
+    30-39.9 |         69       12.17       18.87
+    40-49.9 |        106       18.69       37.57
+    50-59.9 |        120       21.16       58.73
+    60-69.9 |        127       22.40       81.13
+    70-79.9 |         79       13.93       95.06
+    80-89.9 |         26        4.59       99.65
+    90-99.9 |          2        0.35      100.00
+------------+-----------------------------------
+      Total |        567      100.00
+
+. 
+. *** Graph
+. ** Overall
+. graph bar (count), over(age10y) ///
+>         bar(1, $bar1) ///
+>         legend(on order(1 "Total")) ///
+>         ytitle("N") ylabel(0(25)125) ///
+>         b1title(Age at diagnosis) // x-axis
+
+. graph export results/FigAgeOverall${exportformat} ${exportoptions}
+(file results/FigAgeOverall.png written in PNG format)
+
+. 
+. ** By sex
+. graph bar (count),  over(sex) over(age10y) stack asyvars ///
+>         bar(1, $bar1) bar(2, $bar2)  ///
+>         legend(order(2 1)) /// reverse legend order
+>         ytitle("N") ylabel(0(25)125) ///
+>         b1title(Age at diagnosis) // x-axis
+
+. graph export results/FigAgeBySex${exportformat} ${exportoptions}
+(file results/FigAgeBySex.png written in PNG format)
+
+. 
+. ** By modcat
+. * Reverse legend order
+. local legendorder = ""
+
+. qui: su modcat
+
+. forvalues mod = 1(1)`r(max)' {
+  2.                 local legendorder = `"`mod' `legendorder'"'
+  3. }
+
+. di "`legendorder'"
+8 7 6 5 4 3 2 1 
+
+. 
+. * Bar appearance
+. local bar = ""
+
+. qui: su modcat
+
+. forvalues x = `r(min)'(1)`r(max)' {
+  2.     local barlayout = `"`barlayout' bar(`x', ${bar`r(max)'_`x'})"'
+  3. }
+
+. di `"`barlayout'"'
+ bar(1,  fcolor("38 38 38") lcolor("38 38 38")) bar(2,  fcolor("89 89 89") lcolor("89 89 89")) bar(3,  fcolor("146 146 146") lcolor("146 146 146")) bar(4,  fcolor("208 208
+>  208") lcolor("208 208 208")) bar(5,  fcolor("62 62 62") lcolor("62 62 62")) bar(6,  fcolor("117 117 117") lcolor("117 117 117")) bar(7,  fcolor("177 177 177") lcolor("1
+> 77 177 177")) bar(8,  fcolor(white) lcolor(black) lpattern(solid) lalign(inside))
+
+. 
+. * Graph
+. graph bar (count) if cohort_simple==1,  over(modcat) over(age10y) stack asyvars ///
+>         `barlayout'  ///
+>         legend(order(`legendorder')) /// reverse legend order
+>         ytitle("N") ylabel(0(10)50) ///
+>         b1title(Age at diagnosis) // x-axis
+
+. graph export results/FigAgeByMod${exportformat} ${exportoptions}
+(file results/FigAgeByMod.png written in PNG format)
+
+. 
+end of do-file
+
+. 
+. 
+. ** Standardized incidence rates
+. do 4_SirOverall.do // average and details for text
+
+. ***** 4_SirOverall.do *****
+. 
+. *** Calculations
+. ** Cases per year
+. use data/cohort_ppgl.dta, clear
+
+. keep if ppgl_incident==1
+(9 observations deleted)
+
+. keep agecat year_index
+
+. contract _all, freq(N) zero
+
+. rename year_index year
+
+. 
+. merge 1:1 year agecat using data/popDK_year_age.dta, assert(match using) nogen
+(label agecat_ already defined)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                             0
+    matched                               156  
+    -----------------------------------------
+
+. 
+. 
+. ** Overall crude IR
+. ci means N, poisson exposure(pop)
+
+                                                         -- Poisson  Exact --
+    Variable |   Exposure        Mean    Std. Err.       [95% Conf. Interval]
+-------------+---------------------------------------------------------------
+           N |   2.06e+08    2.75e-06    1.15e-07        2.53e-06    2.98e-06
+
+. local format = `", 0.01), "%03.2f")"' // 3 significant numbers
+
+. local ir_mean = string(round(`r(mean)'*1000000 `format'
+
+. local ir_lb = string(round(`r(lb)'*1000000 `format'
+
+. local ir_ub = string(round(`r(ub)'*1000000 `format'
+
+. 
+. 
+. ** Overall SIR
+. gen dummy=1
+
+. dstdize N pop agecat, by(dummy) using(data/popEU_age.dta) format(%12.3g)
+
+----------------------------------------------------------
+-> dummy= 1 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye   72719726       192  0.352 0.0000  0.335 0.0000
+ 50-74 ye   54093737       288  0.262 0.0000  0.300 0.0000
+ <25 year   65645045        21  0.318 0.0000  0.275 0.0000
+ {&ge}75    13873823        66  0.067 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:    206332331       567    Adjusted Cases:    618.6
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+Summary of Study Populations:
+    dummy             N      Crude     Adj_Rate       Confidence Interval
+ --------------------------------------------------------------------------
+        1     206332331     2.75e-06     3.00e-06  [    2.75e-06,    3.25e-06]
+
+. local format = `", 0.01), "%03.2f")"' // 3 significant numbers
+
+. local sir_mean = string(round(r(adj)[1,1]*1000000 `format'
+
+. local sir_lb = string(round(r(lb_adj)[1,1]*1000000 `format'
+
+. local sir_ub = string(round(r(ub_adj)[1,1]*1000000 `format'
+
+. 
+. 
+. ** SIR by period
+. recode year $period10ycat, gen(period) label(period_)
+(156 differences between year and period)
+
+. bysort agecat period: egen poptotal=total(pop)
+
+. bysort agecat period: egen Ntotal=total(N)
+
+. keep agecat poptotal period Ntotal
+
+. rename poptotal pop
+
+. duplicates drop
+
+Duplicates in terms of all variables
+
+(140 observations deleted)
+
+. dstdize Ntotal pop agecat, by(period) using(data/popEU_age.dta) format(%12.3g)
+
+----------------------------------------------------------
+-> period= 1 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye   17466132        31  0.342 0.0000  0.335 0.0000
+ 50-74 ye   12594790        39  0.246 0.0000  0.300 0.0000
+ <25 year   18079540         6  0.354 0.0000  0.275 0.0000
+ {&ge}75     2969098        11  0.058 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:     51109560        87    Adjusted Cases:     99.6
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> period= 2 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye   19199916        41  0.372 0.0000  0.335 0.0000
+ 50-74 ye   12521014        51  0.242 0.0000  0.300 0.0000
+ <25 year   16387992         2  0.317 0.0000  0.275 0.0000
+ {&ge}75     3562908        10  0.069 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:     51671830       104    Adjusted Cases:    114.9
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> period= 3 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye   19336912        58  0.361 0.0000  0.335 0.0000
+ 50-74 ye   14356254        71  0.268 0.0000  0.300 0.0000
+ <25 year   16087023         2  0.300 0.0000  0.275 0.0000
+ {&ge}75     3770967        17  0.070 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:     53551156       148    Adjusted Cases:    156.8
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> period= 4 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye   16716766        62  0.334 0.0000  0.335 0.0000
+ 50-74 ye   14621679       127  0.292 0.0000  0.300 0.0000
+ <25 year   15090491        11  0.302 0.0000  0.275 0.0000
+ {&ge}75     3570850        28  0.071 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:     49999786       228    Adjusted Cases:    237.7
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+Summary of Study Populations:
+   period             N      Crude     Adj_Rate       Confidence Interval
+ --------------------------------------------------------------------------
+        1      51109560     1.70e-06     1.95e-06  [    1.53e-06,    2.36e-06]
+        2      51671830     2.01e-06     2.22e-06  [    1.79e-06,    2.66e-06]
+        3      53551156     2.76e-06     2.93e-06  [    2.45e-06,    3.40e-06]
+        4      49999786     4.56e-06     4.75e-06  [    4.14e-06,    5.37e-06]
+
+. matrix sir_p=  r(Nobs) \ r(crude) \ r(adj) \ r(lb) \ r(ub)
+
+. matrix sir_p=sir_p'
+
+. 
+. 
+. 
+. *** Export results
+. ** Load
+. drop _all
+
+. 
+. svmat double sir_p, name(matcol)
+number of observations will be reset to 4
+Press any key to continue, or Break to abort
+number of observations (_N) was 0, now 4
+
+. gen Period = _n if _n<=4
+
+. label values Period period_
+
+. label var Period "Period"
+
+. 
+. * Change to SIR per million
+. ds *Crude *Adjusted *Left *Right
+sir_pCrude    sir_pAdjus~d  sir_pLeft     sir_pRight
+
+. foreach var in `r(varlist)' {
+  2.         qui: replace `var' = `var' * 1000000 // IR Per million
+  3. }
+
+. 
+. 
+. ** Text
+. * SIR by period
+. local format = `", 0.1), "%02.1f")"' // 2 significant numbers
+
+. local sirper1_mean = string(round(sir_pAdjusted[1] `format'
+
+. local sirper1_lb = string(round(sir_pLeft[1] `format'
+
+. local sirper1_ub = string(round(sir_pRight[1] `format'
+
+. 
+. local format = `", 0.01), "%03.2f")"' // 3 significant number
+
+. local sirper2_mean = string(round(sir_pAdjusted[2] `format'
+
+. local sirper2_lb = string(round(sir_pLeft[2] `format'
+
+. local sirper2_ub = string(round(sir_pRight[2] `format'
+
+. 
+. local sirper3_mean = string(round(sir_pAdjusted[3] `format'
+
+. local sirper3_lb = string(round(sir_pLeft[3] `format'
+
+. local sirper3_ub = string(round(sir_pRight[3] `format'
+
+. 
+. local sirper4_mean = string(round(sir_pAdjusted[4] `format'
+
+. local sirper4_lb = string(round(sir_pLeft[4] `format'
+
+. local sirper4_ub = string(round(sir_pRight[4] `format'
+
+. 
+. local perlabel1 : label period_ 1
+
+. local perlabel2 : label period_ 2
+
+. local perlabel3 : label period_ 3
+
+. local perlabel4 : label period_ 4
+
+. 
+. putdocx begin
+
+. putdocx paragraph, style(Heading2)
+
+. putdocx text ("SIR overall")
+
+. putdocx paragraph
+
+. putdocx text ("Overall crude IR: `ir_mean' (95%CI `ir_lb'-`ir_ub')"), linebreak
+
+. putdocx text ("Overall SIR: `sir_mean' (95%CI `sir_lb'-`sir_ub')"), linebreak
+
+. 
+. putdocx paragraph, style(Heading2)
+
+. putdocx text ("SIR by period")
+
+. putdocx paragraph
+
+. putdocx text ("SIR `perlabel1': `sirper1_mean' (95%CI `sirper1_lb'-`sirper1_ub')"), linebreak
+
+. putdocx text ("SIR `perlabel2': `sirper2_mean' (95%CI `sirper2_lb'-`sirper2_ub')"), linebreak
+
+. putdocx text ("SIR `perlabel3': `sirper3_mean' (95%CI `sirper3_lb'-`sirper3_ub')"), linebreak
+
+. putdocx text ("SIR `perlabel4': `sirper4_mean' (95%CI `sirper4_lb'-`sirper4_ub')"), linebreak
+
+. 
+. putdocx save results/TextSirOverall, replace
+successfully replaced "C:/Users/au335571/Forskning/2020-PPGL-incidence-prevalence-paper/results/TextSirOverall.docx"
+
+. 
+end of do-file
+
+. 
+. do 4_SirByYear.do // graph by year
+
+. ***** 4_SirByYear.do *****
+. 
+. *** Calculations
+. ** Cases per year
+. use data/cohort_ppgl.dta, clear
+
+. keep if ppgl_incident==1
+(9 observations deleted)
+
+. keep agecat year_index
+
+. contract _all, freq(N) zero
+
+. rename year_index year
+
+. 
+. merge 1:1 year agecat using data/popDK_year_age.dta, assert(match using) nogen
+(label agecat_ already defined)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                             0
+    matched                               156  
+    -----------------------------------------
+
+. 
+. 
+. ** SIR by year
+. qui: dstdize N pop agecat, by(year) using(data/popEU_age.dta) format(%12.3g)
+
+. matrix sir_y=  r(Nobs) \ r(crude) \ r(adj) \ r(lb) \ r(ub)
+
+. matrix sir_y=sir_y'
+
+. 
+. 
+. *** Export results
+. ** Load
+. drop _all
+
+. 
+. svmat double sir_y, name(matcol)
+number of observations will be reset to 39
+Press any key to continue, or Break to abort
+number of observations (_N) was 0, now 39
+
+. egen Year= seq(), f(1977) t($lastyear) b(1)
+
+. label var Year "Year"
+
+. 
+. * Change to SIR per million
+. ds *Crude *Adjusted *Left *Right
+sir_yCrude    sir_yAdjus~d  sir_yLeft     sir_yRight
+
+. foreach var in `r(varlist)' {
+  2.         qui: replace `var' = `var' * 1000000 // IR Per million
+  3. }
+
+. 
+. ** Graph (SIR per year)
+. twoway ///
+>         (line sir_yAdjuste Year, $line1) /// mean
+>         (rcap sir_yLeft sir_yRight Year, $line1) /// 95% CI
+>         , legend(off) /// legend
+>         xlabel(1977 "1977" 1982 "1982" 1987 "1987" 1992 "1992" 1997 "1997" 2002 "2002" 2007 "2007" 2012 "2012" $lastyear "$lastyear") ///
+>         xmtick(1977(1)$lastyear) ///
+>         ylabel(0(1)10) ///
+>         ytitle("Age-standardized IR" "per 1,000,000 years") //
+
+. graph export results/FigSirByYear${exportformat} ${exportoptions}
+(file results/FigSirByYear.png written in PNG format)
+
+. 
+. 
+. ** Text
+. * SIR first to last year
+. local format = `", 0.1), "%02.1f")"' // 2 significant numbers
+
+. local sirfirst_mean = string(round(sir_yAdjusted[1] `format'
+
+. local sirfirst_lb = string(round(sir_yLeft[1] `format'
+
+. local sirfirst_ub = string(round(sir_yRight[1] `format'
+
+. 
+. local sirlast_mean = string(round(sir_yAdjusted[_N] `format'
+
+. local sirlast_lb = string(round(sir_yLeft[_N] `format'
+
+. local sirlast_ub = string(round(sir_yRight[_N] `format'
+
+. 
+. local foldincrease = string(round(sir_yAdjusted[_N]/sir_yAdjusted[1] `format'
+
+. 
+. 
+. putdocx begin
+
+. putdocx paragraph, style(Heading2)
+
+. putdocx text ("SIR by period")
+
+. putdocx paragraph
+
+. putdocx text ("SIR increased from `sirfirst_mean' (95%CI `sirfirst_lb'-`sirfirst_ub') in 1977 to `sirlast_mean' (95%CI `sirlast_lb'-`sirlast_ub') in ${lastyear}."), line
+> break
+
+. putdocx text ("Fold increase from 1977-${lastyear}: `foldincrease'"), linebreak
+
+. 
+. putdocx save results/TextSirOverall, append
+successfully appended to "C:/Users/au335571/Forskning/2020-PPGL-incidence-prevalence-paper/results/TextSirOverall.docx"
+
+. 
+end of do-file
+
+. do 4_SirByRegion.do // graph by region and period 
+
+. ***** 4_SirByRegion.do *****
+. 
+. *** Calculations
+. ** Cases per year
+. use data/cohort_ppgl.dta, clear
+
+. keep if ppgl_incident==1
+(9 observations deleted)
+
+. keep agecat period10y cohort_simple
+
+. rename period10y period
+
+. contract _all, freq(N) zero
+
+. 
+. merge 1:1 period cohort_simple agecat using data/popDK_period_age_region.dta, assert(match using) nogen
+(note: variable cohort_simple was byte, now int to accommodate using data's values)
+(label agecat_ already defined)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                             0
+    matched                                32  
+    -----------------------------------------
+
+. 
+. 
+. 
+. ** SIR by period and region
+. qui: dstdize N pop agecat, by(period cohort_simple) using(data/popEU_age.dta) format(%12.3g)
+
+. matrix sir_p=  r(Nobs) \ r(crude) \ r(adj) \ r(lb) \ r(ub)
+
+. matrix sir_p=sir_p'
+
+. 
+. 
+. *** Export results
+. ** Load
+. drop _all
+
+. 
+. svmat double sir_p, name(matcol)
+number of observations will be reset to 8
+Press any key to continue, or Break to abort
+number of observations (_N) was 0, now 8
+
+. egen period= seq(), f(1) t(4) b(2)
+
+. egen cohort_simple= seq(), f(1) t(2) b(1)
+
+. label var period "Period"
+
+. label value period period10y_
+
+. 
+. * Change to SIR per million
+. ds *Crude *Adjusted *Left *Right
+sir_pCrude    sir_pAdjus~d  sir_pLeft     sir_pRight
+
+. foreach var in `r(varlist)' {
+  2.         qui: replace `var' = `var' * 1000000 // SIR Per million
+  3. }
+
+. 
+. * Jitter x-axis
+. qui: replace period = period-0.01 if cohort_simple==1
+
+. qui: replace period = period+0.01 if cohort_simple==2
+
+. 
+. * Define graphs and legend
+. qui: su cohort_simple
+
+. local legendorder = `r(max)'
+
+. local legend = ""
+
+. local twoway = ""
+
+. forvalues cohort_simple = `r(max)'(-1)1 {
+  2.                 local twoway = `"(line sir_pAdjusted period if cohort_simple==`cohort_simple', ${line`cohort_simple'}) "' /// mean
+>                                         + `"`twoway'"' // Append
+  3.                 local legend = `"`legendorder' "`: label cohort_simple_ `cohort_simple''" `legend'"'
+  4.                 local legendorder = `legendorder'-1
+  5. }
+
+. forvalues cohort_simple = `r(max)'(-1)1 {
+  2.                 local twoway =  `"`twoway'"' ///
+>                                         + `" (rcap sir_pLeft sir_pRight period if cohort_simple==`cohort_simple', ${line`cohort_simple'}) "' // 95% CI
+  3. }
+
+. 
+. * Export
+. di `"`twoway'"' _n(2) `"`legend'"' _n(2) `"`xlabel'"'
+(line sir_pAdjusted period if cohort_simple==1, lpattern(solid) lcolor(black)) (line sir_pAdjusted period if cohort_simple==2, lpattern(vshortdash) lcolor(black))  (rcap s
+> ir_pLeft sir_pRight period if cohort_simple==2, lpattern(vshortdash) lcolor(black))  (rcap sir_pLeft sir_pRight period if cohort_simple==1, lpattern(solid) lcolor(black)
+> ) 
+
+1 "North and Central Region" 2 "Remaining Danish regions" 
+
+
+
+. twoway `twoway', ///
+>         legend(on col(1) order(`legend') ) ///
+>         xlabel(1(1)4,valuelabel) ///
+>         ylabel(0(1)10) ///
+>         ytitle("SIR" "per 1,000,000 years") //
+
+. graph export results/FigSirByRegion${exportformat} ${exportoptions}
+(file results/FigSirByRegion.png written in PNG format)
+
+. 
+end of do-file
+
+. 
+. do 4_SirByMod.do // graph by mode of discovery and period
+
+. ***** 4_SirByMod.do *****
+. 
+. *** Calculations
+. ** Cases per year
+. use data/cohort_ppgl.dta, clear
+
+. keep if ppgl_incident==1
+(9 observations deleted)
+
+. keep if cohort_simple==1 // Central and Northern Regions only
+(375 observations deleted)
+
+. conv_missing, var(modcat) combmiss("Missing")
+recode: modcat               value label: modcat_          values: 1 2 3 4 5 6 7 .a
+    from .a to 8   Missing records  (1 changes made)
+
+. keep agecat cohort_simple period10y modcat
+
+. rename period10y period
+
+. contract _all, freq(N) zero
+
+. 
+. merge m:1 period cohort_simple agecat using data/popDK_period_age_region.dta, assert(match using) nogen
+(note: variable cohort_simple was byte, now int to accommodate using data's values)
+(label agecat_ already defined)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                            16
+        from master                         0  
+        from using                         16  
+
+    matched                               128  
+    -----------------------------------------
+
+. keep if cohort_simple==1 // Central and Northern Regions only
+(16 observations deleted)
+
+. 
+. ** Sir by period and modcat
+. qui: dstdize N pop agecat, by(period modcat) using(data/popEU_age.dta) format(%12.3g)
+
+. 
+. matrix sir=  r(Nobs) \ r(crude) \ r(adj) \ r(lb) \ r(ub)
+
+. matrix sir=sir'
+
+. 
+. ** Save labels
+. levelsof period, local(periods)
+1 2 3 4
+
+. levelsof modcat, local(modcats)
+1 2 3 4 5 6 7 8
+
+. 
+. ** Load results
+. drop _all
+
+. svmat double sir, name(matcol)
+number of observations will be reset to 32
+Press any key to continue, or Break to abort
+number of observations (_N) was 0, now 32
+
+. 
+. * Change to SIR per million
+. ds *Crude *Adjusted *Left *Right
+sirCrude     sirAdjusted  sirLeft      sirRight
+
+. foreach var in `r(varlist)' {
+  2.         qui: replace `var' = `var' * 1000000 // IR Per million
+  3. }
+
+. 
+. ** Add labels
+. gen Period = .
+(32 missing values generated)
+
+. gen ModeOfDiscovery = .
+(32 missing values generated)
+
+. local obs = 1
+
+. foreach per of local periods {
+  2.     foreach mod of local modcats {
+  3.                 qui: replace Period = `per' if _n==`obs' // "`: label period_ `per''"
+  4.                 qui: replace ModeOfDiscovery = `mod' if _n==`obs' // "`: label modcat_ `mod''"
+  5.                 local obs = `obs'+1
+  6.         }
+  7. }
+
+. label values Period period_
+
+. label values ModeOfDiscovery modcat_
+
+. 
+. *** Graph 
+. ** Reverse legend order
+. local legend = ""
+
+. qui: su ModeOfDiscovery
+
+. forvalues x = `r(max)'(-1)`r(min)' {
+  2.     local legend = "`legend' `x'"
+  3. }
+
+. di "`legend'"
+ 8 7 6 5 4 3 2 1
+
+. 
+. ** Bar appearance
+. local bar = ""
+
+. qui: su ModeOfDiscovery
+
+. forvalues x = `r(min)'(1)`r(max)' {
+  2.     local barlayout = `"`barlayout' bar(`x', ${bar`r(max)'_`x'})"'
+  3. }
+
+. di `"`barlayout'"'
+ bar(1,  fcolor("38 38 38") lcolor("38 38 38")) bar(2,  fcolor("89 89 89") lcolor("89 89 89")) bar(3,  fcolor("146 146 146") lcolor("146 146 146")) bar(4,  fcolor("208 208
+>  208") lcolor("208 208 208")) bar(5,  fcolor("62 62 62") lcolor("62 62 62")) bar(6,  fcolor("117 117 117") lcolor("117 117 117")) bar(7,  fcolor("177 177 177") lcolor("1
+> 77 177 177")) bar(8,  fcolor(white) lcolor(black) lpattern(solid) lalign(inside))
+
+. 
+. ** Graph 
+. graph bar (first) sirAdjusted, over(ModeOfDiscovery) over(Period) ///
+>         asyvars stack ///
+>         legend(order(`legend')) /// reverse legend order
+>         `barlayout' ///
+>         ytitle("Age-standardized IR" "per 1,000,000 years") ///
+>         ylabel(0/5)
+
+. graph export results/FigSirByMod${exportformat} ${exportoptions}
+(file results/FigSirByMod.png written in PNG format)
+
+. 
+end of do-file
+
+. do 4_SirBySymp.do // graph by symptoms and period
+
+. ***** 4_SirBySymp.do *****
+. 
+. *** Calculations
+. ** Cases per year
+. use data/cohort_ppgl.dta, clear
+
+. keep if ppgl_incident==1
+(9 observations deleted)
+
+. keep if cohort_simple==1 // Central and Northern Regions only
+(375 observations deleted)
+
+. conv_missing, var(sympcat) combmiss("Missing")
+recode: sympcat              value label: sympcat_         values: 1 2 3 4 .a
+    from .a to 5   Missing records  (3 changes made)
+
+. keep period10y agecat cohort_simple sympcat
+
+. rename period10y period
+
+. contract _all, freq(N) zero
+
+. 
+. merge m:1 period agecat cohort_simple using data/popDK_period_age_region.dta, assert(match using) nogen
+(note: variable cohort_simple was byte, now int to accommodate using data's values)
+(label agecat_ already defined)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                            16
+        from master                         0  
+        from using                         16  
+
+    matched                                80  
+    -----------------------------------------
+
+. keep if cohort_simple==1 
+(16 observations deleted)
+
+. 
+. ** Sir by period and sympcat
+. qui: dstdize N pop agecat, by(period sympcat) using(data/popEU_age.dta) format(%12.3g)
+
+. 
+. matrix sir=  r(Nobs) \ r(crude) \ r(adj) \ r(lb) \ r(ub)
+
+. matrix sir=sir'
+
+. 
+. ** Save labels
+. levelsof period, local(periods)
+1 2 3 4
+
+. levelsof sympcat, local(sympcats)
+1 2 3 4 5
+
+. 
+. ** Load results
+. drop _all
+
+. svmat double sir, name(matcol)
+number of observations will be reset to 20
+Press any key to continue, or Break to abort
+number of observations (_N) was 0, now 20
+
+. 
+. * Change to SIR per million
+. ds *Crude *Adjusted *Left *Right
+sirCrude     sirAdjusted  sirLeft      sirRight
+
+. foreach var in `r(varlist)' {
+  2.         qui: replace `var' = `var' * 1000000 // IR Per million
+  3. }
+
+. 
+. ** Add labels
+. gen Period = .
+(20 missing values generated)
+
+. gen Symptoms = .
+(20 missing values generated)
+
+. local obs = 1
+
+. foreach per of local periods {
+  2.     foreach symp of local sympcats {
+  3.                 qui: replace Period = `per' if _n==`obs' // "`: label period_ `per''"
+  4.                 qui: replace Symptoms = `symp' if _n==`obs' // "`: label sympcat_ `symp''"
+  5.                 local obs = `obs'+1
+  6.         }
+  7. }
+
+. label values Period period_
+
+. label values Symptoms sympcat_
+
+. 
+. *** Graph
+. ** Reverse legend order
+. local legend = ""
+
+. qui: su Symptoms
+
+. forvalues x = `r(max)'(-1)`r(min)' {
+  2.     local legend = "`legend' `x'"
+  3. }
+
+. di "`legend'"
+ 5 4 3 2 1
+
+. 
+. ** Bar appearance
+. local bar = ""
+
+. qui: su Symptoms
+
+. forvalues x = `r(min)'(1)`r(max)' {
+  2.     local barlayout = `"`barlayout' bar(`x', ${bar`r(max)'_`x'})"'
+  3. }
+
+. di `"`barlayout'"'
+ bar(1,  color("38 38 38") lcolor("38 38 38") lalign(inside)) bar(2,  color("82 82 82") lcolor("82 82 82") lalign(inside)) bar(3,  color("132 132 132") lcolor("132 132 132
+> ") lalign(inside)) bar(4,  color("185 185 185") lcolor("185 185 185") lalign(inside)) bar(5,  color(white) lcolor(black) lpattern(solid) lalign(inside))
+
+. 
+. ** Graph 
+. graph bar (first) sirAdjusted, over(Symptoms) over(Period) ///
+>         asyvars stack ///
+>         legend(order(`legend')) /// reverse legend order
+>         `barlayout' ///
+>         ytitle("Age-standardized IR" "per 1,000,000 years") ///
+>         ylabel(0/5)
+
+. graph export results/FigSirBySymp${exportformat} ${exportoptions}
+(file results/FigSirBySymp.png written in PNG format)
+
+. 
+end of do-file
+
+. do 4_SirBySize.do // graph by size and period
+
+. ***** 4_SirBySize.do *****
+. 
+. *** Calculations
+. ** Cases per year
+. use data/cohort_ppgl.dta, clear
+
+. keep if ppgl_incident==1
+(9 observations deleted)
+
+. keep if cohort_simple==1 // Central and Northern Regions only
+(375 observations deleted)
+
+. conv_missing, var(sizecat) combmiss("Missing")
+recode: sizecat              value label: sizecat_         values: 1 2 3 .a
+    from .a to 4   Missing records  (8 changes made)
+
+. keep agecat period10y cohort_simple sizecat
+
+. rename period10y period
+
+. contract _all, freq(N) zero
+
+. 
+. merge m:1 period agecat cohort_simple using data/popDK_period_age_region.dta, assert(match using) nogen
+(note: variable cohort_simple was byte, now int to accommodate using data's values)
+(label agecat_ already defined)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                            16
+        from master                         0  
+        from using                         16  
+
+    matched                                64  
+    -----------------------------------------
+
+. keep if cohort_simple==1 
+(16 observations deleted)
+
+. 
+. ** Sir by period and sizecat
+. qui: dstdize N pop agecat, by(period sizecat) using(data/popEU_age.dta) format(%12.3g)
+
+. 
+. matrix sir=  r(Nobs) \ r(crude) \ r(adj) \ r(lb) \ r(ub)
+
+. matrix sir=sir'
+
+. 
+. ** Save labels
+. levelsof period, local(periods)
+1 2 3 4
+
+. levelsof sizecat, local(sizecats)
+1 2 3 4
+
+. 
+. ** Load results
+. drop _all
+
+. svmat double sir, name(matcol)
+number of observations will be reset to 16
+Press any key to continue, or Break to abort
+number of observations (_N) was 0, now 16
+
+. 
+. * Change to SIR per million
+. ds *Crude *Adjusted *Left *Right
+sirCrude     sirAdjusted  sirLeft      sirRight
+
+. foreach var in `r(varlist)' {
+  2.         qui: replace `var' = `var' * 1000000 // IR Per million
+  3. }
+
+. 
+. ** Add labels
+. gen Period = .
+(16 missing values generated)
+
+. gen Size = .
+(16 missing values generated)
+
+. local obs = 1
+
+. foreach per of local periods {
+  2.     foreach size of local sizecats {
+  3.                 qui: replace Period = `per' if _n==`obs' // "`: label period_ `per''"
+  4.                 qui: replace Size = `size' if _n==`obs' // "`: label sizecat_ `size''"
+  5.                 local obs = `obs'+1
+  6.         }
+  7. }
+
+. label values Period period_
+
+. label values Size sizecat_
+
+. 
+. *** Graph
+. ** Reverse legend order
+. local legend = ""
+
+. qui: su Size
+
+. forvalues x = `r(max)'(-1)`r(min)' {
+  2.     local legend = "`legend' `x'"
+  3. }
+
+. di "`legend'"
+ 4 3 2 1
+
+. 
+. ** Bar appearance
+. local bar = ""
+
+. qui: su Size
+
+. forvalues x = `r(min)'(1)`r(max)' {
+  2.     local barlayout = `"`barlayout' bar(`x', ${bar`r(max)'_`x'})"'
+  3. }
+
+. di `"`barlayout'"'
+ bar(1,  fcolor("38 38 38") lcolor("38 38 38") lalign(inside)) bar(2,  fcolor("98 98 98") lcolor("98 98 98") lalign(inside)) bar(3,  fcolor("167 167 167") lcolor("167 167 
+> 167") lalign(inside)) bar(4,  fcolor(white) lcolor(black) lalign(inside))
+
+. 
+. ** Graph 
+. graph bar (first) sirAdjusted, over(Size) over(Period) ///
+>         asyvars stack ///
+>         legend(order(`legend')) /// reverse legend order
+>         `barlayout' ///
+>         ytitle("Age-standardized IR" "per 1,000,000 years") ///
+>         ylabel(0/5)
+
+. graph export results/FigSirBySize${exportformat} ${exportoptions}
+(file results/FigSirBySize.png written in PNG format)
+
+. 
+end of do-file
+
+. 
+. 
+. ** Crude incidence rates
+. do 4_IrByAgeSex.do // graph by age/sex and period
+
+. ***** 4_IrByAge.do *****
+. 
+. *** Calculations
+. ** Cases per year
+. use data/cohort_ppgl.dta, clear
+
+. keep if ppgl_incident==1
+(9 observations deleted)
+
+. 
+. keep agecat sex period10y
+
+. rename period10y period
+
+. contract _all, freq(N) zero
+
+. 
+. merge 1:1 agecat sex period using data/popDK_period_age_sex.dta, assert(match using) nogen
+(label sex_ already defined)
+(label agecat_ already defined)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                             0
+    matched                                32  
+    -----------------------------------------
+
+. 
+. 
+. ** IR by period/age and period/sex
+. tempfile byage
+
+. statsby, by(period agecat) saving(`byage', replace): ci means N, poisson exposure(pop)
+(running ci on estimation sample)
+
+      command:  ci means N, poisson exposure(pop)
+            N:  r(N)
+         mean:  r(mean)
+           se:  r(se)
+           lb:  r(lb)
+           ub:  r(ub)
+        level:  r(level)
+           by:  period agecat
+(note: file C:\Users\au335571\AppData\Local\Temp\ST_5554_000001.tmp not found)
+
+Statsby groups
+----+--- 1 ---+--- 2 ---+--- 3 ---+--- 4 ---+--- 5 
+................
+
+. tempfile bysex
+
+. statsby, by(period sex) saving(`bysex', replace): ci means N, poisson exposure(pop)
+(running ci on estimation sample)
+
+      command:  ci means N, poisson exposure(pop)
+            N:  r(N)
+         mean:  r(mean)
+           se:  r(se)
+           lb:  r(lb)
+           ub:  r(ub)
+        level:  r(level)
+           by:  period sex
+(note: file C:\Users\au335571\AppData\Local\Temp\ST_5554_000002.tmp not found)
+
+Statsby groups
+----+--- 1 ---+--- 2 ---+--- 3 ---+--- 4 ---+--- 5 
+........
+
+. 
+. 
+. *** Graph by age
+. * Change to SIR per million
+. use `byage', clear
+(statsby: ci)
+
+. foreach var in mean lb ub {
+  2.         qui: replace `var' = `var' * 1000000 // IR Per million
+  3. }
+
+. 
+. * Jitter x-axis
+. qui: replace period = period-0.03 if agecat==1
+
+. qui: replace period = period-0.01 if agecat==2
+
+. qui: replace period = period+0.01 if agecat==3
+
+. qui: replace period = period+0.03 if agecat==4
+
+. 
+. * Define graphs and legend
+. qui: su agecat
+
+. local legendorder = `r(max)'
+
+. forvalues age = 1(1)`r(max)' {
+  2.                 local twoway = `"(line mean period if agecat==`age', ${line`age'}) "' /// mean
+>                                         + `"`twoway'"' // Append
+  3.                 local legend = `"`legendorder' "`: label agecat_ `age''" `legend'"'
+  4.                 local legendorder = `legendorder'-1
+  5. }
+
+. forvalues age = 1(1)`r(max)' {
+  2.                 local twoway =  `"`twoway'"' ///
+>                                         + `" (rcap lb ub period if agecat==`age', ${line`age'}) "' // 95% CI
+  3. }
+
+. 
+. * Export
+. di `"`twoway'"' _n(2) `"`legend'"' _n(2) `"`xlabel'"'
+(line mean period if agecat==4, lpattern("-") lcolor(black)) (line mean period if agecat==3, lpattern("_") lcolor(black)) (line mean period if agecat==2, lpattern(vshortda
+> sh) lcolor(black)) (line mean period if agecat==1, lpattern(solid) lcolor(black))  (rcap lb ub period if agecat==1, lpattern(solid) lcolor(black))  (rcap lb ub period if
+>  agecat==2, lpattern(vshortdash) lcolor(black))  (rcap lb ub period if agecat==3, lpattern("_") lcolor(black))  (rcap lb ub period if agecat==4, lpattern("-") lcolor(bla
+> ck)) 
+
+1 "{&ge}75 years" 2 "50-74 years" 3 "25-49 years" 4 "<25 years" 
+
+
+
+. twoway `twoway', ///
+>         legend(on col(1) order(`legend') ) ///
+>         xlabel(1(1)4,valuelabel) ///
+>         ylabel(0(1)10) ///
+>         ytitle("IR" "per 1,000,000 years") //
+
+. graph export results/FigIrByAge${exportformat} ${exportoptions}
+(file results/FigIrByAge.png written in PNG format)
+
+. 
+. 
+. *** Graph by sex
+. * Change to SIR per million
+. use `bysex', clear
+(statsby: ci)
+
+. foreach var in mean lb ub {
+  2.         qui: replace `var' = `var' * 1000000 // IR Per million
+  3. }
+
+. 
+. * Jitter x-axis
+. qui: replace period = period-0.01 if sex==1
+
+. qui: replace period = period+0.01 if sex==2
+
+. 
+. * Define graphs and legend
+. qui: su sex
+
+. local legendorder = `r(max)'
+
+. local legend = ""
+
+. local twoway = ""
+
+. forvalues sex = 1(1)`r(max)' {
+  2.                 local twoway = `"(line mean period if sex==`sex', ${line`sex'}) "' /// mean
+>                                         + `"`twoway'"' // Append
+  3.                 local legend = `"`legendorder' "`: label sex_ `sex''" `legend'"'
+  4.                 local legendorder = `legendorder'-1
+  5. }
+
+. forvalues sex = 1(1)`r(max)' {
+  2.                 local twoway =  `"`twoway'"' ///
+>                                         + `" (rcap lb ub period if sex==`sex', ${line`sex'}) "' // 95% CI
+  3. }
+
+. 
+. * Export
+. di `"`twoway'"' _n(2) `"`legend'"' _n(2) `"`xlabel'"'
+(line mean period if sex==2, lpattern(vshortdash) lcolor(black)) (line mean period if sex==1, lpattern(solid) lcolor(black))  (rcap lb ub period if sex==1, lpattern(solid)
+>  lcolor(black))  (rcap lb ub period if sex==2, lpattern(vshortdash) lcolor(black)) 
+
+1 "Female" 2 "Male" 
+
+
+
+. twoway `twoway', ///
+>         legend(on col(1) order(`legend') ) ///
+>         xlabel(1(1)4,valuelabel) ///
+>         ylabel(0(1)10) ///
+>         ytitle("IR" "per 1,000,000 years") //
+
+. graph export results/FigIrBySex${exportformat} ${exportoptions}
+(file results/FigIrBySex.png written in PNG format)
+
+. 
+end of do-file
+
+. 
+. 
+. ** Prevalence
+. do 4_Prev.do // graph by year and details for text
+
+. ***** 4_Prev.do *****
+. /* 
+> This do file:
+> - Counts N prevalent each year by sex and agecat
+> - Makes a figure with age-standardized prevalence each year
+> - Makes a table of prevalence at end of study by sex with age-specific (crude) prevalences and total (age-standardized) prevalences
+> */
+. 
+. 
+. ***** Prepare data
+. use data/cohort_pid.dta, clear
+
+. 
+. *** Generate empty data frame for results for table
+. capture: frames drop table
+
+. frame create table
+
+. frame table {
+.         set obs 1
+number of observations (_N) was 0, now 1
+.         gen grp = .
+(1 missing value generated)
+.         gen rowname = ""
+(1 missing value generated)
+.         gen cell_0 = "Total"
+.         gen cell_1 = "Men"
+.         gen cell_2 = "Women"   
+. }
+
+. local x = 1
+
+. qui: levelsof agecat, local(agecats) clean
+
+. foreach row in -1 `agecats' 0 {
+  2.     local rowname : label agecat_ `row'
+  3.         di "`rowname'"
+  4.         local x = `x'+1
+  5.         qui: frame table: set obs `x'
+  6.         qui: frame table: replace rowname="    `rowname'" if _n==_N
+  7.         qui: frame table: replace grp=`row' if _n==_N
+  8. }
+-1
+<25 years
+25-49 years
+50-74 years
+{&ge}75 years
+0
+
+. qui: frame table: replace rowname="Total" if grp==0
+
+. qui: frame table: replace rowname="Age" if grp==-1
+
+. qui: frame table: replace rowname = subinstr(rowname, "{&ge}", ustrunescape("\u2265"), 1) // equal-or-above-sign
+
+. 
+. *** Determine prevalent patients per year (from diagnosis to death/emigration)
+. keep cpr d_foddato date_index c_status d_status_hen_start
+
+. 
+. * Import history of residences (registry data)
+. merge 1:m cpr using regdata/PlaceOfResidence.dta, keep(match) assert(match using) nogen
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                             0
+    matched                             3,906  
+    -----------------------------------------
+
+. 
+. * Evaluate if index date match address in Denmark
+. forvalues year=1977(1)$lastyear {
+  2.         qui: gen N`year' = 1 if /// Prevalent year of diagnosis
+>                         year(date_index)==`year' ///
+>                         & inrange(`year', year(dk_adresse_start), year(dk_adresse_slut))
+  3.         
+.         qui: recode N`year' (.=1) if /// Prevalent 31dec subsequent years
+>                         date_index <= date("31-12-`year'", "DMY") /// Prevalent from diagnosis..
+>                         & inrange(date("31-12-`year'", "DMY"), dk_adresse_start, dk_adresse_slut) /// .. while address is in DK..
+>                         & d_status > date("31-12-`year'", "DMY") // .. to date of death/emigration 
+  4.         * Determine patient age each year
+.         qui: gen age`year' = floor((date("31-12-`year'", "DMY")-d_foddato)/365)
+  5.         qui: recode age`year' $agecat if N`year'==1, gen(agecat`year') label(agecat`year'_)
+  6. }
+
+. 
+. * Summarize prevalence by person
+. collapse (max) agecat* N* , by(cpr) 
+
+. tempfile personprev
+
+. save `personprev', replace
+(note: file C:\Users\au335571\AppData\Local\Temp\ST_5554_000001.tmp not found)
+file C:\Users\au335571\AppData\Local\Temp\ST_5554_000001.tmp saved
+
+. 
+. use data/cohort_pid.dta, clear
+
+. keep cpr sex
+
+. merge 1:1 cpr using `personprev', nogen assert(match)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                             0
+    matched                               576  
+    -----------------------------------------
+
+. 
+. 
+. * Summarize prevalence for each year
+. reshape long agecat N, i(cpr) j(year)
+(note: j = 1977 1978 1979 1980 1981 1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 
+> 2009 2010 2011 2012 2013 2014 2015)
+
+Data                               wide   ->   long
+-----------------------------------------------------------------------------
+Number of obs.                      576   ->   22464
+Number of variables                  80   ->       5
+j variable (39 values)                    ->   year
+xij variables:
+   agecat1977 agecat1978 ... agecat2015   ->   agecat
+                  N1977 N1978 ... N2015   ->   N
+-----------------------------------------------------------------------------
+
+. label value agecat agecat_
+
+. drop if N==.
+(17,288 observations deleted)
+
+. drop cpr N
+
+. contract year sex agecat, freq(N) zero
+
+. 
+. * Add population
+. merge 1:1 year agecat sex using data/popDK_year_age_sex.dta, assert(match using) nogen
+(label agecat_ already defined)
+(label sex_ already defined)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                             0
+    matched                               312  
+    -----------------------------------------
+
+. 
+. tempfile prevdata
+
+. save `prevdata', replace
+(note: file C:\Users\au335571\AppData\Local\Temp\ST_5554_000002.tmp not found)
+file C:\Users\au335571\AppData\Local\Temp\ST_5554_000002.tmp saved
+
+. 
+. 
+. ***** Calculate prevalence
+. use `prevdata', clear
+
+. 
+. *** N prevalent at end of study (report)
+. qui: su N if year==$lastyear
+
+. global Nprev = `r(sum)'
+
+. 
+. 
+. *** Prevalence by year (figure and report)
+. dstdize N pop agecat, by(year) using(data/popEU_age.dta) format(%12.3g)
+
+----------------------------------------------------------
+-> year= 1977 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1668180         8  0.328 0.0000  0.335 0.0000
+ 50-74 ye    1272820         3  0.251 0.0000  0.300 0.0000
+ <25 year    1876180         1  0.369 0.0000  0.275 0.0000
+ {&ge}75      262699         1  0.052 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5079879        13    Adjusted Cases:     14.2
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1978 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1685824         9  0.331 0.0000  0.335 0.0000
+ 50-74 ye    1272686         6  0.250 0.0000  0.300 0.0000
+ <25 year    1866440         1  0.366 0.0000  0.275 0.0000
+ {&ge}75      272009         0  0.053 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5096959        16    Adjusted Cases:     17.1
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1979 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1704088        10  0.333 0.0000  0.335 0.0000
+ 50-74 ye    1272481         5  0.249 0.0000  0.300 0.0000
+ <25 year    1855380         1  0.363 0.0000  0.275 0.0000
+ {&ge}75      279588         3  0.055 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5111537        19    Adjusted Cases:     21.8
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1980 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1722758        13  0.336 0.0000  0.335 0.0000
+ 50-74 ye    1268784         5  0.248 0.0000  0.300 0.0000
+ <25 year    1843982         2  0.360 0.0000  0.275 0.0000
+ {&ge}75      286541         0  0.056 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5122065        20    Adjusted Cases:     20.5
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1981 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1738954        15  0.339 0.0000  0.335 0.0000
+ 50-74 ye    1265247         7  0.247 0.0000  0.300 0.0000
+ <25 year    1826713         2  0.357 0.0000  0.275 0.0000
+ {&ge}75      293075         1  0.057 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5123989        25    Adjusted Cases:     26.4
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1982 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1755447        16  0.343 0.0000  0.335 0.0000
+ 50-74 ye    1260278         7  0.246 0.0000  0.300 0.0000
+ <25 year    1803752         3  0.352 0.0000  0.275 0.0000
+ {&ge}75      299678         1  0.059 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5119155        27    Adjusted Cases:     28.0
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1983 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1771556        20  0.346 0.0000  0.335 0.0000
+ 50-74 ye    1255530         9  0.245 0.0000  0.300 0.0000
+ <25 year    1782211         3  0.348 0.0000  0.275 0.0000
+ {&ge}75      307167         1  0.060 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5116464        33    Adjusted Cases:     34.2
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1984 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1788746        22  0.350 0.0000  0.335 0.0000
+ 50-74 ye    1248559        13  0.244 0.0000  0.300 0.0000
+ <25 year    1760160         4  0.344 0.0000  0.275 0.0000
+ {&ge}75      314665         1  0.062 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5112130        40    Adjusted Cases:     41.7
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1985 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1804966        25  0.353 0.0000  0.335 0.0000
+ 50-74 ye    1241991        12  0.243 0.0000  0.300 0.0000
+ <25 year    1740791         3  0.341 0.0000  0.275 0.0000
+ {&ge}75      323360         0  0.063 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5111108        40    Adjusted Cases:     41.0
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1986 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1825613        29  0.357 0.0000  0.335 0.0000
+ 50-74 ye    1236414        16  0.242 0.0000  0.300 0.0000
+ <25 year    1723930         5  0.337 0.0000  0.275 0.0000
+ {&ge}75      330316         3  0.065 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5116273        53    Adjusted Cases:     55.4
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1987 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1845051        32  0.360 0.0000  0.335 0.0000
+ 50-74 ye    1232589        20  0.241 0.0000  0.300 0.0000
+ <25 year    1709833         4  0.334 0.0000  0.275 0.0000
+ {&ge}75      337321         3  0.066 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5124794        59    Adjusted Cases:     62.1
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1988 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1862628        34  0.363 0.0000  0.335 0.0000
+ 50-74 ye    1229581        29  0.240 0.0000  0.300 0.0000
+ <25 year    1692275         5  0.330 0.0000  0.275 0.0000
+ {&ge}75      344770         3  0.067 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5129254        71    Adjusted Cases:     75.8
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1989 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1881405        35  0.367 0.0000  0.335 0.0000
+ 50-74 ye    1228435        24  0.239 0.0000  0.300 0.0000
+ <25 year    1669108         5  0.325 0.0000  0.275 0.0000
+ {&ge}75      350830         5  0.068 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5129778        69    Adjusted Cases:     72.8
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1990 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1901820        40  0.370 0.0000  0.335 0.0000
+ 50-74 ye    1228160        29  0.239 0.0000  0.300 0.0000
+ <25 year    1649299         3  0.321 0.0000  0.275 0.0000
+ {&ge}75      356130         6  0.069 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5135409        78    Adjusted Cases:     82.9
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1991 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1924473        43  0.374 0.0000  0.335 0.0000
+ 50-74 ye    1232287        36  0.239 0.0000  0.300 0.0000
+ <25 year    1631635         2  0.317 0.0000  0.275 0.0000
+ {&ge}75      358074         6  0.070 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5146469        87    Adjusted Cases:     93.1
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1992 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1949544        43  0.378 0.0000  0.335 0.0000
+ 50-74 ye    1238515        33  0.240 0.0000  0.300 0.0000
+ <25 year    1613280         2  0.313 0.0000  0.275 0.0000
+ {&ge}75      360787         4  0.070 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5162126        82    Adjusted Cases:     86.3
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1993 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1961328        40  0.379 0.0000  0.335 0.0000
+ 50-74 ye    1252299        35  0.242 0.0000  0.300 0.0000
+ <25 year    1604788         2  0.310 0.0000  0.275 0.0000
+ {&ge}75      362199         5  0.070 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5180614        82    Adjusted Cases:     87.0
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1994 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1963423        37  0.378 0.0000  0.335 0.0000
+ 50-74 ye    1268917        45  0.244 0.0000  0.300 0.0000
+ <25 year    1601593         2  0.308 0.0000  0.275 0.0000
+ {&ge}75      362709         4  0.070 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5196642        88    Adjusted Cases:     95.0
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1995 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1956404        40  0.375 0.0000  0.335 0.0000
+ 50-74 ye    1293065        46  0.248 0.0000  0.300 0.0000
+ <25 year    1603224         1  0.307 0.0000  0.275 0.0000
+ {&ge}75      363025         6  0.070 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5215718        93    Adjusted Cases:    100.0
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1996 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1953841        42  0.372 0.0000  0.335 0.0000
+ 50-74 ye    1317166        50  0.251 0.0000  0.300 0.0000
+ <25 year    1612957         1  0.307 0.0000  0.275 0.0000
+ {&ge}75      367063         7  0.070 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5251027       100    Adjusted Cases:    107.5
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1997 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1947954        46  0.369 0.0000  0.335 0.0000
+ 50-74 ye    1344217        55  0.255 0.0000  0.300 0.0000
+ <25 year    1612221         1  0.306 0.0000  0.275 0.0000
+ {&ge}75      370729        10  0.070 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5275121       112    Adjusted Cases:    120.2
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1998 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1943798        52  0.367 0.0000  0.335 0.0000
+ 50-74 ye    1371246        61  0.259 0.0000  0.300 0.0000
+ <25 year    1607565         1  0.304 0.0000  0.275 0.0000
+ {&ge}75      372251        14  0.070 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5294860       128    Adjusted Cases:    136.9
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 1999 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1940796        51  0.365 0.0000  0.335 0.0000
+ 50-74 ye    1392179        68  0.262 0.0000  0.300 0.0000
+ <25 year    1605288         0  0.302 0.0000  0.275 0.0000
+ {&ge}75      375314        14  0.071 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5313577       133    Adjusted Cases:    142.5
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 2000 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1941304        50  0.364 0.0000  0.335 0.0000
+ 50-74 ye    1409345        81  0.264 0.0001  0.300 0.0000
+ <25 year    1602268         0  0.301 0.0000  0.275 0.0000
+ {&ge}75      377103        13  0.071 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5330020       144    Adjusted Cases:    154.4
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 2001 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1942804        55  0.363 0.0000  0.335 0.0000
+ 50-74 ye    1427727        90  0.267 0.0001  0.300 0.0000
+ <25 year    1599898         0  0.299 0.0000  0.275 0.0000
+ {&ge}75      378783        16  0.071 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5349212       161    Adjusted Cases:    172.2
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 2002 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1940937        50  0.362 0.0000  0.335 0.0000
+ 50-74 ye    1444363        98  0.269 0.0001  0.300 0.0000
+ <25 year    1603721         0  0.299 0.0000  0.275 0.0000
+ {&ge}75      379333        17  0.071 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5368354       165    Adjusted Cases:    177.3
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 2003 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1934178        55  0.359 0.0000  0.335 0.0000
+ 50-74 ye    1462676        99  0.272 0.0001  0.300 0.0000
+ <25 year    1608201         0  0.299 0.0000  0.275 0.0000
+ {&ge}75      378452        16  0.070 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5383507       170    Adjusted Cases:    181.1
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 2004 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1925755        62  0.357 0.0000  0.335 0.0000
+ 50-74 ye    1481826       102  0.275 0.0001  0.300 0.0000
+ <25 year    1611133         0  0.298 0.0000  0.275 0.0000
+ {&ge}75      378926        15  0.070 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5397640       179    Adjusted Cases:    188.9
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 2005 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1915449        60  0.354 0.0000  0.335 0.0000
+ 50-74 ye    1501244       112  0.277 0.0001  0.300 0.0000
+ <25 year    1615269         0  0.298 0.0000  0.275 0.0000
+ {&ge}75      379443        17  0.070 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5411405       189    Adjusted Cases:    199.7
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 2006 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1903936        57  0.351 0.0000  0.335 0.0000
+ 50-74 ye    1521431       128  0.280 0.0001  0.300 0.0000
+ <25 year    1621459         1  0.299 0.0000  0.275 0.0000
+ {&ge}75      380633        17  0.070 0.0000  0.090 0.0000
+----------------------------------------------------------
+Totals:      5427459       203    Adjusted Cases:    214.2
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 2007 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1889704        65  0.347 0.0000  0.335 0.0000
+ 50-74 ye    1542723       127  0.283 0.0001  0.300 0.0000
+ <25 year    1633229         1  0.300 0.0000  0.275 0.0000
+ {&ge}75      381428        20  0.070 0.0001  0.090 0.0000
+----------------------------------------------------------
+Totals:      5447084       213    Adjusted Cases:    223.9
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 2008 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1882489        64  0.344 0.0000  0.335 0.0000
+ 50-74 ye    1562789       132  0.285 0.0001  0.300 0.0000
+ <25 year    1647977         2  0.301 0.0000  0.275 0.0000
+ {&ge}75      382536        28  0.070 0.0001  0.090 0.0000
+----------------------------------------------------------
+Totals:      5475791       226    Adjusted Cases:    239.0
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0000]
+
+----------------------------------------------------------
+-> year= 2009 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1876556        66  0.340 0.0000  0.335 0.0000
+ 50-74 ye    1583848       140  0.287 0.0001  0.300 0.0000
+ <25 year    1666708         3  0.302 0.0000  0.275 0.0000
+ {&ge}75      384339        31  0.070 0.0001  0.090 0.0000
+----------------------------------------------------------
+Totals:      5511451       240    Adjusted Cases:    253.8
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0001]
+
+----------------------------------------------------------
+-> year= 2010 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1866140        65  0.337 0.0000  0.335 0.0000
+ 50-74 ye    1602667       153  0.290 0.0001  0.300 0.0000
+ <25 year    1678781         3  0.303 0.0000  0.275 0.0000
+ {&ge}75      387150        39  0.070 0.0001  0.090 0.0000
+----------------------------------------------------------
+Totals:      5534738       260    Adjusted Cases:    276.0
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0000
+                       95% Conf. Interval: [0.0000, 0.0001]
+
+----------------------------------------------------------
+-> year= 2011 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1857139        67  0.334 0.0000  0.335 0.0000
+ 50-74 ye    1623339       161  0.292 0.0001  0.300 0.0000
+ <25 year    1689012         5  0.304 0.0000  0.275 0.0000
+ {&ge}75      391138        42  0.070 0.0001  0.090 0.0000
+----------------------------------------------------------
+Totals:      5560628       275    Adjusted Cases:    290.9
+                                      Crude Rate:   0.0000
+                                   Adjusted Rate:   0.0001
+                       95% Conf. Interval: [0.0000, 0.0001]
+
+----------------------------------------------------------
+-> year= 2012 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1847001        62  0.331 0.0000  0.335 0.0000
+ 50-74 ye    1642828       171  0.294 0.0001  0.300 0.0000
+ <25 year    1693058         7  0.303 0.0000  0.275 0.0000
+ {&ge}75      397629        49  0.071 0.0001  0.090 0.0000
+----------------------------------------------------------
+Totals:      5580516       289    Adjusted Cases:    305.3
+                                      Crude Rate:   0.0001
+                                   Adjusted Rate:   0.0001
+                       95% Conf. Interval: [0.0000, 0.0001]
+
+----------------------------------------------------------
+-> year= 2013 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1838150        63  0.328 0.0000  0.335 0.0000
+ 50-74 ye    1663261       182  0.297 0.0001  0.300 0.0000
+ <25 year    1695445         9  0.303 0.0000  0.275 0.0000
+ {&ge}75      405772        54  0.072 0.0001  0.090 0.0000
+----------------------------------------------------------
+Totals:      5602628       308    Adjusted Cases:    323.5
+                                      Crude Rate:   0.0001
+                                   Adjusted Rate:   0.0001
+                       95% Conf. Interval: [0.0001, 0.0001]
+
+----------------------------------------------------------
+-> year= 2014 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1831287        67  0.325 0.0000  0.335 0.0000
+ 50-74 ye    1687203       198  0.300 0.0001  0.300 0.0000
+ <25 year    1693690         9  0.301 0.0000  0.275 0.0000
+ {&ge}75      415055        59  0.074 0.0001  0.090 0.0000
+----------------------------------------------------------
+Totals:      5627235       333    Adjusted Cases:    347.3
+                                      Crude Rate:   0.0001
+                                   Adjusted Rate:   0.0001
+                       95% Conf. Interval: [0.0001, 0.0001]
+
+----------------------------------------------------------
+-> year= 2015 
+                         -----Unadjusted-----  Std.
+                                Pop.  Stratum  Pop.  
+  Stratum       Pop.     Cases  Dist. Rate[s] Dst[P]  s*P
+----------------------------------------------------------
+ 25-49 ye    1828300        69  0.323 0.0000  0.335 0.0000
+ 50-74 ye    1713021       214  0.303 0.0001  0.300 0.0000
+ <25 year    1692591        10  0.299 0.0000  0.275 0.0000
+ {&ge}75      425803        60  0.075 0.0001  0.090 0.0000
+----------------------------------------------------------
+Totals:      5659715       353    Adjusted Cases:    364.6
+                                      Crude Rate:   0.0001
+                                   Adjusted Rate:   0.0001
+                       95% Conf. Interval: [0.0001, 0.0001]
+
+Summary of Study Populations:
+     year             N      Crude     Adj_Rate       Confidence Interval
+ --------------------------------------------------------------------------
+     1977       5079879     2.56e-06     2.80e-06  [    1.25e-06,    4.36e-06]
+     1978       5096959     3.14e-06     3.35e-06  [    1.70e-06,    5.00e-06]
+     1979       5111537     3.72e-06     4.26e-06  [    2.30e-06,    6.22e-06]
+     1980       5122065     3.90e-06     4.01e-06  [    2.24e-06,    5.78e-06]
+     1981       5123989     4.88e-06     5.16e-06  [    3.11e-06,    7.20e-06]
+     1982       5119155     5.27e-06     5.48e-06  [    3.39e-06,    7.57e-06]
+     1983       5116464     6.45e-06     6.69e-06  [    4.38e-06,    9.00e-06]
+     1984       5112130     7.82e-06     8.15e-06  [    5.60e-06,    .0000107]
+     1985       5111108     7.83e-06     8.01e-06  [    5.51e-06,    .0000105]
+     1986       5116273     .0000104     .0000108  [    7.87e-06,    .0000138]
+     1987       5124794     .0000115     .0000121  [    8.99e-06,    .0000153]
+     1988       5129254     .0000138     .0000148  [    .0000113,    .0000183]
+     1989       5129778     .0000135     .0000142  [    .0000108,    .0000176]
+     1990       5135409     .0000152     .0000161  [    .0000125,    .0000198]
+     1991       5146469     .0000169     .0000181  [    .0000142,     .000022]
+     1992       5162126     .0000159     .0000167  [     .000013,    .0000204]
+     1993       5180614     .0000158     .0000168  [    .0000131,    .0000205]
+     1994       5196642     .0000169     .0000183  [    .0000144,    .0000222]
+     1995       5215718     .0000178     .0000192  [    .0000152,    .0000231]
+     1996       5251027      .000019     .0000205  [    .0000164,    .0000245]
+     1997       5275121     .0000212     .0000228  [    .0000185,     .000027]
+     1998       5294860     .0000242     .0000259  [    .0000213,    .0000304]
+     1999       5313577      .000025     .0000268  [    .0000222,    .0000314]
+     2000       5330020      .000027      .000029  [    .0000242,    .0000337]
+     2001       5349212     .0000301     .0000322  [    .0000272,    .0000372]
+     2002       5368354     .0000307      .000033  [     .000028,    .0000381]
+     2003       5383507     .0000316     .0000336  [    .0000286,    .0000387]
+     2004       5397640     .0000332      .000035  [    .0000298,    .0000401]
+     2005       5411405     .0000349     .0000369  [    .0000316,    .0000422]
+     2006       5427459     .0000374     .0000395  [     .000034,    .0000449]
+     2007       5447084     .0000391     .0000411  [    .0000356,    .0000466]
+     2008       5475791     .0000413     .0000436  [    .0000379,    .0000494]
+     2009       5511451     .0000435     .0000461  [    .0000402,    .0000519]
+     2010       5534738      .000047     .0000499  [    .0000438,     .000056]
+     2011       5560628     .0000495     .0000523  [    .0000461,    .0000585]
+     2012       5580516     .0000518     .0000547  [    .0000484,     .000061]
+     2013       5602628      .000055     .0000577  [    .0000513,    .0000642]
+     2014       5627235     .0000592     .0000617  [    .0000551,    .0000684]
+     2015       5659715     .0000624     .0000644  [    .0000577,    .0000712]
+
+. matrix prev_y=  r(Nobs) \ r(crude) \ r(adj) \ r(lb) \ r(ub)
+
+. matrix prev_y=prev_y'
+
+. 
+. * Load results
+. drop _all
+
+. svmat double prev_y, name(matcol)
+number of observations will be reset to 39
+Press any key to continue, or Break to abort
+number of observations (_N) was 0, now 39
+
+. egen Year= seq(), f(1977) t($lastyear) b(1)
+
+. label var Year "Year"
+
+. 
+. * Change to prevalence per million
+. ds *Crude *Adjusted *Left *Right
+prev_yCrude   prev_yAdju~d  prev_yLeft    prev_yRight
+
+. foreach var in `r(varlist)' {
+  2.         qui: replace `var' = `var' * 1000000 // IR Per million
+  3. }
+
+. 
+. * Graph (prevalence by year)
+. twoway ///
+>         (line prev_yAdjuste Year, $line1) /// mean
+>         (rcap prev_yLeft prev_yRight Year, $line1) /// 95% CI
+>         , legend(off) /// legend
+>         xlabel(1977 "1977" 1982 "1982" 1987 "1987" 1992 "1992" 1997 "1997" 2002 "2002" 2007 "2007" 2012 "2012" $lastyear "$lastyear") ///
+>         xmtick(1977(1)$lastyear) ///
+>         /// ylabel(0(1)10) ///
+>         ytitle("Age-standardized prevalence" "per 1,000,000 years") //
+
+. graph export results/FigPrevByYear${exportformat} ${exportoptions}
+(file results/FigPrevByYear.png written in PNG format)
+
+. 
+. 
+. * Text (prevalence at end of study)
+. local prev = string(round(prev_yAdjusted[_N], 0.1), "%3.1f") /// estimate
+>                                                         + " (" /// 
+>                                                         + string(round(prev_yLeft[_N], 0.1), "%3.1f") /// lower
+>                                                         + "-" ///
+>                                                         + string(round(prev_yRight[_N], 0.1), "%3.1f") /// upper
+>                                                         + ")"
+
+. 
+. putdocx begin
+
+. putdocx paragraph, style(Heading2)
+
+. putdocx text ("Prevalence")
+
+. putdocx paragraph
+
+. putdocx text ("Prevalence of PPGL patients alive and living in Denmark in $lastyear (n=${Nprev}): `prev'"), linebreak
+
+. putdocx save results/TextPrevLastyear, replace
+successfully replaced "C:/Users/au335571/Forskning/2020-PPGL-incidence-prevalence-paper/results/TextPrevLastyear.docx"
+
+. 
+. 
+. 
+. *** Table (prevalence at end of study)
+. * Total, age-standardized 
+. qui: frame table: replace cell_0="`prev'" if grp==0
+
+. 
+. 
+. * By sex, age-standardized
+. use `prevdata', clear
+
+. keep if year==$lastyear
+(304 observations deleted)
+
+. gen dummy=1
+
+. 
+. foreach sex in 1 2 {
+  2.         qui: dstdize N pop agecat if sex==`sex', by(dummy) using(data/popEU_age.dta) format(%12.3g)
+  3.         matrix prev=  r(adj) \ r(lb) \ r(ub)
+  4.         local prev = string(round(prev[1,1]*1000000, 0.1), "%3.1f") /// estimate
+>                                                                 + " (" /// 
+>                                                                 + string(round(prev[2,1]*1000000, 0.1), "%3.1f") /// lower
+>                                                                 + "-" ///
+>                                                                 + string(round(prev[3,1]*1000000, 0.1), "%3.1f") /// upper
+>                                                                 + ")"
+  5.         qui: frame table: replace cell_`sex'="`prev'" if grp==0
+  6.         di "Total, sex `sex'" _col(20) "`prev'"
+  7. }
+Total, sex 1       55.7 (46.5-64.9)
+Total, sex 2       73.4 (63.4-83.4)
+
+. 
+. * Total, age-specific (crude)
+. qui: levelsof agecat, local(agecats) clean
+
+. foreach row in `agecats' {
+  2.         qui: ci means N if agecat==`row', poisson exposure(pop)
+  3.         local prev = string(round(`r(mean)'*1000000, 0.1), "%3.1f") /// estimate
+>                                                         + " (" /// 
+>                                                         + string(round(`r(lb)'*1000000, 0.1), "%3.1f") /// lower
+>                                                         + "-" ///
+>                                                         + string(round(`r(ub)'*1000000, 0.1), "%3.1f") /// upper
+>                                                         + ")"
+  4.         qui: frame table: replace cell_0="`prev'" if grp==`row'
+  5.         di "Agecat `row', all:" _col(20) "`prev'"
+  6. }
+Agecat 1, all:     5.9 (2.8-10.9)
+Agecat 2, all:     37.7 (29.4-47.8)
+Agecat 3, all:     124.9 (108.7-142.8)
+Agecat 4, all:     140.9 (107.5-181.4)
+
+. 
+. * By sex, age-specific (crude)  
+. list, clean
+
+       year      sex          agecat     N      pop   dummy  
+  1.   2015     Male       <25 years     5   866625       1  
+  2.   2015   Female       <25 years     5   825966       1  
+  3.   2015     Male     25-49 years    26   922240       1  
+  4.   2015   Female     25-49 years    43   906060       1  
+  5.   2015     Male     50-74 years    87   847070       1  
+  6.   2015   Female     50-74 years   127   865951       1  
+  7.   2015     Male   {&ge}75 years    27   175079       1  
+  8.   2015   Female   {&ge}75 years    33   250724       1  
+
+. qui: levelsof agecat, local(agecats) clean
+
+. foreach row in `agecats' {
+  2.         di "Agecat `row'"
+  3.         foreach sex in 1 2 {
+  4.                 qui: ci means N if agecat==`row' & sex==`sex', poisson exposure(pop)
+  5.                 local prev = string(round(`r(mean)'*1000000, 0.1), "%3.1f") /// estimate
+>                                                         + " (" /// 
+>                                                         + string(round(`r(lb)'*1000000, 0.1), "%3.1f") /// lower
+>                                                         + "-" ///
+>                                                         + string(round(`r(ub)'*1000000, 0.1), "%3.1f") /// upper
+>                                                         + ")"
+  6.                 qui: frame table: replace cell_`sex'="`prev'" if grp==`row'
+  7.                 di _col(5) "sex `sex':" _col(20) "`prev'"       
+  8.         }
+  9. }
+Agecat 1
+    sex 1:         5.8 (1.9-13.5)
+    sex 2:         6.1 (2.0-14.1)
+Agecat 2
+    sex 1:         28.2 (18.4-41.3)
+    sex 2:         47.5 (34.3-63.9)
+Agecat 3
+    sex 1:         102.7 (82.3-126.7)
+    sex 2:         146.7 (122.3-174.5)
+Agecat 4
+    sex 1:         154.2 (101.6-224.4)
+    sex 2:         131.6 (90.6-184.8)
+
+. 
+. frame table: save results/TabPrevBySexAge.dta, replace
+file results/TabPrevBySexAge.dta saved
+
+. capture: frame drop table
+
+. 
+end of do-file
+
+. 
+. 
+. 
+. 
+. ***** 5) Report
+. /*
+> This section:
+> - Add headers and footnotes to graphs and tables
+> - Combine all documents into FigTablesCombined and ReportCombined
+> */
+. do 5_Report.do
+
+. ***** 4_Report.do *****
+. clear
+
+. putdocx clear
+
+. file close _all
+
+. 
+. *** Setup document
+. putdocx begin, ///
+>         pagenum(decimal) ///
+>         footer(pfooter) ///
+>         pagesize(A4) ///
+>         font("Times new roman", 11, black)
+
+. putdocx paragraph, tofooter(pfooter)
+
+. putdocx text ("Page ")
+
+. putdocx pagenumber, bold
+
+. putdocx text (" of ")
+
+. putdocx pagenumber, totalpages bold
+
+. 
+. * Settings for headings
+. local fontHeading1 = `"font("Times new roman", 15, black)"'
+
+. local fontHeading2 = `"font("Times new roman", 13, black)"'
+
+. 
+. 
+. 
+. *** Figures
+. local figno = 0
+
+. 
+. putdocx paragraph, style(Heading1) `fontHeading1'
+
+. putdocx text ("Figures and Tables")
+
+. 
+. ** SIR overall
+. local figno = `figno'+1
+
+. putdocx paragraph, style(Heading2) `fontHeading2'
+
+. putdocx text ("Figure `figno' - Standardized Incidence Rates of PPGL in Denmark, 1977-${lastyear}")
+
+. putdocx paragraph, halign(center)
+
+. putdocx image results/FigSirByYear${exportformat}, height(5 in)
+
+. putdocx paragraph
+
+. putdocx text ("Notes: "), bold
+
+. putdocx text  ("Annual incidence rates of PPGL patients diagnosed in Denmark. Incidence rates are age-standardized to the European Standard Population 2013.")
+
+. 
+. 
+. ** IR by age
+. local figno = `figno'+1
+
+. putdocx paragraph, style(Heading2) `fontHeading2'
+
+. putdocx text ("Figure `figno' - Crude Incidence Rates of PPGL by Age")
+
+. putdocx paragraph, halign(center)
+
+. putdocx image results/FigIrByAge${exportformat}, height(5 in)
+
+. putdocx paragraph
+
+. putdocx text ("Notes: "), bold
+
+. putdocx text  ("Annual crude incidence rates of new PPGL patients diagnosed in Denmark by age at diagnosis. Incidence rates are reported in 10-year averages.")
+
+. 
+. 
+. ** Prevalence
+. local figno = `figno'+1
+
+. putdocx pagebreak
+
+. putdocx paragraph, style(Heading2) `fontHeading2'
+
+. putdocx text ("Figure `figno' - Standardized Prevalence Patients with Previous or Current PPGL in Denmark, 1977-${lastyear}")
+
+. putdocx paragraph, halign(center)
+
+. putdocx image results/FigPrevByYear${exportformat}, height(5 in)
+
+. putdocx paragraph
+
+. putdocx text ("Notes: "), bold
+
+. putdocx text  ("Prevalence of PPGL patients living in Denmark December 31st each year. Patients are considered prevalent from date of diagnosis until death or emigration
+> . Prevalences are age-standardized to the European Standard Population 2013. Most PPGL patients diagnosed before 1977 were likely missed, which explain the low prevalenc
+> e in the beginning of the study period.")
+
+. 
+. 
+. ** SIR by MoD, symptoms, and Tumor size
+. local figno = `figno'+1
+
+. putdocx pagebreak
+
+. putdocx paragraph, style(Heading2) `fontHeading2' spacing(after, 0.1)
+
+. putdocx text ("Figure `figno' - Standardized Incidence Rates of PPGL by A) Mode of Discovery, B) Symptoms at Presentation, and C) Tumor Size")
+
+. 
+. putdocx paragraph, halign(center) spacing(after, 0.1) spacing(before, 0.1)
+
+. putdocx text ("A"), linebreak
+
+. putdocx image results/FigSirByMod${exportformat}, height(2.5 in) linebreak
+
+. putdocx text ("B"), linebreak
+
+. putdocx image results/FigSirBySymp${exportformat}, height(2.5 in) linebreak
+
+. putdocx text ("C"), linebreak
+
+. putdocx image results/FigSirBySize${exportformat}, height(2.5 in)
+
+. 
+. putdocx paragraph, spacing(after, 0)
+
+. putdocx text ("Notes: "), bold
+
+. putdocx text  ("Incidence rates in the North and Central Danish regions by A) mode of discovery, B) symptoms, and C) tumor size. Incidence rates are reported in 10-year 
+> means and age-standardized to the European Standard Population 2013. Mode of discovery and symptoms at presentation are defined in methods with details in Supplementary 
+> 2. Tumor size refers to the largest tumor diameter.")
+
+. 
+. 
+. *** Tables
+. local tabno = 0
+
+. 
+. 
+. ** PatChar by Period
+. local tabno = `tabno'+1
+
+. putdocx sectionbreak, landscape
+
+. putdocx paragraph, style(Heading2) `fontHeading2'
+
+. putdocx text ("Table `tabno' - Patient and Tumor Characteristics by Year of Diagnosis")
+
+. 
+. use results/TabCharByPeriod.dta, clear
+
+. 
+. * Add footnote symbols
+. replace rowname =  rowname + " *" if onlyavailable==1 // Clinical var only available in North/Central regions
+(9 real changes made)
+
+. 
+. ds cell_*
+cell_0  cell_1  cell_2  cell_3  cell_4
+
+. putdocx table tbl1 = data("rowname `r(varlist)'"), width(100%) layout(autofitcontents)
+
+. putdocx table tbl1(., .), ${tablecells} 
+
+. putdocx table tbl1(., 1), ${tablefirstcol}
+
+. putdocx table tbl1(1, .), ${tablefirstrow}
+
+. levelsof row if !mi(firstcol) & mi(seccol)
+3 6 12 20 25 30 34 39 43 48 52
+
+. putdocx table tbl1(`r(levels)', .), ${tablerows}
+
+. putdocx paragraph
+
+. putdocx text ("Abbreviations and symbols: "), bold
+
+. putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, PHEO, pheochromocytoma; PARA, paraganglioma; PPGL, pheochromocytoma and catecholamine-secreting 
+> paraganglioma; * Clinical data was only available for the North and Central Danish Regions (n=$Ncrnr)."), linebreak
+
+. putdocx text ("Notes: "), bold
+
+. putdocx text  (`"Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically d
+> iagnosed hereditary syndromes. "'), linebreak
+
+. putdocx text  (`"Reasons for missing clinical data: ${footnote_TabCharByPeriod_miss}."')
+
+. 
+. 
+. 
+. ** Prev By Sex and Age
+. local tabno = `tabno'+1
+
+. putdocx sectionbreak
+
+. putdocx paragraph, style(Heading2) `fontHeading2'
+
+. putdocx text ("Table `tabno' - Prevalence of Patients with Previous or Current PPGL per 1,000,000 persons at $lastyear by Sex and Age")
+
+. 
+. use results/TabPrevBySexAge.dta, clear
+
+. 
+. * Add footnote symbols
+. replace rowname =  rowname + " *" if inlist(grp, 0, -1, .)==0 // Age-specific (crude)
+(4 real changes made)
+
+. replace rowname =  rowname + " #" if grp==0 // Age-adjusted
+(1 real change made)
+
+. 
+. ds cell_*
+cell_0  cell_1  cell_2
+
+. putdocx table tbl1 = data("rowname `r(varlist)'"), width(100%) layout(autofitwindow)
+(note: table tbl1 has been redefined)
+
+. putdocx table tbl1(., .), ${tablecells} 
+
+. putdocx table tbl1(., 1), ${tablefirstcol}
+
+. putdocx table tbl1(1, .), ${tablefirstrow}
+
+. local x = _N
+
+. putdocx table tbl1(`x', .), ${tabletotalrow}
+
+. 
+. putdocx paragraph
+
+. putdocx text ("Abbreviations and symbols: "), bold
+
+. putdocx text  ("PPGL, pheochromocytoma and catecholamine-secreting paraganglioma; * Age-specific (i.e. crude) prevalence; # Age-standardized to the European Standard Pop
+> ulation 2013."), linebreak
+
+. putdocx text ("Notes: "), bold
+
+. putdocx text  (`"Prevalence of PPGL per 1,000,000 persons in Denmark at Dec 31 $lastyear (n=$Nprev) by sex and age. Patients were considered prevalent from diagnosis unt
+> il death or emigration. Patient age refers to their age at Dec 31 $lastyear and not age at diagnosis."')
+
+. 
+. 
+. 
+. *** Supplementary
+. local supno = 0
+
+. 
+. putdocx sectionbreak, landscape
+
+. putdocx paragraph, style(Heading1) `fontHeading1'
+
+. putdocx text ("Supplementary")
+
+. 
+. 
+. ** RECORD checklist (header only, table is manually copy/pasted)
+. local supno = `supno'+1
+
+. putdocx paragraph, style(Heading2) `fontHeading2'
+
+. putdocx text ("Supplementary `supno' - RECORD Checklist")
+
+. putdocx paragraph
+
+. 
+. 
+. ** Tab MoD details
+. local supno = `supno'+1
+
+. putdocx sectionbreak, landscape
+
+. putdocx paragraph, style(Heading2) `fontHeading2'
+
+. putdocx text ("Supplementary `supno' - Details on Mode of Discovery")
+
+. 
+. use results/TabModDetails.dta, clear
+(statsby: count)
+
+. ds cell_*
+cell_0  cell_1
+
+. putdocx table tbl1 = data("firstcol `r(varlist)'"), layout(autofitcontents)
+(note: table tbl1 has been redefined)
+
+. putdocx table tbl1(., .), ${tablecells}
+
+. putdocx table tbl1(., 1/3), ${tablefirstcol}
+
+. putdocx table tbl1(1, .), ${tablefirstrow}
+
+. levelsof row if !mi(firstcol) & row!=1
+2 6 13 16 19 24 30
+
+. putdocx table tbl1(`r(levels)', .), ${tablerows}
+
+. 
+. putdocx paragraph
+
+. putdocx text ("Abbreviations: "), bold
+
+. putdocx text  ("CT, computed tomography; MEN, multiple endocrine neoplasia; MRI, magnetic resonance imaging; NF1, neurofibromatosis type 1; SDH, succinate dehydrogenase;
+>  US, ultrasound; vHL, von Hippel-Lindau."), linebreak
+
+. putdocx text ("Notes: "), bold
+
+. putdocx text  ("Details on mode of discovery were available for $Nmod out of $Ncrnr patients diagnosed in North and Central Danish ($Nmodmiss had missing records). Adren
+> al incidentaloma as defined by recent guidelines (Fassnacht M, Arlt W, Bancos I, Dralle H, Newell-Price J, Sahdev A, et al. Management of adrenal incidentalomas: Europea
+> n Society of Endocrinology Clinical Practice Guideline in collaboration with the European Network for the Study of Adrenal Tumors. Eur J Endocrinol. 2016 Aug 1;175(2):G1
+> –34.).")
+
+. 
+. 
+. ** Fig Histogram AgeOverall, AgeBySex and AgeByMod
+. local supno = `supno'+1
+
+. putdocx sectionbreak
+
+. putdocx paragraph, style(Heading2) `fontHeading2'
+
+. putdocx text ("Supplementary `supno' - Age at Diagnosis A) Overall, B) by Sex, and C) by Mode of Discovery")
+
+. 
+. putdocx paragraph, halign(center) spacing(after, 0.1) spacing(before, 0.1)
+
+. putdocx text ("A"), linebreak
+
+. putdocx image results/FigAgeOverall${exportformat}, height(2.3 in) linebreak
+
+. putdocx text ("B"), linebreak
+
+. putdocx image results/FigAgeBySex${exportformat}, height(2.3 in) linebreak
+
+. putdocx text ("C"), linebreak
+
+. putdocx image results/FigAgeByMod${exportformat}, height(2.3 in) 
+
+. 
+. putdocx paragraph, spacing(after, 0)
+
+. putdocx text ("Notes: "), bold
+
+. putdocx text  ("Histogram of age at diagnosis for PPGL patients. Figure A and B include all patients diagnosed with PPGL in Denmark (n=$Ninci) and figure C include only 
+> patients from North and Central Danish Regions (n=$Ncrnr). Mode of discovery is defined in methods with details in Supplementary 2.")
+
+. 
+. 
+. ** Fig IR by sex
+. local supno = `supno'+1
+
+. putdocx sectionbreak
+
+. putdocx paragraph, style(Heading2) `fontHeading2'
+
+. putdocx text ("Supplementary `supno' - Crude Incidence Rates by Sex")
+
+. putdocx paragraph, halign(center)
+
+. putdocx image results/FigIrBySex${exportformat}, height(5 in)
+
+. putdocx paragraph
+
+. putdocx text ("Notes: "), bold
+
+. putdocx text  ("Crude incidence rates of new PPGL patients diagnosed in Denmark by sex. Incidence rates are reported in 10-year averages.")
+
+. 
+. 
+. ** Fig SIR by region
+. local supno = `supno'+1
+
+. putdocx sectionbreak
+
+. putdocx paragraph, style(Heading2) `fontHeading2'
+
+. putdocx text ("Supplementary `supno' - Standardized Incidence Rates by Region")
+
+. putdocx paragraph
+
+. putdocx image results/FigSirByRegion${exportformat}, height(5 in)
+
+. putdocx paragraph
+
+. 
+. putdocx text ("Notes: "), bold
+
+. putdocx text  ("Incidence rates of PPGL in North and Central Region, where PPGL diagnosis was confirmed in medical records, compared to the remaining three Danish region
+> s, where the PPGL diagnosis was validated algorithm. Incidence rates are reported in 10-year averages and age-standardized to the European Standard Population 2013.")
+
+. 
+. 
+. ** PatChar by Mod
+. local supno = `supno'+1
+
+. putdocx sectionbreak, landscape
+
+. putdocx paragraph, style(Heading2) `fontHeading2'
+
+. putdocx text ("Supplementary `supno' - Patient and Tumor Characteristics by Mode of Discovery")
+
+. 
+. use results/TabCharByMod.dta, clear
+
+. 
+. ds cell_*
+cell_0  cell_1  cell_2  cell_3  cell_4  cell_5  cell_6  cell_7  cell_8
+
+. foreach var in `r(varlist)' {
+  2.         replace `var' = subinstr(`var', " (", "_p(", 1) if length(`var')>=13 & !mi(rowname) // add paragraph to wide cells (cells with median and range)
+  3. }
+(4 real changes made)
+(4 real changes made)
+variable cell_2 was str16 now str17
+(4 real changes made)
+variable cell_3 was str16 now str17
+(4 real changes made)
+variable cell_4 was str16 now str17
+(4 real changes made)
+(4 real changes made)
+variable cell_6 was str16 now str17
+(4 real changes made)
+variable cell_7 was str16 now str17
+(4 real changes made)
+variable cell_8 was str16 now str17
+(1 real change made)
+
+. 
+. putdocx table tbl1 = data("rowname `r(varlist)'"), width(100%) layout(autofitcontents)
+(note: table tbl1 has been redefined)
+
+. putdocx table tbl1(., .), ${tablecells} 
+
+. putdocx table tbl1(., 1), ${tablefirstcol}
+
+. putdocx table tbl1(1, .), ${tablefirstrow}
+
+. levelsof row if !mi(firstcol) & mi(seccol)
+3 6 12 17 22 26 31 35 40 44
+
+. putdocx table tbl1(`r(levels)', .), ${tablerows}
+
+. putdocx paragraph
+
+. putdocx text ("Abbreviations: "), bold
+
+. putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, PHEO, pheochromocytoma; PARA, paraganglioma; PPGL, pheochromocytoma and catecholamine-secreting 
+> paraganglioma. "), linebreak
+
+. putdocx text ("Notes: "), bold
+
+. putdocx text  (`"Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically d
+> iagnosed hereditary syndromes."'), linebreak
+
+. putdocx text  (`"Reasons for missing clinical data: ${footnote_TabCharByMod_miss}. Reasons for not undergoing surgery included$footnote_reasonnosurg."')
+
+. 
+. 
+. 
+. *** Save Figures and Tables report
+. putdocx save results/FigTablesCombined, replace
+successfully replaced "C:/Users/au335571/Forskning/2020-PPGL-incidence-prevalence-paper/results/FigTablesCombined.docx"
+
+. 
+. 
+. 
+. *** Combine and save text report
+. local files : dir "results" files "Text*.docx"
+
+. local textappend = ""
+
+. foreach file of local files {
+  2.         local textappend = "`textappend' results/`file'"
+  3. }
+
+. di "`textappend'"
+ results/textpatchar.docx results/textpatientflow.docx results/textprevlastyear.docx results/textsiroverall.docx
+
+. putdocx append `textappend', saving(results/ReportCombined, replace)
+successfully replaced "C:/Users/au335571/Forskning/2020-PPGL-incidence-prevalence-paper/results/ReportCombined.docx"
+
+. 
+end of do-file
+
+. 
+. 
+. file close _all
+
+. window manage close graph _all
+
+. log close
+      name:  <unnamed>
+       log:  C:\Users\au335571\Forskning\2020-PPGL-incidence-prevalence-paper\log/ 9 Nov 2020_submission.log
+  log type:  text
+ closed on:   9 Nov 2020, 14:25:36
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
