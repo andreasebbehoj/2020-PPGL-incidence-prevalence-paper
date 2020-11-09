@@ -46,14 +46,14 @@ putdocx paragraph, halign(center)
 putdocx image results/FigIrByAge${exportformat}, height(5 in)
 putdocx paragraph
 putdocx text ("Notes: "), bold
-putdocx text  ("Annual crude incidence rates of new PPGL patients diagnosed in Denmark by age at diagnosis.")
+putdocx text  ("Annual crude incidence rates of new PPGL patients diagnosed in Denmark by age at diagnosis. Incidence rates are reported in 10-year averages.")
 
 
 ** Prevalence
 local figno = `figno'+1
 putdocx pagebreak
 putdocx paragraph, style(Heading2) `fontHeading2'
-putdocx text ("Figure `figno' - Standardized Prevalence of PPGL in Denmark, 1977-${lastyear}")
+putdocx text ("Figure `figno' - Standardized Prevalence Patients with Previous or Current PPGL in Denmark, 1977-${lastyear}")
 putdocx paragraph, halign(center)
 putdocx image results/FigPrevByYear${exportformat}, height(5 in)
 putdocx paragraph
@@ -115,7 +115,7 @@ putdocx text  (`"Reasons for missing clinical data: ${footnote_TabCharByPeriod_m
 local tabno = `tabno'+1
 putdocx sectionbreak
 putdocx paragraph, style(Heading2) `fontHeading2'
-putdocx text ("Table `tabno' - Prevalence of PPGL per 1,000,000 persons at $lastyear by Sex and Age")
+putdocx text ("Table `tabno' - Prevalence of Patients with Previous or Current PPGL per 1,000,000 persons at $lastyear by Sex and Age")
 
 use results/TabPrevBySexAge.dta, clear
 
@@ -204,7 +204,7 @@ putdocx paragraph, halign(center)
 putdocx image results/FigIrBySex${exportformat}, height(5 in)
 putdocx paragraph
 putdocx text ("Notes: "), bold
-putdocx text  ("Crude incidence rates of new PPGL patients diagnosed in Denmark by sex.")
+putdocx text  ("Crude incidence rates of new PPGL patients diagnosed in Denmark by sex. Incidence rates are reported in 10-year averages.")
 
 
 ** Fig SIR by region
