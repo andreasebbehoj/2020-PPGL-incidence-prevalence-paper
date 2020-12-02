@@ -180,19 +180,17 @@ putdocx text  ("Details on mode of discovery were available for $Nmod out of $Nc
 local supno = `supno'+1
 putdocx sectionbreak
 putdocx paragraph, style(Heading2) `fontHeading2'
-putdocx text ("Supplementary `supno' - Age at Diagnosis A) Overall, B) by Sex, and C) by Mode of Discovery")
+putdocx text ("Supplementary `supno' - Age at Diagnosis A) by Sex and B) by Mode of Discovery")
 
 putdocx paragraph, halign(center) spacing(after, 0.1) spacing(before, 0.1)
 putdocx text ("A"), linebreak
-putdocx image results/FigAgeOverall${exportformat}, height(2.3 in) linebreak
-putdocx text ("B"), linebreak
 putdocx image results/FigAgeBySex${exportformat}, height(2.3 in) linebreak
-putdocx text ("C"), linebreak
+putdocx text ("B"), linebreak
 putdocx image results/FigAgeByMod${exportformat}, height(2.3 in) 
 
 putdocx paragraph, spacing(after, 0)
 putdocx text ("Notes: "), bold
-putdocx text  ("Histogram of age at diagnosis for PPGL patients. Figure A and B include all patients diagnosed with PPGL in Denmark (n=$Ninci) and figure C include only patients from North and Central Danish Regions (n=$Ncrnr). Mode of discovery is defined in methods with details in Supplementary 2.")
+putdocx text  ("Histogram of age at diagnosis for PPGL patients. Figure A includes all patients diagnosed with PPGL in Denmark (n=$Ninci) and figure B only includes patients from North and Central Danish Regions (n=$Ncrnr). Mode of discovery is defined in methods with details in Supplementary 2.")
 
 
 ** Fig IR by sex
