@@ -2,7 +2,7 @@ log using "log/`c(current_date)'_submission", replace text
 
 ***** 0_Master.do *****
 /*
-This do file runs the analysis for the paper on Incidence and Prevalence of PPGL by Ebbehoj et al, 2020.
+This do file runs the analysis for the paper on Incidence and Prevalence of PPGL by Ebbehoj A et al, 2020.
 
 The do-file is split in four sections:
 1) Stata setup
@@ -61,7 +61,7 @@ This section:
 */
 
 
-** Patient Characteristics 
+** Patient Characteristics
 do 4_TextCharDetails.do // details for text
 do 4_TabModDetails.do
 do 4_TabCharByPeriod.do // by period
@@ -74,7 +74,7 @@ do 4_AgeByMod.do // Age histogram overall and by mod
 do 4_SirOverall.do // average and details for text
 
 do 4_SirByYear.do // graph by year
-do 4_SirByRegion.do // graph by region and period 
+do 4_SirByRegion.do // graph by region and period
 
 do 4_SirByMod.do // graph by mode of discovery and period
 do 4_SirBySymp.do // graph by symptoms and period
