@@ -171,7 +171,7 @@ putdocx table tbl1(`r(levels)', .), ${tablerows}
 
 putdocx paragraph
 putdocx text ("Abbreviations: "), bold
-putdocx text  ("CT, computed tomography; MEN, multiple endocrine neoplasia; MRI, magnetic resonance imaging; NF1, neurofibromatosis type 1; SDH, succinate dehydrogenase; US, ultrasound; vHL, von Hippel-Lindau."), linebreak
+putdocx text  ("CT, computed tomography; FNA, fine-needle aspiration; MEN, multiple endocrine neoplasia; MRI, magnetic resonance imaging; NF1, neurofibromatosis type 1; SDH, succinate dehydrogenase; US, ultrasound; vHL, von Hippel-Lindau."), linebreak
 putdocx text ("Notes: "), bold
 putdocx text  ("Details on mode of discovery were available for $Nmod out of $Ncrnr patients diagnosed in North and Central Danish ($Nmodmiss had missing records). Adrenal incidentaloma as defined by recent guidelines (Fassnacht M, Arlt W, Bancos I, Dralle H, Newell-Price J, Sahdev A, et al. Management of adrenal incidentalomas: European Society of Endocrinology Clinical Practice Guideline in collaboration with the European Network for the Study of Adrenal Tumors. Eur J Endocrinol. 2016 Aug 1;175(2):G1–34.).")
 
