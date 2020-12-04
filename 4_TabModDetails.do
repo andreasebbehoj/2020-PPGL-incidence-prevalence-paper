@@ -132,7 +132,7 @@ foreach gene of local genes {
 local textgenes = reverse(subinstr(subinstr(reverse("`textgenes'"), " ,", "", 1)), ",", "dna ,", 1)
 di "`textgenes'"
 
-replace mod_textdetails = "Diagnosed during work-up or regular control for predisposing mutation or syndrome in `textgenes'." if mod==40
+replace mod_textdetails = "Diagnosed during work-up or regular control for predisposing mutation or syndrome in `textgenes'. One patient had a biopsy of a swelling on the neck, which turned out to be a paraganglioma." if mod==40
 
 
 ** Familial disposition
@@ -175,23 +175,23 @@ replace mod_textdetails = "Diagnosed with adrenal incidentaloma 7 years before d
 
 ** Other
 capture: log off
-slist id mod mod_special mod_biopsy mod_preopdiag mod_comm if inrange(mod, 60, 69)
+slist id mod procedures mod_special mod_biopsy mod_preopdiag mod_comm if inrange(mod, 60, 69)
 capture: log on
 
 * Bsymp
-replace mod_textdetails = "Evaluated for B-symptoms (weight loss, fatigue, unexplained fever, and excessive sweating). One patient was diagnosed with benign paraganglioma (causing activation of brown adipose tissue and excessive sweating), one was patient diagnosed with paraganglioma with central necrosis (causing fever), one patient was diagnosed with metastatic pheochromocytoma, and two patients were operated on suspicion of renal or pancreatic cancer, which turned out to be benign pheochromocytomas." if mod==60
+replace mod_textdetails = "Evaluated for B-symptoms (weight loss, fatigue, unexplained fever, and excessive sweating). One patient was diagnosed with benign paraganglioma (causing activation of brown adipose tissue and excessive sweating), one was patient diagnosed with paraganglioma with central necrosis (causing fever), one patient was diagnosed with metastatic pheochromocytoma, one patient diagnosed with pheochromocytoma after surgery on suspicion of renal cancer, and one patient diagnosed with pheochromocytoma after biopsy of and surgery on suspicion of pancreatic cancer." if mod==60
 
 * Abdominal mass
 replace mod_textdetails = "Evaluated for large palpable abdominal mass. Patient was operated on suspicion of unknown cancer, which turned out to be a giant pheochromocytoma (approximate 30 cm). Patient was later diagnosed with multiple PPGL metastases." if mod==61
 
 * Acute abdomen caused by pheo
-replace mod_textdetails = "Evaluated for acute abdominal pain. Abdominal pain was eventually attributed to ruptured pheochromocytoma (n=1), pheochromocytoma with hemorrhage and necrosis (n=1), necrotic intestines due to catecholamine storm (n=1), widespread metastatic pheochromocytoma (n=1), and paroxysmal symptoms of catecholamine-excess (n=1)." if mod==62
+replace mod_textdetails = "Evaluated for acute abdominal pain. Abdominal pain was eventually attributed to ruptured pheochromocytoma (n=1), pheochromocytoma with hemorrhage and necrosis (n=1), necrotic intestines due to catecholamine storm (n=1), widespread metastatic pheochromocytoma (n=1), and paroxysmal symptoms of catecholamine-excess (n=1). Of these patient, one underwent biopsy before PPGL diagnosis, one underwent surgical removal of PPGL during emergency laparotomy, and one underwent both FNA and surgical removal of tumor before PPGL was diagnosed." if mod==62
 
 * Ectopic ACTH
 replace mod_textdetails = "Evaluated for symptoms of cortisol-excess and diagnosed with ACTH-producing pheochromocytoma." if mod==63
 
 * Abdominal paraganglioma "incidentaloma"
-replace mod_textdetails = "Diagnosed due to an incidentally found peri-adrenal paraganglioma." if mod==64
+replace mod_textdetails = "Diagnosed due to an incidentally found peri-adrenal paraganglioma. Paraganglioma biopsied before biochemical work-up." if mod==64
 
 * Heart failure
 replace mod_textdetails = "Evaluated for acute myocardial infarction and heart failure. Chest x-ray show impression of large tumor, which is biopsied twice and removed of suspicion of renal cancer. Pathologist diagnose a benign pheochromocytoma. Heart failure is eventually attributed to Takutsubo myopathy in combination with myocardial infarction." if mod==66
