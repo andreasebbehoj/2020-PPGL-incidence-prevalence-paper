@@ -1,5 +1,5 @@
 ***** 4_TextPatCharDetails.do *****
-use data/cohort_ppgl.dta, clear
+use data/cohort_pid.dta, clear
 
 keep if ppgl_incident==1 & cohort_simple==1
 
@@ -175,6 +175,8 @@ foreach var in any mets prim local {
 ** Genetic 
 putdocx paragraph, style(Heading2)
 putdocx text ("Genetic details")
+
+* Hereditary syndromes
 putdocx paragraph
 putdocx text ("Mutations and syndromes included:")
 putdocx paragraph, indent(left, 0.5) spacing(line, 0.2)
@@ -187,5 +189,13 @@ foreach grp in `r(levels)' {
 	putdocx text ("`r(N)' `grplabel'"), linebreak
 }
 
+* Genetic tests
+putdocx paragraph
+putdocx text ("Patients were tested for:")
+putdocx paragraph, indent(left, 0.5) spacing(line, 0.2)
+foreach gene in RET MEN1 VHL SDH NF {
+	qui: count if strpos(gen_tested, "`gene'")
+	putdocx text ("`r(N)' `gene'"), linebreak
+}
 
 putdocx save results/TextPatChar, replace
