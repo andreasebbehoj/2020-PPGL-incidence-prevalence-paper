@@ -35,6 +35,7 @@ graph bar (count), over(age10y) ///
 	ytitle("N") ylabel(0(25)125) ///
 	b1title(Age at diagnosis) // x-axis
 graph export results/FigAgeOverall${exportformat} ${exportoptions}
+graph export results/FigAgeOverall${exportvector} 
 
 ** By sex
 graph bar (count),  over(sex) over(age10y) stack asyvars ///
@@ -43,6 +44,7 @@ graph bar (count),  over(sex) over(age10y) stack asyvars ///
 	ytitle("N") ylabel(0(25)125) ///
 	b1title(Age at diagnosis) // x-axis
 graph export results/FigAgeBySex${exportformat} ${exportoptions}
+graph export results/FigAgeBySex${exportvector}
 
 ** By modcat
 * Reverse legend order
@@ -68,3 +70,4 @@ graph bar (count) if cohort_simple==1,  over(modcat) over(age10y) stack asyvars 
 	ytitle("N") ylabel(0(10)50) ///
 	b1title(Age at diagnosis) // x-axis
 graph export results/FigAgeByMod${exportformat} ${exportoptions}
+graph export results/FigAgeByMod${exportvector}

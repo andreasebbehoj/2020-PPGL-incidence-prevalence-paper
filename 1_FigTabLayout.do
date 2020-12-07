@@ -65,6 +65,7 @@ global bar8_8 = `" fcolor(white) lcolor(black) lpattern(solid) lalign(inside)"'
 graph set eps logo off
 global exportformat = ".png"
 global exportoptions = ", replace width(1200)"
+global exportvector = ".eps, replace"
 
 
 ***** Tables

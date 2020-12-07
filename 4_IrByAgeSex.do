@@ -54,7 +54,7 @@ twoway `twoway', ///
 	ylabel(0(1)10) ///
 	ytitle("IR" "per 1,000,000 years") //
 graph export results/FigIrByAge${exportformat} ${exportoptions}
-
+graph export results/FigIrByAge${exportvector}
 
 *** Graph by sex
 * Change to SIR per million
@@ -91,3 +91,4 @@ twoway `twoway', ///
 	ylabel(0(1)10) ///
 	ytitle("IR" "per 1,000,000 years") //
 graph export results/FigIrBySex${exportformat} ${exportoptions}
+graph export results/FigIrBySex${exportvector}

@@ -115,7 +115,7 @@ twoway ///
 	/// ylabel(0(1)10) ///
 	ytitle("Age-standardized prevalence" "per 1,000,000 years") //
 graph export results/FigPrevByYear${exportformat} ${exportoptions}
-
+graph export results/FigPrevByYear${exportvector}
 
 * Text (prevalence at end of study)
 local prev = string(round(prev_yAdjusted[_N], 0.1), "%3.1f") /// estimate

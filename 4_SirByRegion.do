@@ -62,3 +62,4 @@ twoway `twoway', ///
 	ylabel(0(1)10) ///
 	ytitle("SIR" "per 1,000,000 years") //
 graph export results/FigSirByRegion${exportformat} ${exportoptions}
+graph export results/FigSirByRegion${exportvector}

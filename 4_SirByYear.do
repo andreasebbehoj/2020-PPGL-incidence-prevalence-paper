@@ -41,7 +41,7 @@ twoway ///
 	ylabel(0(1)10) ///
 	ytitle("Age-standardized IR" "per 1,000,000 years") //
 graph export results/FigSirByYear${exportformat} ${exportoptions}
-
+graph export results/FigSirByYear${exportvector}
 
 ** Text
 * SIR first to last year
