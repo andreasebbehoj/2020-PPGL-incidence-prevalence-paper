@@ -1,4 +1,4 @@
-log using "log/`c(current_date)'_submission", replace text
+log using "log/`c(current_date)'_resubmission", replace text
 
 ***** 0_Master.do *****
 /*
