@@ -10,4 +10,4 @@ The purpose of this repository is to provide transparency about the analysis and
 Jun 15, 2020: Initialized repository
 Nov 09, 2020: Submitted paper to JCEM
 Dec 01, 2020: Received reviewer comments
-Dec 07, 2020: Resubmitted revised paper to JCEM
+Dec 08, 2020: Resubmitted revised paper to JCEM
