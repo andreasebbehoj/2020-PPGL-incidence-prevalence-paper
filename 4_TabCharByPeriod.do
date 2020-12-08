@@ -7,7 +7,7 @@ global footnote_TabCharByPeriod_miss = ""
 label define period10y_ 0 "Total", modify
 local collist = "0 1 2 3 4"
 
-* Total N per column
+* N total cohort per column
 foreach col of local collist {
 	local label`col' : label period10y_ `col'
 	if `col'==0 {
@@ -18,6 +18,19 @@ foreach col of local collist {
 	}
 	local coltotal_`col' = `r(N)'
 	di " `col' - `label`col'' (n=`coltotal_`col'')"
+}
+
+* N clinical cohort per column
+foreach col of local collist {
+	local label`col' : label period10y_ `col'
+	if `col'==0 {
+		qui: count if cohort_simple==1
+	}
+	else {
+		qui: count if period10y==`col' & cohort_simple==1
+	}
+	local colclin_`col' = `r(N)'
+	di " `col' - `label`col'' (n=`colclin_`col'')"
 }
 
 ** Categorical vars
@@ -136,7 +149,7 @@ foreach var in age sizemax biomax sympyears { //
 }
 
 ** Combining results
-* Headings and N 
+* Headings and N total cohort
 drop _all
 qui: set obs 2
 gen var = " "
@@ -146,6 +159,15 @@ foreach col of local collist {
 	di " `col' - `label`col''"
 	qui: gen cell_`col' = "`label`col''" if _n==1
 	qui: replace cell_`col' = "`coltotal_`col''" if _n==2
+}
+* N clinical cohort
+qui: set obs 3
+replace var = " " if _n==3
+qui: replace firstcol = "Patients with clinical data, n " if _n==3
+qui: replace seccol = " " if _n==3
+foreach col of local collist {
+	di " `col' - `label`col''"
+	qui: replace cell_`col' = "`colclin_`col''" if _n==3
 }
 
 * Appending results

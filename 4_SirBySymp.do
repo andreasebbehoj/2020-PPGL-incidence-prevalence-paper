@@ -72,3 +72,4 @@ graph bar (first) sirAdjusted, over(Symptoms) over(Period) ///
 	ytitle("Age-standardized IR" "per 1,000,000 years") ///
 	ylabel(0/5)
 graph export results/FigSirBySymp${exportformat} ${exportoptions}
+graph export results/FigSirBySymp${exportvector}

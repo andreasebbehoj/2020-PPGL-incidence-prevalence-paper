@@ -107,7 +107,7 @@ putdocx text ("Abbreviations and symbols: "), bold
 putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, PHEO, pheochromocytoma; PARA, paraganglioma; PPGL, pheochromocytoma and catecholamine-secreting paraganglioma; * Clinical data was only available for the North and Central Danish Regions (n=$Ncrnr)."), linebreak
 putdocx text ("Notes: "), bold
 putdocx text  (`"Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes. "'), linebreak
-putdocx text  (`"Reasons for missing clinical data: ${footnote_TabCharByPeriod_miss}."')
+putdocx text  (`"Percentages were calculated out of patients with non-missing data. Reasons for missing clinical data: ${footnote_TabCharByPeriod_miss}."')
 
 
 
@@ -171,7 +171,7 @@ putdocx table tbl1(`r(levels)', .), ${tablerows}
 
 putdocx paragraph
 putdocx text ("Abbreviations: "), bold
-putdocx text  ("CT, computed tomography; MEN, multiple endocrine neoplasia; MRI, magnetic resonance imaging; NF1, neurofibromatosis type 1; SDH, succinate dehydrogenase; US, ultrasound; vHL, von Hippel-Lindau."), linebreak
+putdocx text  ("CT, computed tomography; FNA, fine-needle aspiration; MEN, multiple endocrine neoplasia; MRI, magnetic resonance imaging; NF1, neurofibromatosis type 1; SDH, succinate dehydrogenase; US, ultrasound; vHL, von Hippel-Lindau."), linebreak
 putdocx text ("Notes: "), bold
 putdocx text  ("Details on mode of discovery were available for $Nmod out of $Ncrnr patients diagnosed in North and Central Danish ($Nmodmiss had missing records). Adrenal incidentaloma as defined by recent guidelines (Fassnacht M, Arlt W, Bancos I, Dralle H, Newell-Price J, Sahdev A, et al. Management of adrenal incidentalomas: European Society of Endocrinology Clinical Practice Guideline in collaboration with the European Network for the Study of Adrenal Tumors. Eur J Endocrinol. 2016 Aug 1;175(2):G1–34.).")
 
@@ -180,19 +180,17 @@ putdocx text  ("Details on mode of discovery were available for $Nmod out of $Nc
 local supno = `supno'+1
 putdocx sectionbreak
 putdocx paragraph, style(Heading2) `fontHeading2'
-putdocx text ("Supplementary `supno' - Age at Diagnosis A) Overall, B) by Sex, and C) by Mode of Discovery")
+putdocx text ("Supplementary `supno' - Age at Diagnosis A) by Sex and B) by Mode of Discovery")
 
 putdocx paragraph, halign(center) spacing(after, 0.1) spacing(before, 0.1)
 putdocx text ("A"), linebreak
-putdocx image results/FigAgeOverall${exportformat}, height(2.3 in) linebreak
-putdocx text ("B"), linebreak
 putdocx image results/FigAgeBySex${exportformat}, height(2.3 in) linebreak
-putdocx text ("C"), linebreak
+putdocx text ("B"), linebreak
 putdocx image results/FigAgeByMod${exportformat}, height(2.3 in) 
 
 putdocx paragraph, spacing(after, 0)
 putdocx text ("Notes: "), bold
-putdocx text  ("Histogram of age at diagnosis for PPGL patients. Figure A and B include all patients diagnosed with PPGL in Denmark (n=$Ninci) and figure C include only patients from North and Central Danish Regions (n=$Ncrnr). Mode of discovery is defined in methods with details in Supplementary 2.")
+putdocx text  ("Histogram of age at diagnosis for PPGL patients. Figure A includes all patients diagnosed with PPGL in Denmark (n=$Ninci) and figure B only includes patients from North and Central Danish Regions (n=$Ncrnr). Mode of discovery is defined in methods with details in Supplementary 2.")
 
 
 ** Fig IR by sex
@@ -244,7 +242,7 @@ putdocx text ("Abbreviations: "), bold
 putdocx text  ("CA, catecholamines; E, epinephrine; NE, nor-epinephrine, PHEO, pheochromocytoma; PARA, paraganglioma; PPGL, pheochromocytoma and catecholamine-secreting paraganglioma. "), linebreak
 putdocx text ("Notes: "), bold
 putdocx text  (`"Tumor size refers to the largest tumor diameter. Hereditary PPGL includes both patients with genetically confirmed pathogenic mutations and clinically diagnosed hereditary syndromes."'), linebreak
-putdocx text  (`"Reasons for missing clinical data: ${footnote_TabCharByMod_miss}. Reasons for not undergoing surgery included$footnote_reasonnosurg."')
+putdocx text  (`"Percentages were calculated out of patients with non-missing data. Reasons for missing clinical data: ${footnote_TabCharByMod_miss}. Reasons for not undergoing surgery included$footnote_reasonnosurg."')
 
 
 
